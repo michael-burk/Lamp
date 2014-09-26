@@ -113,7 +113,7 @@
         
 
                 
-                $.getJSON( "room_large.json", function( data ) {
+                $.getJSON( "LOGFILE.json", function( data ) {
                     pointData = data;
                     check();
                 });   
@@ -133,9 +133,9 @@
                     
                   for ( var i = 0; i < positions.length; i += 3 ) {
                    
-                    var x = pointData.points[i].x;
-                    var y = pointData.points[i].y - 200;
-                    var z = pointData.points[i].z;
+                    var x = pointData.points[i].x * .1;
+                    var y = pointData.points[i].y * .1;
+                    var z = pointData.points[i].z * .1;
 
           					positions[ i ]     = x;
           					positions[ i + 1 ] = y;
