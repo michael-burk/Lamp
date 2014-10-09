@@ -81,7 +81,9 @@
       var pointData = new Object;
       var particlesCount; 
       var positions;
-      var particleGeo ;
+      var particleGeo;
+
+			var mouseX;
       	
 			function init() {
 			  
@@ -89,8 +91,8 @@
 	      
         projector = new THREE.Projector();
         
-				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.z = 10;
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 1000;
         
         
 				controls = new THREE.OrbitControls( camera );
@@ -110,19 +112,20 @@
 				// world
           
 				var geometry = new THREE.BoxGeometry( 2, 2, 2, 2, 2 );
-        
+        var distanceMap;
 
                 
-                $.getJSON( "LOGFILE.json", function( data ) {
+                $.getJSON( "LOGFILE_13.json", function( data ) {
                     pointData = data;
                     check();
                 });   
+
+								var zeroCounter = 0;
                        
                 function check() {
                   
                     particlesCount = Math.floor(Object.size(pointData.points) / 3);
             			
-
             				positions = new Float32Array( particlesCount * 3 );
             				var colors = new Float32Array( particlesCount * 3 );
 
@@ -130,38 +133,79 @@
 
             				var n = 1000, n2 = n / 2; // particles spread in the cube
                     				
-                    
+                    console.log(positions.length);
+										
+										
                   for ( var i = 0; i < positions.length; i += 3 ) {
-                   
-                    var x = pointData.points[i].x * .1;
-                    var y = pointData.points[i].y * .1;
-                    var z = pointData.points[i].z * .1;
+			
+                    if(pointData.points[i] == undefined && i <=  positions.length){
+											console.log("something is wrong in the data at: " + i);
+											continue;
+                    }
 
-          					positions[ i ]     = x;
-          					positions[ i + 1 ] = y;
-          					positions[ i + 2 ] = z;
+									 //console.log(i);
+									 //console.log(pointData[i]);
+										// Point on XZ Plane
+										var x = pointData.points[i].x * Math.cos(pointData.points[i].y*(Math.PI/180));
+										var y = 0;
+										var z = pointData.points[i].x * Math.sin(pointData.points[i].y*(Math.PI/180));
+										
+										
+										// Eliminate zero dots
+										if(y + x + z == 0){
+											y = 500000;
+											x = 500000;
+											z = 500000;
+											zeroCounter ++;
+										}
+										
+										
+										var angle = (map(pointData.points[i].z, 212, 812, 0, 180))*(Math.PI/180);
+										
+										//Translate Point
+										 x -= 40 * Math.cos(angle);
+										 y -= 40 * Math.sin(angle);
+										 z -= 0;
+										
+										// Rotate Point around Z Axis
+										
+										x1 = x * Math.cos(angle) - y * Math.sin(angle);
+										y1 = x * Math.sin(angle) + y * Math.cos(angle);
+										z1 = z;
+										
+
+										positions[ i ]     = y1 * .1;
+										positions[ i + 1 ] = x1 * .1;
+										positions[ i + 2 ] = z1 * .1;
 
           					// colors
-
           					var vx = ( x / n ) + 0.5;
           					var vy = ( y / n ) + 0.5;
           					var vz = ( z / n ) + 0.5;
 
-          				//	color.setRGB( vx, vy, vz );
-          					color.setRGB( 0, 0, 0 );
+          					var colorMapR = map(pointData.points[i].x, 0, 3000, .5, 0);
+										var colorMapG = map(pointData.points[i].x, 0, 3000, 0, .5);
+										var colorMapB = map(pointData.points[i].x, 0, 5000, .5, 0);
+
+										//colorMap = .5;
+          					color.setRGB( colorMapR,colorMapR,colorMapB );
 
           					colors[ i ]     = color.r;
           					colors[ i + 1 ] = color.g;
           					colors[ i + 2 ] = color.b;
 
+									//	distanceMap = map(pointData.points[i].x, 0, 3000, 1, 300);
+
           				}
+										console.log("zero Measurements: " + zeroCounter);
           				
           					particleGeo.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
             				particleGeo.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
 
             				particleGeo.computeBoundingSphere();
 
-
+									
+										
             				var material = new THREE.PointCloudMaterial( { size: 3, vertexColors: THREE.VertexColors } );
 
             				particleSystem = new THREE.PointCloud( particleGeo, material );
@@ -261,6 +305,8 @@
 				// Create Camera Vector
         cameraVector.applyQuaternion( camera.quaternion );
          
+				mouseX = event.clientX;
+				//console.log(event.clientX)
 				// Mouse Position on Screen (Worldpos?)
          var mv = new THREE.Vector3(
              (event.clientX / window.innerWidth) * 2 - 1,
@@ -307,7 +353,10 @@
 
 
 			}
-
+			
+			function map(x,a,b,c,d){
+				return (x-a)/(b-a) * (d-c) + c;
+			}
 			
 			// animation loop
 			function update() {
