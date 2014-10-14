@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel=stylesheet href="css/base.css"/>
 </head>
-<body>
+<body style="overflow:hidden">
 
 
 <script src="js/Three.js"></script>
@@ -139,10 +139,10 @@ function init()
 	camera.lookAt(scene.position);	
 	
 	// RENDERER
-	if ( Detector.webgl )
+//	if ( Detector.webgl )
 		renderer = new THREE.WebGLRenderer( {antialias:true} );
-	else
-	renderer = new THREE.CanvasRenderer(); 
+	//else
+	//renderer = new THREE.CanvasRenderer(); 
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
@@ -155,6 +155,7 @@ function init()
     $(window).mousemove(onMouseMove);
     $(window).mousedown(onMouseMove);    
   });
+	window.addEventListener( 'resize', onWindowResize, false );
 
 	
 	// CONTROLS
@@ -241,40 +242,37 @@ function init()
 		 loop:		
      for ( var i = 0; i < particlesCount * 3; i += 3 ) {
        
-    
-
-				
       	if(pointData.points[i] == undefined && i <=  particlesCount * 3){
 					console.log("something is wrong in the data at: " + i);
 					continue;
        }
 
-
-
-
 				// Point on XZ Plane
 				var x = pointData.points[i].x * Math.cos(pointData.points[i].y*(Math.PI/180));
 				var y = 0;
 				var z = pointData.points[i].x * Math.sin(pointData.points[i].y*(Math.PI/180));
-				
 
-        
-        
 				// Eliminate zero dots
 				if(y + x + z == 0){ 
 			    continue;
-					y = 500000;
-					x = 500000;
-					z = 500000;
-					zeroCounter ++;
+          // y = 500000;
+          // x = 500000;
+          // z = 500000;
+          // zeroCounter ++;
 				}
-				 vertexCounter ++;
+				
+				// Distance Threshold
+        // if(pointData.points[i].x >= 5000){
+        //   continue;
+        // }
+				
+				vertexCounter ++;
 				
 				var angle = (map(pointData.points[i].z, 212, 812, 0, 180))*(Math.PI/180);
 				
 				//Translate Point
-				 x -= 40 * Math.cos(angle);
-				 y -= 40 * Math.sin(angle);
+				 x -= 50 * Math.cos(angle);
+				 y -= 50 * Math.sin(angle);
 				 z -= 0;
 				
 				// Rotate Point around Z Axis
@@ -441,7 +439,15 @@ function render()
 {
 	renderer.render( scene, camera );
 }
+function onWindowResize() {
 
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+
+}
 </script>
 
 </body>
