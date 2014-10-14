@@ -33,7 +33,7 @@ void main()
 {
 	vColor = customColor; // set color associated to vertex; use later in fragment shader
 	vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-	gl_PointSize = customSize * 8.0 * ( 10.0 / length( mvPosition.xyz ) );
+	gl_PointSize = sin(time) * customSize * 8.0 * ( 10.0 / length( mvPosition.xyz ) );
 	gl_Position = projectionMatrix * mvPosition;
 }
 </script>
@@ -79,21 +79,33 @@ void main()
 var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
-// custom global variables
+
+// global variables
 var cube;
 var zeroCounter = 0;
 var particleGeo = new THREE.Geometry();
-//var positions;
-//var colors;
 var vertexCounter = 0;
 
 init();
 animate();
 
+var mouseGeo = new THREE.SphereGeometry( 1, 36, 36);
+direction = new THREE.Vector3( 1, 0, 0 );
+myRaycaster = new THREE.Raycaster(camera.position, direction);
 
-	function map(x,a,b,c,d){
+
+var cameraVector = new THREE.Vector3( 0, 0, -1 );
+var new_pos = new THREE.Vector3( 0, 0, 0 );
+var new_pos2 = new THREE.Vector3( 0, 0, 0 );
+var raycaster;
+var planeZ = new THREE.Plane(cameraVector, 0);
+
+
+// FUNCTIONS
+ 	
+function map(x,a,b,c,d){
 		return (x-a)/(b-a) * (d-c) + c;
-	}
+}
 	
 	
 Object.size = function(obj) {
@@ -106,11 +118,13 @@ Object.size = function(obj) {
 
  
  
-// FUNCTIONS 		
+	
 function init() 
 {
 	// SCENE
 	scene = new THREE.Scene();
+	
+	projector = new THREE.Projector();
 	
 	// CAMERA
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
@@ -132,6 +146,11 @@ function init()
 	// EVENTS
 	THREEx.WindowResize(renderer, camera);
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	$( document ).ready(function(){
+    $(window).keypress(onKeyDown);
+    $(window).mousemove(onMouseMove);
+  });
+
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -156,10 +175,27 @@ function init()
 	scene.add(skyBox);
 	scene.fog = new THREE.FogExp2( 0xeeeeee, 1 );
 	
+	// Mouse
 	
+	var pointerMaterial =  new THREE.MeshBasicMaterial( { color:0xffffff, transparent: true ,opacity: 0.5 } );
+ 
+	var mouseGeo = new THREE.SphereGeometry( 1, 36, 36);
+  var pointer = new THREE.Mesh( mouseGeo, pointerMaterial );
+
+  pointer.name = "pointer";
+  pointer.position.x = 10;
+  pointer.position.y = 10;
+  pointer.position.z = 10;
+  pointer.updateMatrix();
+  pointer.matrixAutoUpdate = false;
+  scene.add( pointer );
+  
 	////////////
 	// CUSTOM //
 	////////////
+	
+	var shaderMaterial;
+	var particleSystem;
 	
 	var cubeGeometry = new THREE.CubeGeometry( 50, 50, 50, 20, 20, 20 );
 	var discTexture = THREE.ImageUtils.loadTexture( 'disc.png' );
@@ -173,7 +209,7 @@ function init()
 	
 	// properties that may vary from particle to particle. only accessible in vertex shaders!
 	//	(can pass color info to fragment shader via vColor.)
-	var customAttributes = 
+	this.customAttributes = 
 	{
 		customColor:	 { type: "c", value: [] },
 		customFrequency: { type: 'f', value: [] },
@@ -192,9 +228,6 @@ function init()
           
    function check() {
         particlesCount = Math.floor(Object.size(pointData.points) / 3);
-			
-				//positions = new Float32Array( particlesCount * 3 );
-				//colors = new Float32Array( particlesCount * 3 );
 
 				var color = new THREE.Color();
 	
@@ -236,10 +269,6 @@ function init()
 				z1 = z;
 				
 
-				//positions[ i ]     = y1 * .1;
-				//positions[ i + 1 ] = x1 * .1;
-				//positions[ i + 2 ] = z1 * .1;
-
 				var colorMapR = map(pointData.points[i].x, 0, 8000, .5, 0);
 				var colorMapG = map(pointData.points[i].x, 0, 3000, 0, .5);
 				var colorMapB = map(pointData.points[i].x, 0, 8000, .5, 0);
@@ -247,9 +276,6 @@ function init()
 
         var newColor = new THREE.Color( 0xffffff );
         newColor.setRGB(colorMapR,colorMapG,colorMapB);
-        
-				//colors[i]= newColor;
-
         
         particleGeo.vertices.push(
            new THREE.Vector3( y1 * 0.001, 	x1 * 0.001, 	z1 * 0.001)                
@@ -261,7 +287,7 @@ function init()
 			}
 		
 
-    	var shaderMaterial = new THREE.ShaderMaterial( 
+    	this.shaderMaterial = new THREE.ShaderMaterial( 
     	{
     		uniforms: 		customUniforms,
     		attributes:		customAttributes,
@@ -272,15 +298,86 @@ function init()
     	});
     	
     	
-      var particleCube = new THREE.ParticleSystem( particleGeo, shaderMaterial );
-    	particleCube.position.set(0, 0, 0);
-    	particleCube.dynamic = true;
-    	particleCube.frustrumCulled = true;
-    	particleCube.sortParticles = false;
-    	scene.add( particleCube );
+      this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
+    	this.particleSystem.position.set(0, 0, 0);
+    	this.particleSystem.dynamic = true;
+    	this.particleSystem.frustrumCulled = true;
+    	this.particleSystem.sortParticles = false;
+    	scene.add( this.particleSystem );
 		}
 
 }
+
+function onMouseMove(event){
+  
+	// Create Camera Vector
+  cameraVector.applyQuaternion( camera.quaternion );
+   
+	mouseX = event.clientX;
+	//console.log(event.clientX)
+	// Mouse Position on Screen (Worldpos?)
+   var mv = new THREE.Vector3(
+       (event.clientX / window.innerWidth) * 2 - 1,
+       -(event.clientY / window.innerHeight) * 2 + 1,
+       0.5 );
+     
+	//New Projector Class picking ray
+   raycaster = projector.pickingRay(mv, camera);
+
+   var pos = raycaster.ray.intersectPlane(planeZ);
+
+
+     // Position object near camera - move it along vector between camera and calculated
+     // pos
+		
+		 if(pos != null){
+			 new_pos2.copy(pos);  
+			}
+
+
+     new_pos2.sub(camera.position);
+
+
+     new_pos2.normalize();
+     new_pos2.multiplyScalar(10);
+
+     new_pos2.add(camera.position);
+
+     object = scene.getObjectByName( "pointer" );
+
+
+     object.position.set(new_pos2.x,new_pos2.y,new_pos2.z);
+     object.updateMatrix();
+  
+
+};
+
+function onKeyDown(event) {
+
+             for ( var i = 0; i < particlesCount; i ++ ) {
+              
+             var vertex = particleGeo.vertices[i];
+             
+              //Get the current camera position  
+             new_pos.copy(camera.position);
+             
+             //Get the smallest distance to the cube and if the distance is smaller than
+             // the distance from camera to cube divided by ten (imaginary contact with sphere),
+             // change the color
+             if(raycaster.ray.distanceToPoint(vertex) <= new_pos.sub(vertex).length()/10 ){
+                  
+                 // console.log(i);
+                  
+                  var newColor = new THREE.Color( 0xffffff );
+                  customAttributes.customColor.value[ i ] = newColor;
+                  	
+								  customAttributes.customColor.needsUpdate = true;
+              }
+              
+             }
+     
+    
+};
 
 function animate() 
 {
@@ -300,7 +397,7 @@ function update()
 	stats.update();
 	
 	var t = clock.getElapsedTime();
-	customUniforms.time.value = t;
+	//customUniforms.time.value = 0.1;
 }
 
 function render() 
