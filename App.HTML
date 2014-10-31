@@ -18,6 +18,7 @@
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/jquery-2.1.1.min.js"></script>
+<script src="cleanMesh.js"></script>
 
 
 
@@ -66,6 +67,8 @@ void main()
 
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+
+
 <script>
 /*
 	Three.js "tutorials by example"
@@ -93,7 +96,9 @@ var mouseOpacity;
 var positions;
 var colors;
 var sizes;
+var deleteArray;
 
+ var skipCounter;
 
 init();
 animate();
@@ -124,6 +129,20 @@ Object.size = function(obj) {
     }
     return size;
 };
+
+
+   var worker = new Worker('cleanMesh.js');
+
+	worker.addEventListener('message', function(e) {
+
+		deleteArray = e.data;
+		scene.remove(particleSystem);
+		particleGeo = new THREE.Geometry();
+		createMesh();
+		console.log('Worker said: ', e.data);
+
+	}, false);
+
 
  
  
@@ -238,8 +257,15 @@ function init()
        
    });   
 
+
           
-   function check() {
+  
+
+
+
+}
+
+function check() {
      
         particlesCount = Math.floor(Object.size(pointData.points) / 3);
 
@@ -248,6 +274,7 @@ function init()
 				positions = new Float32Array( particlesCount * 3 );
 				colors = new Float32Array( particlesCount * 3);
 				sizes = new Float32Array( particlesCount );
+				deleteArray = new Float32Array( particlesCount );
 	
      for ( var i = 0; i < particlesCount * 3; i += 3 ) {
        
@@ -305,24 +332,29 @@ function init()
 		}
 		  
 		  
-		  
+		worker.postMessage(positions); // Send data to our worker.
 		createMesh();
 		  
-
-
 }
 
+
 function createMesh(){
-			  // Create Mesh
-		  var vertexCounterSize = 0;
-		  vertexCounter = 0;
-		  var skipCounter = 0;
+
+
+	
+
+	// Create Mesh
+	  var vertexCounterSize = 0;
+	  vertexCounter = 0;
+	  skipCounter = 0;
 		  
      // for(var i = 0; i < 1000; i+=3){  
       for(var i = 0; i < positions.length; i+=3){  
+        
+
         var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ])  
          
-        var minDistance = 1000000;
+       // var minDistance = 1000000;
         
         // // Threading simulation needed  
         // for(var j = 0; j < 1000; j+=3){  
@@ -340,14 +372,16 @@ function createMesh(){
         // }
         
         
-        // //if(minDistance >= 5 + sizes[vertexCounterSize-1]){
-        // if(minDistance >= 5){
+        vertexCounter ++;
+
+        //if(minDistance >= 5 + sizes[vertexCounterSize-1]){
+        if(deleteArray[vertexCounter] == 1){
+          vertexCounter --;
+          skipCounter ++;
+          vertexCounterSize++;
+          continue;
           
-        //   skipCounter ++;
-        //   vertexCounterSize++;
-        //   continue;
-          
-        // }
+        } 
         
         //console.log(skipCounter);
 
@@ -358,7 +392,7 @@ function createMesh(){
         //     continue;
         // }
         
-        vertexCounter ++;
+        
         vertexCounterSize++;
                 
         particleGeo.vertices.push(
@@ -375,27 +409,26 @@ function createMesh(){
       }
       
       
-    	this.shaderMaterial = new THREE.ShaderMaterial( 
-    	{
-    		uniforms: 		customUniforms,
-    		attributes:		customAttributes,
-    		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-    		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-    		transparent: true, alphaTest: 0.5,
-    	});
-    	
-    	
-    	
-    	
-      this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
-    	this.particleSystem.position.set(0, 0, 0);
-    	this.particleSystem.dynamic = true;
-    	this.particleSystem.frustrumCulled = true;
-    	this.particleSystem.sortParticles = false;
-    	scene.add( this.particleSystem );
-    	
-	   }
-
+		this.shaderMaterial = new THREE.ShaderMaterial( 
+		{
+			uniforms: 		customUniforms,
+			attributes:		customAttributes,
+			vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+			fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+			transparent: true, alphaTest: 0.5,
+		});
+			
+			
+			
+			
+		this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
+		this.particleSystem.position.set(0, 0, 0);
+		this.particleSystem.dynamic = true;
+		this.particleSystem.frustrumCulled = true;
+		this.particleSystem.sortParticles = false;
+		this.particleSystem.name = "particleSystem";
+		scene.add( this.particleSystem );
+		
 }
 
 function onMouseMove(event){
