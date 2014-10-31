@@ -90,6 +90,8 @@ var zeroCounter = 0;
 var particleGeo = new THREE.Geometry();
 var vertexCounter = 0;
 var vertexCounter1 = 0;
+var vertexCounterSize = 0;
+var deleteCounter = 0;
 var mouseCoord = new THREE.Vector3(0,0,0);
 var mouseOpacity;
 
@@ -136,10 +138,14 @@ Object.size = function(obj) {
 	worker.addEventListener('message', function(e) {
 
 		deleteArray = e.data;
+
+
+
 		scene.remove(particleSystem);
 		particleGeo = new THREE.Geometry();
 		createMesh();
 		console.log('Worker said: ', e.data);
+		
 
 	}, false);
 
@@ -274,7 +280,7 @@ function check() {
 				positions = new Float32Array( particlesCount * 3 );
 				colors = new Float32Array( particlesCount * 3);
 				sizes = new Float32Array( particlesCount );
-				deleteArray = new Float32Array( particlesCount );
+				deleteArray = new Int32Array( particlesCount );
 	
      for ( var i = 0; i < particlesCount * 3; i += 3 ) {
        
@@ -337,62 +343,57 @@ function check() {
 		  
 }
 
-
 function createMesh(){
 
-
+		// var count = 0;
+		// for (var i = deleteArray.length - 1; i >= 0; i--) {
+		// 	if(deleteArray[i] == 1) count++ 
+		// };
+		// console.log(count);
 	
 
 	// Create Mesh
-	  var vertexCounterSize = 0;
+	  vertexCounterSize = 0;
 	  vertexCounter = 0;
 	  skipCounter = 0;
-		  
+	  deleteCounter = 0;
+	
      // for(var i = 0; i < 1000; i+=3){  
       for(var i = 0; i < positions.length; i+=3){  
         
 
-        var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ])  
+        var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ]);  
          
-       // var minDistance = 1000000;
-        
-        // // Threading simulation needed  
-        // for(var j = 0; j < 1000; j+=3){  
-          
-        //   var otherPoint = new THREE.Vector3( positions[ j ],	positions[ j + 1 ] , positions[ j + 2 ]);
-        //   var distance = new THREE.Vector3();
-          
-        //   distance.subVectors(newPoint,otherPoint);
-        //   var length = distance.length();
-        //   if(length < minDistance && length != 0){
-        //     minDistance = length;
-        //     //console.log(distance.length());
-        //   }
-          
-        // }
+    	
         
         
-        vertexCounter ++;
+         if(deleteArray[deleteCounter] == 1){
+        //if(i % 305 == 0){
+           //vertexCounter ++;
+           deleteCounter ++;
+           skipCounter ++;
+           vertexCounterSize++;
+           continue;
 
-        //if(minDistance >= 5 + sizes[vertexCounterSize-1]){
-        if(deleteArray[vertexCounter] == 1){
-          vertexCounter --;
-          skipCounter ++;
-          vertexCounterSize++;
-          continue;
-          
-        } 
+        	      //  customAttributes.customSize.value[ vertexCounter-1] = 100;
+
+        } else {
         
-        //console.log(skipCounter);
+ 			      //  customAttributes.customSize.value[ vertexCounter-1] =  1;
+
+        }
 
         
         // Distance Threshold
-        // if(pointData.points[i].x >= 5000){
-        //   vertexCounterSize++;
+
+        // if(pointData.points[i].x >= 3000){
+        // 	skipCounter ++;
+        // 	vertexCounterSize++;
         //     continue;
         // }
         
-        
+        deleteCounter ++;
+        vertexCounter ++;
         vertexCounterSize++;
                 
         particleGeo.vertices.push(
@@ -402,13 +403,17 @@ function createMesh(){
         var newColor = new THREE.Color();
         newColor.setRGB(	colors[ i ], 	colors[ i + 1 ], 	colors[ i + 2 ] );
         customAttributes.customColor.value[ vertexCounter-1] = newColor;
-        customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];
+        customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];;
        //customAttributes.customSize.value[ vertexCounter-1] =  1;
        
 
       }
+
+       customAttributes.customColor.needsUpdate = true;
+	   customAttributes.customSize.needsUpdate = true;
       
-      
+       console.log("skipped: " + skipCounter);
+
 		this.shaderMaterial = new THREE.ShaderMaterial( 
 		{
 			uniforms: 		customUniforms,
