@@ -18,6 +18,7 @@
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="threeoctree.min.js"></script>
 
 
 
@@ -29,6 +30,12 @@ attribute float customFrequency;
 attribute float customSize;
 attribute vec3 customColor;
 varying vec3 vColor;
+
+
+
+
+
+
 void main() 
 {
 	vColor = customColor; // set color associated to vertex; use later in fragment shader
@@ -36,6 +43,9 @@ void main()
 	gl_PointSize = sin(time) * customSize * 8.0 * ( 10.0 / length( mvPosition.xyz ) );
 	gl_Position = projectionMatrix * mvPosition;
 }
+
+
+
 </script>
 
 
@@ -94,13 +104,16 @@ var positions;
 var colors;
 var sizes;
 
+var createMeshFlag = false;
+
+var createCounterOld = 0;
+var createCounter = 0;
 
 init();
 animate();
 
 var mouseGeo = new THREE.SphereGeometry( 1, 36, 36);
 direction = new THREE.Vector3( 1, 0, 0 );
-myRaycaster = new THREE.Raycaster(camera.position, direction);
 
 
 var cameraVector = new THREE.Vector3( 0, 0, -1 );
@@ -109,6 +122,10 @@ var new_pos2 = new THREE.Vector3( 0, 0, 0 );
 var raycaster;
 var planeZ = new THREE.Plane(cameraVector, 0);
 
+var octree;
+var octreeMesh;
+
+var octreeMaterial;
 
 // FUNCTIONS
  	
@@ -203,6 +220,29 @@ function init()
   pointer.matrixAutoUpdate = false;
   scene.add( pointer );
   
+  
+  
+  octree = new THREE.Octree( {
+		// uncomment below to see the octree (may kill the fps)
+		//scene: scene,
+		// when undeferred = true, objects are inserted immediately
+		// instead of being deferred until next octree.update() call
+		// this may decrease performance as it forces a matrix update
+		undeferred: false,
+		// set the max depth of tree
+		depthMax: Infinity,
+		// max number of objects before nodes split or merge
+		objectsThreshold: 8,
+		// percent between 0 and 1 that nodes will overlap each other
+		// helps insert objects that lie over more than one node
+		overlapPct: 0.15
+	} );
+	
+
+  octreeMaterial = new THREE.MeshBasicMaterial();
+	
+	
+	
 	////////////
 	// CUSTOM //
 	////////////
@@ -304,100 +344,125 @@ function init()
 
 			}
 		  
-		  
-		  
+		  createMeshFlag = true;
+       
+		}
 
-		  
-		  // Create Mesh
-		  var vertexCounterSize = 0;
-		  vertexCounter = 0;
-		  var skipCounter = 0;
-		  
-		  loop1:
-      for(var i = 0; i < 1000; i+=3){  
-      //for(var i = 0; i < positions.length; i+=3){  
+}
+
+
+
+function createMesh(){
+  
+  // Create Mesh
+  var vertexCounterSize = 0;
+  var skipCounter = 0;
+  
+  vertexCounter = 0;
+  
+  loop1:
+  //for(var i = 0; i < 5000; i+=3){  
+//  for(var i = 0; i < positions.length; i+=3){
+  for(var i = 0; i < 5000; i+=3){	
+  
+            
+   // if(createCounter <= positions.length){
+   
         var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ])  
-         
+     
         var minDistance = 1000000;
-        
+    
         // Threading simulation needed  
-        for(var j = 0; j < 1000; j+=3){  
-          
-          var otherPoint = new THREE.Vector3( positions[ j ],	positions[ j + 1 ] , positions[ j + 2 ]);
-          var distance = new THREE.Vector3();
-          
-          distance.subVectors(newPoint,otherPoint);
-          var length = distance.length();
-          if(length < minDistance && length != 0){
-            minDistance = length;
-            //console.log(distance.length());
-          }
-          
-        }
-        
-        
-        //if(minDistance >= 5 + sizes[vertexCounterSize-1]){
-        if(minDistance >= 5){
-          
-          skipCounter ++;
-          vertexCounterSize++;
-          continue;
-          
-        }
-        
-        
-        
-        
+        // for(var j = 0; j < 5000; j+=3){  
+        //   
+        //   var otherPoint = new THREE.Vector3( positions[ j ],  positions[ j + 1 ] , positions[ j + 2 ]);
+        //   var distance = new THREE.Vector3();
+        //   
+        //   distance.subVectors(newPoint,otherPoint);
+        //   var length = distance.length();
+        //   if(length < minDistance && length != 0){
+        //     minDistance = length;
+        //     //console.log(distance.length());
+        //   }
+        //   
+        // }
+        // 
+        // 
+        // //if(minDistance >= 5 + sizes[vertexCounterSize-1]){
+        // if(minDistance >= 5){
+        //   
+        //   skipCounter ++;
+        //   vertexCounterSize++;
+        //   continue;
+        //   
+        // }
+    
+    
+    
+    
         //console.log(skipCounter);
 
-        
+    
         // Distance Threshold
         // if(pointData.points[i].x >= 5000){
         //   vertexCounterSize++;
         //     continue;
         // }
-        
+    
         vertexCounter ++;
         vertexCounterSize++;
-                
+            
         particleGeo.vertices.push(
            newPoint                
         );
-        
+    
         var newColor = new THREE.Color();
         newColor.setRGB(	colors[ i ], 	colors[ i + 1 ], 	colors[ i + 2 ] );
         customAttributes.customColor.value[ vertexCounter-1] = newColor;
-        customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];
-       //customAttributes.customSize.value[ vertexCounter-1] =  1;
-       
+        customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];       
+   
+    // }
+     
+  }
+  
+  //console.log(skipCounter);
+  
+	       
 
-      }
-      
-      //console.log(skipCounter);
-      
-      
-    	this.shaderMaterial = new THREE.ShaderMaterial( 
-    	{
-    		uniforms: 		customUniforms,
-    		attributes:		customAttributes,
-    		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-    		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-    		transparent: true, alphaTest: 0.5,  // if having transparency issues, try including: alphaTest: 0.5, 
-    		// blending: THREE.AdditiveBlending, depthTest: false,
-    	});
-    	
-    	
-    	
-    	
-      this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
-    	this.particleSystem.position.set(0, 0, 0);
-    	this.particleSystem.dynamic = true;
-    	this.particleSystem.frustrumCulled = true;
-    	this.particleSystem.sortParticles = false;
-    	scene.add( this.particleSystem );
-    	
-		}
+	       octreeMesh = new THREE.Mesh( particleGeo, octreeMaterial );
 
+	       octree.add( octreeMesh, { useVertices: true } );
+
+	       octree.update();
+
+	       //console.log(octree);
+			
+		   createMeshFlag = false;
+
+}
+
+function createParticleSystem(){
+  
+  
+  this.shaderMaterial = new THREE.ShaderMaterial( 
+	{
+		uniforms: 		customUniforms,
+		attributes:		customAttributes,
+		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+		transparent: true, alphaTest: 0.5,  // if having transparency issues, try including: alphaTest: 0.5, 
+		// blending: THREE.AdditiveBlending, depthTest: false,
+	});
+	
+	
+	
+	
+  this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
+	this.particleSystem.position.set(0, 0, 0);
+	this.particleSystem.dynamic = true;
+	this.particleSystem.frustrumCulled = true;
+	this.particleSystem.sortParticles = false;
+	scene.add( this.particleSystem );
 }
 
 function onMouseMove(event){
@@ -413,36 +478,64 @@ function onMouseMove(event){
 
 function onKeyDown(event) {
 
-             for ( var i = 0; i < vertexCounter; i ++ ) {
+
+var octreeObjects;
+var numObjects;
+var numFaces = 0;
+var intersections;
+var vector = new THREE.Vector3( mouseCoord.x, mouseCoord.y, 0.5 );
+// var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+var projector = new THREE.Projector();
+    projector.unprojectVector( mouseCoord, camera );
+
+var origin = new THREE.Vector3().copy( camera.position );
+var direction = new THREE.Vector3().copy( mouseCoord.sub( camera.position ) ).normalize();
+var rayCaster = new THREE.Raycaster( origin, direction );
+ 
+
+  octreeObjects = octree.search( raycaster.ray.origin, raycaster.ray.far, true, raycaster.ray.direction );
+				
+	intersections = raycaster.intersectOctreeObjects( octreeObjects );
+	
+	numObjects = octreeObjects.length;
+	
+	for ( var i = 0, il = numObjects; i < il; i++ ) {
+		
+		numFaces += octreeObjects[ i ].vertices.length;
+		
+	}
+
+	console.log(numFaces);
+
+
+// ---------------------- OLD ------------------
+//              for ( var i = 0; i < vertexCounter; i ++ ) {
               
-             var vertex = particleGeo.vertices[i];
+//              var vertex = particleGeo.vertices[i];     
              
+//               //Get the current camera position  
+//              new_pos.copy(camera.position);
              
-             
-              //Get the current camera position  
-             new_pos.copy(camera.position);
-             
-             //Get the smallest distance to the cube and if the distance is smaller than
-             // the distance from camera to cube divided by ten (imaginary contact with sphere),
-             // change the color
-             if(raycaster.ray.distanceToPoint(vertex) <= new_pos.sub(vertex).length()/20 ){
+//              //Get the smallest distance to the cube and if the distance is smaller than
+//              // the distance from camera to cube divided by ten (imaginary contact with sphere),
+//              // change the color
+//              if(raycaster.ray.distanceToPoint(vertex) <= new_pos.sub(vertex).length()/20 ){
                   
-                 // console.log(i);
+//                  // console.log(i);
                   
-                  var newColor = new THREE.Color( 0xffffff );
-                  customAttributes.customColor.value[ i ] = newColor;
-                  customAttributes.customSize.value[ i ] = 20;
+//                   var newColor = new THREE.Color( 0xffffff );
+//                   customAttributes.customColor.value[ i ] = newColor;
+//                   customAttributes.customSize.value[ i ] = 20;
                   
                   
-                  console.log(i);
+//                   console.log(i);
                   
-								  customAttributes.customColor.needsUpdate = true;
-								  customAttributes.customSize.needsUpdate = true;
-              }
+// 								  customAttributes.customColor.needsUpdate = true;
+// 								  customAttributes.customSize.needsUpdate = true;
+//               }
               
-             }
-     
-    
+//              } 
 };
 
 function calcPointer(){
@@ -485,6 +578,7 @@ function calcPointer(){
 
      object.position.set(new_pos2.x,new_pos2.y,new_pos2.z);
      object.updateMatrix();
+     
 }
 
 function checkCamera(){
@@ -505,6 +599,7 @@ function animate()
   requestAnimationFrame( animate );
 	render();		
 	update();
+	
 }
 
 function update()
@@ -513,10 +608,17 @@ function update()
 	{ 
 		// do something
 	}
-
 	controls.update();
 	stats.update();
-  checkCamera();
+ 	checkCamera();
+
+  
+  if(createMeshFlag){
+    createMesh();
+    createParticleSystem();
+  }
+   
+
 	//var t = clock.getElapsedTime();
 	//customUniforms.time.value = 0.1;
 }
@@ -525,6 +627,7 @@ function render()
 {
 	renderer.render( scene, camera );
 }
+
 function onWindowResize() {
 
 	camera.aspect = window.innerWidth / window.innerHeight;
