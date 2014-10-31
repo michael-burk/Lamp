@@ -13,7 +13,7 @@ for (var i = 0; i < deleteArray1; i++) deleteArray1[i] = 0;
 
 var counter = 0;
 
-for(var i = 0; i < 20000; i+=3){  
+for(var i = 0; i < positions1.length; i+=3){  
 
 		
 
@@ -30,7 +30,6 @@ for(var i = 0; i < 20000; i+=3){
 	  var length = distance.length();
 	  if(length < minDistance && length != 0){
 	    minDistance = length;
-	    //console.log(distance.length());
 	  }
 	  
 	}
@@ -39,8 +38,6 @@ for(var i = 0; i < 20000; i+=3){
 	if(minDistance >= 10){
 		distCounter ++;
 		deleteArray1[counter] = 1;
-
-	  	//console.log(minDistance);
 	}
 
 	if(i % 100 == 0){
