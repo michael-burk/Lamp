@@ -18,7 +18,8 @@
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/jquery-2.1.1.min.js"></script>
-<script src="cleanMesh.js"></script>
+<script src="js/cleanMesh.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/THREE2STL.js"></script>
 
 
 
@@ -133,7 +134,7 @@ Object.size = function(obj) {
 };
 
 
-   var worker = new Worker('cleanMesh.js');
+   var worker = new Worker('js/cleanMesh.js');
 
 	worker.addEventListener('message', function(e) {
 
@@ -144,6 +145,7 @@ Object.size = function(obj) {
 		scene.remove(particleSystem);
 		particleGeo = new THREE.Geometry();
 		createMesh();
+		stlFromGeometry( particleGeo, {download:true});
 		console.log('Worker said: ', e.data);
 		
 
@@ -298,10 +300,9 @@ function check() {
 
 		// Eliminate zero dots
 		if(y + x + z == 0){ 
-	    continue;
+	    	continue;
 		}
 
-		
 		var angle = (map(pointData.points[i].z, 212, 812, 0, 180))*(Math.PI/180);
 		
 		//Translate Point
@@ -323,7 +324,10 @@ function check() {
         var newColor = new THREE.Color( );
         newColor.setRGB(0.2,0.2,colorMapB);
 
-       // vertexCounter ++;
+       	// Eliminate zero dots
+		if(y1 + x1 + z1 == 0){ 
+	    	continue;
+		}
         
         positions[ i ]     = y1 * .1;
 		positions[ i + 1 ] = x1 * .1;
@@ -367,16 +371,29 @@ function createMesh(){
     	
         
         
-         if(deleteArray[deleteCounter] == 1){
+        if(deleteArray[deleteCounter] == 1){
            deleteCounter ++;
            skipCounter ++;
            vertexCounterSize++;
            continue;
+        }
 
-
+        if(newPoint.x + newPoint.y + newPoint.z == 0){
+           deleteCounter ++;
+           skipCounter ++;
+           vertexCounterSize++;
+           continue;
         } 
         
-        
+        if(vertexCounter % 3 == 0 || vertexCounter == 0){
+        	if(vertexCounter-1 != -1){
+        		 particleGeo.faces.push( new THREE.Face3(vertexCounter, vertexCounter+1, vertexCounter-1));
+        	}else{
+        		particleGeo.faces.push( new THREE.Face3(vertexCounter, vertexCounter+1, vertexCounter+2));
+        	}
+        	   
+        }
+
         deleteCounter ++;
         vertexCounter ++;
         vertexCounterSize++;
@@ -384,12 +401,14 @@ function createMesh(){
         particleGeo.vertices.push(
            newPoint                
         );
+
+
+     
         
         var newColor = new THREE.Color();
         newColor.setRGB(	colors[ i ], 	colors[ i + 1 ], 	colors[ i + 2 ] );
         customAttributes.customColor.value[ vertexCounter-1] = newColor;
         customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];;
-       //customAttributes.customSize.value[ vertexCounter-1] =  1;
        
 
       }
@@ -417,8 +436,8 @@ function createMesh(){
 		this.particleSystem.frustrumCulled = true;
 		this.particleSystem.sortParticles = false;
 		this.particleSystem.name = "particleSystem";
-		scene.add( this.particleSystem );
-		
+		scene.add( this.particleSystem );	
+
 }
 
 function onMouseMove(event){
