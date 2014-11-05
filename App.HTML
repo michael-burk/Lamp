@@ -22,6 +22,9 @@
 <!--Copyright (C) 2012 Philipp Sackl, envis precisely GmbH-->
 <script type="text/javascript" charset="utf-8" src="js/THREE2STL.js"></script>
 
+<script type="text/javascript" src="js/BinaryReader.js"></script>
+<script type="text/javascript" src="js/STLLoader.js"></script>
+
 
 
 
@@ -173,10 +176,9 @@ function init()
 	camera.lookAt(scene.position);	
 	
 	// RENDERER
-//	if ( Detector.webgl )
-		renderer = new THREE.WebGLRenderer( {antialias:true} );
-	//else
-	//renderer = new THREE.CanvasRenderer(); 
+
+	renderer = new THREE.WebGLRenderer( {antialias:true} );
+
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
@@ -261,30 +263,72 @@ function init()
 	
 
    
-   $.getJSON( "LOGFILE.json", function( data ) {
-       pointData = data;
-       check();
+   // $.getJSON( "LOGFILE.json", function( data ) {
+   //     pointData = data;
+   //     loadJSON();
        
-   });   
+   // });   
+ 
+ 	loadSTL();       
+}
+
+function loadSTL(){
+	var loader = new THREE.STLLoader();
+				loader.addEventListener( 'load', function ( event ) {
+					
+					particleGeo = event.content;
+
+					particlesCount = particleGeo.vertices.length;
+
+					for (var i =  0; i < particlesCount ; i++) {
+						
+
+						var pos = new THREE.Vector3(particleGeo.vertices[i].x,particleGeo.vertices[i].y,particleGeo.vertices[i].z);
 
 
-          
-  
+						var subVector = new THREE.Vector3(0,0,0);
+						subVector = pos.sub(new THREE.Vector3(0,0,0));
+
+						var distance = subVector.length();
 
 
+						var colorMapR = map(distance, 0, 8000, .5, 0);
+						var colorMapG = map(distance, 0, 3000, 0, .5);
+						var colorMapB = map(distance, 0, 500, .5, .2);
+
+
+				        var newColor = new THREE.Color( );
+				        newColor.setRGB(0.2,0.2,colorMapB);
+
+
+						customAttributes.customColor.value[ i ] = newColor;
+        				customAttributes.customSize.value[ i ] =  map(distance, 0, 500, 0, 100);
+
+						
+
+
+					};
+
+					customAttributes.customColor.needsUpdate = true;
+	 				customAttributes.customSize.needsUpdate = true;
+
+					//createMesh();
+					addToScene();
+				} );
+				loader.load( 'LOGFILE.stl' );
 
 }
 
-function check() {
+function loadJSON() {
      
         particlesCount = Math.floor(Object.size(pointData.points) / 3);
 
-				var color = new THREE.Color();
-				
-				positions = new Float32Array( particlesCount * 3 );
-				colors = new Float32Array( particlesCount * 3);
-				sizes = new Float32Array( particlesCount );
-				deleteArray = new Int32Array( particlesCount );
+		var color = new THREE.Color();
+		
+		positions = new Float32Array( particlesCount * 3 );
+		colors = new Float32Array( particlesCount * 3);
+		sizes = new Float32Array( particlesCount );
+		deleteArray = new Int32Array( particlesCount );
 	
      for ( var i = 0; i < particlesCount * 3; i += 3 ) {
        
@@ -351,11 +395,6 @@ function check() {
 
 function createMesh(){
 
-		// var count = 0;
-		// for (var i = deleteArray.length - 1; i >= 0; i--) {
-		// 	if(deleteArray[i] == 1) count++ 
-		// };
-		// console.log(count);
 	
 
 	// Create Mesh
@@ -403,9 +442,7 @@ function createMesh(){
         particleGeo.vertices.push(
            newPoint                
         );
-
-
-     
+ 
         
         var newColor = new THREE.Color();
         newColor.setRGB(	colors[ i ], 	colors[ i + 1 ], 	colors[ i + 2 ] );
@@ -419,6 +456,12 @@ function createMesh(){
 	   customAttributes.customSize.needsUpdate = true;
       
        console.log("skipped: " + skipCounter);
+
+       addToScene();
+
+}
+
+function addToScene(){
 
 		this.shaderMaterial = new THREE.ShaderMaterial( 
 		{
@@ -439,7 +482,6 @@ function createMesh(){
 		this.particleSystem.sortParticles = false;
 		this.particleSystem.name = "particleSystem";
 		scene.add( this.particleSystem );	
-
 }
 
 function onMouseMove(event){
@@ -455,7 +497,7 @@ function onMouseMove(event){
 
 function onKeyDown(event) {
 
-             for ( var i = 0; i < vertexCounter; i ++ ) {
+             for ( var i = 0; i < particleGeo.vertices.length; i ++ ) {
               
              var vertex = particleGeo.vertices[i];
              
@@ -471,10 +513,10 @@ function onKeyDown(event) {
                   
                   var newColor = new THREE.Color( 0xffffff );
                   customAttributes.customColor.value[ i ] = newColor;
-                  customAttributes.customSize.value[ i ] = 20;
+                  customAttributes.customSize.value[ i ] = 1;
                   
                   
-                 // console.log(i);
+
                   
 				customAttributes.customColor.needsUpdate = true;
 				customAttributes.customSize.needsUpdate = true;
