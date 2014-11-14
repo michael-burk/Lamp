@@ -15,22 +15,20 @@ var counter = 0;
 
 for(var i = 0; i < positions1.length; i+=3){  
 
-		
-
 	var minDistance = 99999999999;
 		
 	for(var j = 0; j < positions1.length; j+=3){  
 
-	  var newPoint = new THREE.Vector3( positions1[ i ],	positions1[ i + 1 ] , positions1[ i + 2 ]);  
-	  
-	  var otherPoint = new THREE.Vector3( positions1[ j ],	positions1[ j + 1 ] , positions1[ j + 2 ]);
-	  var distance = new THREE.Vector3();
-	  
-	  distance.subVectors(otherPoint,newPoint);
-	  var length = distance.length();
-	  if(length < minDistance && length != 0){
-	    minDistance = length;
-	  }
+		var newPoint = new THREE.Vector3( positions1[ i ],	positions1[ i + 1 ] , positions1[ i + 2 ]);  
+
+		var otherPoint = new THREE.Vector3( positions1[ j ],	positions1[ j + 1 ] , positions1[ j + 2 ]);
+		var distance = new THREE.Vector3();
+
+		distance.subVectors(otherPoint,newPoint);
+		var length = distance.length();
+		if(length < minDistance && length != 0){
+		minDistance = length;
+		}
 	  
 	}
 
@@ -41,15 +39,12 @@ for(var i = 0; i < positions1.length; i+=3){
 	}
 
 	if(i % 100 == 0){
-		// self.postMessage(i);
 		console.log(counter);
-		//deleteArray1[counter] = 1;
 	}
 
 	counter++;
 }
 	
   self.postMessage(deleteArray1);
-  //self.postMessage(positions1);
 }, false);
 
