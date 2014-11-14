@@ -18,6 +18,8 @@
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/jquery-2.1.1.min.js"></script>
 <script src="js/cleanMesh.js"></script>
+<script src="js/cutout.js"></script>
+
 <!--Copyright (C) 2012 Philipp Sackl, envis precisely GmbH-->
 <script type="text/javascript" charset="utf-8" src="js/THREE2STL.js"></script>
 
@@ -123,7 +125,7 @@ var raycaster;
 var planeZ = new THREE.Plane(cameraVector, 0);
 
 
-var Ico;
+//var Ico;
 var selectedMesh = new THREE.Geometry();
 var toDelete = [];
 
@@ -143,21 +145,32 @@ Object.size = function(obj) {
 };
 
 
-   var worker = new Worker('js/cleanMesh.js');
+var worker = new Worker('js/cleanMesh.js');
 
-	worker.addEventListener('message', function(e) {
+worker.addEventListener('message', function(e) {
 
-		deleteArray = e.data;
+	deleteArray = e.data;
 
-		scene.remove(particleSystem);
-		particleGeo = new THREE.Geometry();
-		createMesh();
-		stlFromGeometry( particleGeo, {download:true});
-		console.log('Worker said: ', e.data);
-		
+	scene.remove(particleSystem);
+	particleGeo = new THREE.Geometry();
+	createMesh();
+	stlFromGeometry( particleGeo, {download:true});
+	console.log('Worker said: ', e.data);
+	
 
-	}, false);
+}, false);
 
+
+var cutoutWorker = new Worker('js/cutout.js');
+
+cutoutWorker.addEventListener('message', function(e) {
+
+	updateSphere(e.data);
+	console.log('Worker said: ', e.data);
+	console.log(e.data.length);
+	
+
+}, false);
 
  
 
@@ -279,71 +292,13 @@ function init()
    // });   
  	createSphere(); 
  	loadSTL();
+
+
+
  	     
- 	//createOctree(); 
 }
 
 
-function createOctree(){
-
-	var hex  = 0xff0000;
-
-
- // var bbox = new THREE.BoundingBoxHelper( this.particleSystem, hex );
- // bbox.update();
- // scene.add( bbox );
-
-	var min = new THREE.Vector3(particleGeo.boundingBox.min.x, particleGeo.boundingBox.min.y, particleGeo.boundingBox.min.z);
-	var max = new THREE.Vector3(particleGeo.boundingBox.max.x, particleGeo.boundingBox.max.y, particleGeo.boundingBox.max.z);
-
-	var diagonal = min.sub(max);
-
-	var distance = diagonal.length();
-
-	var borderLength = distance / Math.sqrt(3);
-	
-
-	 var box = new THREE.BoxGeometry(borderLength,borderLength,borderLength);
-	 var material = new THREE.MeshBasicMaterial(hex);
-
-
-	 var bbox = new THREE.Mesh(box, material);
-
-	 var center = max.add(diagonal.multiplyScalar(.5));
-
-	//scene.add( bbox );
-
-	bbox.translateX(center.x);
-	bbox.translateY(center.y);
-	bbox.translateZ(center.z);
-
-	// bbox.translateX(min.x);
-	// bbox.translateY(min.y);
-	// bbox.translateZ(min.z);
-
-
-}
-
-function createSphere(){
-
-		var pinkMat = new THREE.MeshPhongMaterial({
-		  color      :  new THREE.Color("rgb(226,35,213)"),
-		  emissive   :  new THREE.Color("rgb(255,128,64)"),
-		  specular   :  new THREE.Color("rgb(255,155,255)"),
-		  shininess  :  10,
-		  shading    :  THREE.FlatShading,
-		  transparent: 1,
-		  opacity    : 1
-		});
-
-
-		var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading} );
-
-		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(10,5), pinkMat);
-		Ico.dynamic = true;
-
-		scene.add(Ico);
-}
 
 function loadSTL(){
 	var loader = new THREE.STLLoader();
@@ -459,8 +414,47 @@ function loadJSON() {
 		  
 		  
 		worker.postMessage(positions); // Send data to our worker.
+
 		createMesh();
 		  
+
+}
+function createSphere(){
+
+		var pinkMat = new THREE.MeshPhongMaterial({
+		  color      :  new THREE.Color("rgb(226,35,213)"),
+		  emissive   :  new THREE.Color("rgb(255,128,64)"),
+		  specular   :  new THREE.Color("rgb(255,155,255)"),
+		  shininess  :  10,
+		  shading    :  THREE.FlatShading,
+		  transparent: 1,
+		  opacity    : 1
+		});
+
+
+		var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading} );
+
+		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(10,5), pinkMat);
+		Ico.dynamic = true;
+
+		scene.add(Ico);
+}
+
+function updateSphere(deleteFaces){
+
+
+		for (var i = 0; i <= deleteFaces.length - 1; i++) {
+			if(deleteFaces[i] == 1){
+				//console.log("yo");
+				
+				Ico.geometry.vertices[Ico.geometry.faces[i].a] = 0;
+				Ico.geometry.vertices[Ico.geometry.faces[i].b] = 0;
+				Ico.geometry.vertices[Ico.geometry.faces[i].c] = 0;
+     			Ico.geometry.verticesNeedUpdate = true;
+
+			}
+		};
+
 }
 
 function createMesh(){
@@ -552,7 +546,6 @@ function addToScene(){
 		this.particleSystem.sortParticles = false;
 		this.particleSystem.name = "particleSystem";
 		scene.add( this.particleSystem );	
-		createOctree();
 }
 
 function onMouseMove(event){
@@ -609,58 +602,97 @@ function onKeyDown(event) {
 
 	         if (event.charCode == 0){
 
-	         	toDelete= [];
+
+
+	          var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length);
+	          var icoVertices = new Float32Array(Ico.geometry.vertices.length);
+	          var icoFaces = new Float32Array(Ico.geometry.faces.length * 3);
+
+
+	          var vertexCounter = 0;
+	          for (var i = 0; i <= selecteMeshBuffer.length - 3; i+=3) {
+	          	selecteMeshBuffer[i] =   selectedMesh.vertices[vertexCounter].x;
+	          	selecteMeshBuffer[i+1] = selectedMesh.vertices[vertexCounter].y;
+	          	selecteMeshBuffer[i+2] = selectedMesh.vertices[vertexCounter].z;
+	          	vertexCounter++;
+	          };
+
+	          var vertexCounter = 0;
+	          for (var i = 0; i <= icoVertices.length - 3; i+=3) {
+	          	icoVertices[i] =   Ico.geometry.vertices[vertexCounter].x;
+	          	icoVertices[i+1] = Ico.geometry.vertices[vertexCounter].y;
+	          	icoVertices[i+2] = Ico.geometry.vertices[vertexCounter].z;
+	          	vertexCounter++;          	
+
+	          };
+
+	          var vertexCounter = 0;
+	          for (var i = 0; i <= icoFaces.length - 3; i+=3) {
+	          	icoFaces[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
+	          	icoFaces[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
+	          	icoFaces[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+	          	vertexCounter++;
+	          };
+
+
+
+	         // console.log(icoBuffer);
+	        	var buffers = [ selecteMeshBuffer, icoVertices, icoFaces];
+				var message = {buffers: buffers};	
+
+	         	cutoutWorker.postMessage(buffers);
+
+
+
 	         	
-	         	for ( var i = 0; i < selectedMesh.vertices.length; i ++ ) {
+	    //      	for ( var i = 0; i < selectedMesh.vertices.length; i ++ ) {
 
-	         		// Test collision with lamp (Ico Mesh)
-
-
-
-	         		var direction = new THREE.Vector3(0,0,0);
-	         		direction = selectedMesh.vertices[i].sub(direction);
-
-	    //      		var lineDirection = direction.clone();
-
-	    //      		var material = new THREE.LineBasicMaterial({
-					// 	color: 0x000000
-					// });
-
-					// var geometry = new THREE.Geometry();
-					// geometry.vertices.push(
-					// 	new THREE.Vector3( 0, 0, 0 ),
-					// 	lineDirection
-					// );
-
-					// var line = new THREE.Line( geometry, material );
-					// scene.add( line );
+	    //      		// Test collision with lamp (Ico Mesh)
 
 
 
-					direction.normalize();
+	    //      		var direction = new THREE.Vector3(0,0,0);
+	    //      		direction = selectedMesh.vertices[i].sub(direction);
 
-					var myRaycaster = new THREE.Raycaster(selectedMesh.vertices[i], direction);
+	    // //      		var lineDirection = direction.clone();
 
-	         		for (var j = Ico.geometry.faces.length - 1; j >= 0; j--) {
+	    // //      		var material = new THREE.LineBasicMaterial({
+					// // 	color: 0x000000
+					// // });
+
+					// // var geometry = new THREE.Geometry();
+					// // geometry.vertices.push(
+					// // 	new THREE.Vector3( 0, 0, 0 ),
+					// // 	lineDirection
+					// // );
+
+					// // var line = new THREE.Line( geometry, material );
+					// // scene.add( line );
+
+
+
+					// direction.normalize();
+
+					// var myRaycaster = new THREE.Raycaster(selectedMesh.vertices[i], direction);
+
+	    //      		for (var j = Ico.geometry.faces.length - 1; j >= 0; j--) {
 	         	
-	         			//console.log(myRaycaster.ray.distanceToPoint( Ico.geometry.faces[j].centroid ));
-	         			if(myRaycaster.ray.distanceToPoint( Ico.geometry.faces[j].centroid) <= .1){
+	    //      			//console.log(myRaycaster.ray.distanceToPoint( Ico.geometry.faces[j].centroid ));
+	    //      			if(myRaycaster.ray.distanceToPoint( Ico.geometry.faces[j].centroid) <= .1){
 	         				
 
 
-	         				//console.log(j);
+	    //      				//console.log(j);
 
-	         				Ico.geometry.vertices[Ico.geometry.faces[j].a] = 0;
-	         				Ico.geometry.vertices[Ico.geometry.faces[j].b] = 0;
-	         				Ico.geometry.vertices[Ico.geometry.faces[j].c] = 0;
-	         				Ico.geometry.verticesNeedUpdate = true;
-
- 	         				toDelete.push(j);
-	         			}
+	    //      				Ico.geometry.vertices[Ico.geometry.faces[j].a] = 0;
+	    //      				Ico.geometry.vertices[Ico.geometry.faces[j].b] = 0;
+	    //      				Ico.geometry.vertices[Ico.geometry.faces[j].c] = 0;
+	    //      				Ico.geometry.verticesNeedUpdate = true;
+	    //      			}
 	         		
-	         		};
+	    //      		};
 
-	         	}
+	    //      	}
 
 	         }
              
