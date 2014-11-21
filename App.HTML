@@ -289,14 +289,15 @@ function init(){
 		
 		
 
-   
-	// $.getJSON( "LOGFILE.json", function( data ) {
-	// 	pointData = data;
-	// 	loadJSON();
-	// });
+ 	createSphere(); 
+ 	  
+  $.getJSON( "LOGFILE3.json", function( data ) {
+    pointData = data;
+    loadJSON();
+  });
 
-	createSphere(); 
-	loadSTL();
+
+	//loadSTL();
     
 }
 
@@ -347,7 +348,7 @@ function loadSTL(){
 
 function loadJSON() {
      
-        particlesCount = Math.floor(Object.size(pointData.points) / 3);
+    particlesCount = Math.floor(Object.size(pointData.points) / 3);
 
 		var color = new THREE.Color();
 		

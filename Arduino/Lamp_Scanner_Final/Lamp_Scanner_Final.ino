@@ -147,6 +147,7 @@ void loop() {
    if(motorAngle > motorAngleEnd){
      
      Serial.println("THE END");
+     analogWrite(RPLIDAR_MOTOR, 0);
    //  dataFile.close();
      return;
    }
@@ -201,7 +202,7 @@ void loop() {
 
        // Serial.println(slotCounter);
            
-       if(slotCounter >= 500 || slotCounterRepeat > 5){
+       if(slotCounter >= 500 || slotCounterRepeat > 1){
             
            slotCounterRepeat = 0;    
          
@@ -276,6 +277,7 @@ void loop() {
     rplidar_response_device_info_t info;
     if (IS_OK(lidar.getDeviceInfo(info, 100))) {
        //detected...
+        Serial.println("Start Scan");
        lidar.startScan();
        analogWrite(RPLIDAR_MOTOR, 100);
        delay(1000);
