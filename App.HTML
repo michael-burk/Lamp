@@ -479,6 +479,7 @@ function loadJSON() {
 }
 
 function loadTXT(){
+
 	var regFileComplete = /(A|O)/g;
 
 	var counter = 0;
@@ -486,7 +487,6 @@ function loadTXT(){
 	// Search for beginning and end in file
 	while ((match = regFileComplete.exec(logText)) != null) {
 		counter ++;
-    	//console.log(counter + ". match found at " + match.index);
 	}
 
 	if(counter == 2){
@@ -496,68 +496,84 @@ function loadTXT(){
 		var data = logText.substr(1,logText.length-2);
 
 		console.log("data: " + data);
-		//Get Point
+		
 
-		var regPP = /(P|P)/g;
+
+		//Get Points
+
+		var regPP = /(P)/g;
 		var ppArray = [2];
 
+		var pointsIndex = [];
 		var pointCounter = 0; 
 
+		var finalPoints = [];
+
+
 		while ((match = regPP.exec(data)) != null) {
+
+			//console.log(match.index);
+			pointsIndex.push(match.index);
 			
-			pointCounter ++;
-
-			if(pointCounter <= 2){
-
-				ppArray[pointCounter-1] =  match.index;
-				
-				console.log("counter: " + pointCounter);
-				console.log(match.index);
-
-			} else {
-
-				pointCounter = 0;
-
-				// var counter = 0;
-
-				// var point = data.substr(ppArray[0]+1,ppArray[1]-1);
-
-				// console.log("point: " + point);
-
-				// //Get X Value
-				// var regXXe = /(x|x)/g;
-				// var xxArray = [2];
-
-				// while ((match = regXXe.exec(point)) != null) {
-					
-				// 	if(counter < 3){
-				// 		xxArray[counter - 1] =  match.index;
-				// 		counter ++;
-				// 	}
-				// 	counter = 0;
-
-				// }
-
-				// var x = point.substr(xxArray[0]+1,xxArray[1]-1);
-				
-				// if( x.length >= 0 ){
-				// 	//Valid Value
-				// }
-
-
-				//console.log(x);
-
-
 			}
 
-			
+			for (var i = 0; i < pointsIndex.length; i++) {
+				ppArray[0] = pointsIndex[i];
+				ppArray[1] = pointsIndex[i+1];
+
+
+
+				if(i % 2 == 0){
+
+					var point = data.substr(ppArray[0]+1,(ppArray[1])-(ppArray[0]+1));
+
+					console.log("point: " + point);
+					console.log(ppArray);
+
+
+
+					//Get X Value
+					var regXX = /(x)/g;
+					var xxArray = [2];
+					counter = 0;
+					while ((match = regXX.exec(point)) != null) {
+						
+						if(counter < 3){
+							xxArray[counter] =  match.index;
+							counter ++;
+						}
+
+					}
+
+					var x = point.substr(xxArray[0]+1,xxArray[1]-1);
+					
+					if( x.length >= 0 ){
+						//Valid Value
+					}
+
+
+					console.log(x);
+
+
+
+				}
+			};
+
+
+		
+
+
+
+
 
 			
 
 			
 
+			
 
-		}
+
+		
 
 
 
