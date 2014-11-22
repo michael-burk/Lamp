@@ -198,7 +198,7 @@ function init(){
 
     reader.onload = function(e) {
   		logText = reader.result;
-  		console.log(logText);
+  		//console.log(logText);
 
 	}
 
@@ -341,7 +341,7 @@ function init(){
 		
 		
 
-// 	createSphere(); 
+ 	createSphere(); 
  	  
   // $.getJSON( "LOGFILE4.json", function( data ) {
   //   pointData = data;
@@ -530,7 +530,7 @@ function loadTXT(){
 
 					var point = data.substr(ppArray[0]+1,(ppArray[1])-(ppArray[0]+1));
 
-					console.log("point: " + point);
+					//console.log("point: " + point);
 
 
 
@@ -630,12 +630,11 @@ function loadTXT(){
 
 				
 			}
-			console.log(finalPoints);
+			//console.log(finalPoints);
 	}
 
 
-
-	// Create Point List like in JSON loader
+// Create Point List like in JSON loader
 
 	particlesCount = finalPoints.length;
 
@@ -707,9 +706,9 @@ function loadTXT(){
 		}
 		  
 		  
-		//worker.postMessage(positions); // Send data to our worker.
+		worker.postMessage(positions); // Send data to our worker.
 
-		console.log(positions);
+		//console.log(positions);
 		createMesh();
 
 }

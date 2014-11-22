@@ -40,8 +40,8 @@ int slotCounterOld = 0;
 int motorAngle;
 int motorAngleEnd;
 int motorAngleStart;
-long motorCounter = 0;
-long var;
+//long motorCounter = 0;
+//long var;
 
 
 int increment = 0;
@@ -50,7 +50,7 @@ File dataFile;
 
 void setup() {
 
-  var = 0;
+  //var = 0;
   motorAngleStart = 250;
   motorAngleEnd = 712;
   //motorAngleEnd = 350;
@@ -116,10 +116,10 @@ void setup() {
   pinMode(53, OUTPUT);
 
   // see if the card is present and can be initialized:
-  if (!SD.begin(53)) {
+  while(!SD.begin(53)) {
     Serial.println("Card failed, or not present");
     // don't do anything more:
-    return;
+  //  return;
   }
   Serial.println("card initialized.");
 
@@ -218,29 +218,42 @@ void loop() {
         Serial.println("");
 
         if(motorAngle == motorAngleStart){
-          dataFile.print("{ \"points\":{");
+         // dataFile.print("{ \"points\":{");
+         dataFile.print("A");
         }
 
         for(int i = 0; i< res; i++){
 
 
-          dataFile.print("\"");
-          var = i + motorCounter * res;
-          dataFile.print(var);
-          dataFile.print("\": {\"");
-          dataFile.print("x\": \"");
-          dataFile.print(distances[i]);
-          dataFile.print("\", \"");
-          dataFile.print("y\": \"");
-          dataFile.print(angles[i]);
-          dataFile.print("\", \"");
-          dataFile.print("z\": \"");
-          dataFile.print(motorAngle);
-          dataFile.print("\"");
+         // dataFile.print("\"");
+         // var = i + motorCounter * res;
+//          dataFile.print(var);
+//          dataFile.print("\": {\"");
+//          dataFile.print("x\": \"");
+//          dataFile.print(distances[i]);
+//          dataFile.print("\", \"");
+//          dataFile.print("y\": \"");
+//          dataFile.print(angles[i]);
+//          dataFile.print("\", \"");
+//          dataFile.print("z\": \"");
+//          dataFile.print(motorAngle);
+//          dataFile.print("\"");
+
+            dataFile.print("P");
+            dataFile.print("x");
+            dataFile.print(distances[i]);
+            dataFile.print("x");
+            dataFile.print("y");
+            dataFile.print(angles[i]);
+            dataFile.print("y");
+            dataFile.print("z");
+            dataFile.print(motorAngle);
+            dataFile.print("z");
+            dataFile.print("P");
 
 
           if(i < res-1){
-            dataFile.print("}, "); 
+        //    dataFile.print("}, "); 
           }
 
           distances[i] = 0.0;
@@ -248,14 +261,15 @@ void loop() {
         }
 
         if(motorAngle >= motorAngleEnd){
-          dataFile.print("}}}");
+          dataFile.print("O");
+          //dataFile.print("}}}");
         }
         else{
-          dataFile.print("}, ");
+         // dataFile.print("}, ");
         }
 
 
-        motorCounter++;
+      //  motorCounter++;
         motorAngle += 1; 
 
 
