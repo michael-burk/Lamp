@@ -198,20 +198,10 @@ function init(){
 
     reader.onload = function(e) {
   		logText = reader.result;
-  		//console.log(logText);
-
+  		loadTXT();
 	}
 
-	// for (var i = 0, f; f = files[i]; i++) {
- //      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
- //                  f.size, ' bytes, last modified: ',
- //                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
- //                  '</li>');
-      
- //    }
     reader.readAsText(files[0]);
-  //  document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-
     
   }
 
@@ -529,11 +519,6 @@ function loadTXT(){
 					var pointValid = false;
 
 					var point = data.substr(ppArray[0]+1,(ppArray[1])-(ppArray[0]+1));
-
-					//console.log("point: " + point);
-
-
-
 
 					//Get X Value
 						var regXX = /(x)/g;
