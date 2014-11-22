@@ -30,6 +30,9 @@
 
 
 
+<div style="width: 300px; height: 300px; z-index: 100;"id="drop_zone">Drop files here</div>
+<output id="list"></output>
+
 
 <!-- Custom shaders for particle effects -->
 <script type="x-shader/x-vertex" id="vertexshader">
@@ -72,7 +75,7 @@ void main()
 
 
 
-<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px; z-index: -1;"></div>
 
 
 <script>
@@ -122,6 +125,7 @@ var new_pos2 = new THREE.Vector3( 0, 0, 0 );
 var raycaster;
 var planeZ = new THREE.Plane(cameraVector, 0);
 
+var logText;
 
 //var Ico;
 var selectedMesh = new THREE.Geometry();
@@ -177,6 +181,54 @@ cutoutWorker.addEventListener('message', function(e) {
 
 	
 function init(){
+
+	var reader = new FileReader();
+
+	
+
+	function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files; // FileList object.
+    
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+
+    reader.onload = function(e) {
+  		logText = reader.result;
+  		console.log(logText);
+
+	}
+
+	// for (var i = 0, f; f = files[i]; i++) {
+ //      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+ //                  f.size, ' bytes, last modified: ',
+ //                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+ //                  '</li>');
+      
+ //    }
+    reader.readAsText(files[0]);
+  //  document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+    
+  }
+
+  function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+  }
+
+  // Setup the dnd listeners.
+  var dropZone = document.getElementById('drop_zone');
+  dropZone.addEventListener('dragover', handleDragOver, false);
+  dropZone.addEventListener('drop', handleFileSelect, false);
+
+
+
+
 
 	// SCENE
 	scene = new THREE.Scene();
@@ -289,16 +341,21 @@ function init(){
 		
 		
 
- 	createSphere(); 
+// 	createSphere(); 
  	  
-  $.getJSON( "LOGFILE3.json", function( data ) {
-    pointData = data;
-    loadJSON();
-  });
+  // $.getJSON( "LOGFILE4.json", function( data ) {
+  //   pointData = data;
+  //   loadJSON();
+  // });
 
 
 	//loadSTL();
-    
+ //    $.get("LOG1.txt", function(respons) {
+ //     	logfile = respons;
+ //     	alert(respons);
+	// });
+
+
 }
 
 
@@ -419,6 +476,93 @@ function loadJSON() {
 
 		createMesh();
 		  
+}
+
+function loadTXT(){
+	var regFileComplete = /(A|O)/g;
+
+	var counter = 0;
+
+	// Search for beginning and end in file
+	while ((match = regFileComplete.exec(logText)) != null) {
+		counter ++;
+    	//console.log(counter + ". match found at " + match.index);
+	}
+
+	if(counter == 2){
+
+		console.log("Start and End detected");
+
+		var data = logText.substr(1,logText.length-2);
+
+		console.log("data: " + data);
+		//Get Point
+
+		var regPP = /(P|P)/g;
+		var ppArray = [2];
+
+		var pointCounter = 0; 
+
+		while ((match = regPP.exec(data)) != null) {
+			
+			pointCounter ++;
+
+			if(pointCounter <= 2){
+
+				ppArray[pointCounter-1] =  match.index;
+				
+				console.log("counter: " + pointCounter);
+				console.log(match.index);
+
+			} else {
+
+				pointCounter = 0;
+
+				// var counter = 0;
+
+				// var point = data.substr(ppArray[0]+1,ppArray[1]-1);
+
+				// console.log("point: " + point);
+
+				// //Get X Value
+				// var regXXe = /(x|x)/g;
+				// var xxArray = [2];
+
+				// while ((match = regXXe.exec(point)) != null) {
+					
+				// 	if(counter < 3){
+				// 		xxArray[counter - 1] =  match.index;
+				// 		counter ++;
+				// 	}
+				// 	counter = 0;
+
+				// }
+
+				// var x = point.substr(xxArray[0]+1,xxArray[1]-1);
+				
+				// if( x.length >= 0 ){
+				// 	//Valid Value
+				// }
+
+
+				//console.log(x);
+
+
+			}
+
+			
+
+			
+
+			
+
+
+		}
+
+
+
+	}
+
 }
 
 function createSphere(){
