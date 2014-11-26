@@ -46,7 +46,3 @@ var cutOut = new Float32Array(icoFaces.length / 3);
  self.postMessage(cutOut);
 
 }, false);
-
-
-
-
