@@ -18,6 +18,8 @@
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/jquery-2.1.1.min.js"></script>
 <script src="js/cleanMesh.js"></script>
+<script src="js/cutout.js"></script>
+
 <!--Copyright (C) 2012 Philipp Sackl, envis precisely GmbH-->
 <script type="text/javascript" charset="utf-8" src="js/THREE2STL.js"></script>
 
@@ -26,7 +28,8 @@
 
 <script type="text/javascript" src="js/BoxGeometry.js"></script>
 
-
+<div style="font-family: helvetica; position: absolute; left: 100px; top: 0; text-align: center; padding-top: 15px; background: white; opacity: .9; width: 120px; height: 100px; z-index: 100;"id="drop_zone">Drop files here</div>
+<output id="list"></output>
 
 
 <!-- Custom shaders for particle effects -->
@@ -61,8 +64,6 @@ void main()
 <!-- end of custom shaders -->
 
 
-
-
 <!-- jQuery code to display an information button and box when clicked. -->
 <script src="js/jquery-1.9.1.js"></script>
 <script src="js/jquery-ui.js"></script>
@@ -72,7 +73,7 @@ void main()
 
 
 
-<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px; z-index: -1;"></div>
 
 
 <script>
@@ -122,8 +123,9 @@ var new_pos2 = new THREE.Vector3( 0, 0, 0 );
 var raycaster;
 var planeZ = new THREE.Plane(cameraVector, 0);
 
+var logText;
 
-var Ico;
+//var Ico;
 var selectedMesh = new THREE.Geometry();
 var toDelete = [];
 
@@ -143,28 +145,79 @@ Object.size = function(obj) {
 };
 
 
-   var worker = new Worker('js/cleanMesh.js');
+// Declare webworker
 
-	worker.addEventListener('message', function(e) {
+var worker = new Worker('js/cleanMesh.js');
 
-		deleteArray = e.data;
+worker.addEventListener('message', function(e) {
 
-		scene.remove(particleSystem);
-		particleGeo = new THREE.Geometry();
-		createMesh();
-		stlFromGeometry( particleGeo, {download:true});
-		console.log('Worker said: ', e.data);
-		
+	deleteArray = e.data;
 
-	}, false);
+	scene.remove(particleSystem);
+	particleGeo = new THREE.Geometry();
+	createMesh();
+	stlFromGeometry( particleGeo, {download:true});
+	console.log('Worker said: ', e.data);
+	
 
+}, false);
+
+
+var cutoutWorker = new Worker('js/cutout.js');
+
+cutoutWorker.addEventListener('message', function(e) {
+
+	updateSphere(e.data);
+	//console.log('Worker said: ', e.data);
+	console.log(e.data.length);
+	
+
+}, false);
 
  
 
 
 	
-function init() 
-{
+function init(){
+
+	var reader = new FileReader();
+
+	
+
+	function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files; // FileList object.
+    
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+
+    reader.onload = function(e) {
+  		logText = reader.result;
+  		loadTXT();
+	}
+
+    reader.readAsText(files[0]);
+    
+  }
+
+  function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+  }
+
+  // Setup the dnd listeners.
+  var dropZone = document.getElementById('drop_zone');
+  dropZone.addEventListener('dragover', handleDragOver, false);
+  dropZone.addEventListener('drop', handleFileSelect, false);
+
+
+
+
+
 	// SCENE
 	scene = new THREE.Scene();
 	
@@ -190,10 +243,11 @@ function init()
 	THREEx.WindowResize(renderer, camera);
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 	$( document ).ready(function(){
-    $(window).keypress(onKeyDown);
-    $(window).mousemove(onMouseMove);
-    $(window).mousedown(onMouseMove);    
-  });
+    	$(window).keypress(onKeyDown);
+    	$(window).mousemove(onMouseMove);
+    	$(window).mousedown(onMouseMove);    
+  	});
+
 	window.addEventListener( 'resize', onWindowResize, false );
 
 	
@@ -212,7 +266,7 @@ function init()
    light.position.set(200,1000,0);
    scene.add(light);
 
-    var light = new THREE.PointLight(0xffffff);
+   var light = new THREE.PointLight(0xffffff);
    light.position.set(1000,-1000,0);
    scene.add(light);
 
@@ -225,125 +279,74 @@ function init()
 	var skyBoxGeometry = new THREE.CubeGeometry( 15000, 15000, 15000 );
 	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: newColor, side: THREE.BackSide } );
 	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-  skyBox.flipSided = true; // render faces from inside of the cube, instead of from outside (default).
+    skyBox.flipSided = true; // render faces from inside of the cube, instead of from outside (default).
 	scene.add(skyBox);
 	
+
 	// Mouse
 	
 	var pointerMaterial =  new THREE.MeshBasicMaterial( { color:0xffffff, transparent: true ,opacity: 0.9 } );
- 
-  var mouseGeo = new THREE.SphereGeometry( 1, 36, 36);
-  var pointer = new THREE.Mesh( mouseGeo, pointerMaterial );
+	 
+	var mouseGeo = new THREE.SphereGeometry( 1, 36, 36);
+	var pointer = new THREE.Mesh( mouseGeo, pointerMaterial );
 
-  pointer.name = "pointer";
-  pointer.position.x = 10;
-  pointer.position.y = 10;
-  pointer.position.z = 10;
-  pointer.updateMatrix();
-  pointer.matrixAutoUpdate = false;
-  scene.add( pointer );
+	pointer.name = "pointer";
+	pointer.position.x = 10;
+	pointer.position.y = 10;
+	pointer.position.z = 10;
+	pointer.updateMatrix();
+	pointer.matrixAutoUpdate = false;
+	scene.add( pointer );
+
+
   
-	////////////
-	// CUSTOM //
-	////////////
-	
+	///////////////////
+	// CUSTOM  SHADER//
+	///////////////////
+
 	var shaderMaterial;
 	var particleSystem;
-	
+
 	//var cubeGeometry = new THREE.CubeGeometry( 50, 50, 50, 20, 20, 20 );
 	//var discTexture = THREE.ImageUtils.loadTexture( 'disc.png' );
-	
+
 	// values that are constant for all particles during a draw call
 	this.customUniforms = 
 	{
 		time:	 { type: "f", value: 1.0 }
 		
 	};
-	
+
 	// properties that may vary from particle to particle. only accessible in vertex shaders!
 	//	(can pass color info to fragment shader via vColor.)
+	
 	this.customAttributes = 
 	{
 		customColor:	 { type: "c", value: [] },
 		customFrequency: { type: 'f', value: [] },
 		customSize: { type: 'f', value: [] }
 	};
-	
-	
+		
+		
 
-   
-   // $.getJSON( "LOGFILE.json", function( data ) {
-   //     pointData = data;
-   //     loadJSON();
-       
-   // });   
  	createSphere(); 
- 	loadSTL();
- 	     
- 	//createOctree(); 
-}
+ 	  
+  // $.getJSON( "LOGFILE4.json", function( data ) {
+  //   pointData = data;
+  //   loadJSON();
+  // });
 
 
-function createOctree(){
+	loadSTL();
 
-	var hex  = 0xff0000;
-
-
- // var bbox = new THREE.BoundingBoxHelper( this.particleSystem, hex );
- // bbox.update();
- // scene.add( bbox );
-
-	var min = new THREE.Vector3(particleGeo.boundingBox.min.x, particleGeo.boundingBox.min.y, particleGeo.boundingBox.min.z);
-	var max = new THREE.Vector3(particleGeo.boundingBox.max.x, particleGeo.boundingBox.max.y, particleGeo.boundingBox.max.z);
-
-	var diagonal = min.sub(max);
-
-	var distance = diagonal.length();
-
-	var borderLength = distance / Math.sqrt(3);
-	
-
-	 var box = new THREE.BoxGeometry(borderLength,borderLength,borderLength);
-	 var material = new THREE.MeshBasicMaterial(hex);
-
-
-	 var bbox = new THREE.Mesh(box, material);
-
-	 var center = max.add(diagonal.multiplyScalar(.5));
-
-	//scene.add( bbox );
-
-	bbox.translateX(center.x);
-	bbox.translateY(center.y);
-	bbox.translateZ(center.z);
-
-	// bbox.translateX(min.x);
-	// bbox.translateY(min.y);
-	// bbox.translateZ(min.z);
+ //    $.get("LOGFILE.txt", function(respons) {
+ //     	logfile = respons;
+ //     	alert(respons);
+	// });
 
 
 }
 
-function createSphere(){
-
-		var pinkMat = new THREE.MeshPhongMaterial({
-		  color      :  new THREE.Color("rgb(226,35,213)"),
-		  emissive   :  new THREE.Color("rgb(255,128,64)"),
-		  specular   :  new THREE.Color("rgb(255,155,255)"),
-		  shininess  :  10,
-		  shading    :  THREE.FlatShading,
-		  transparent: 1,
-		  opacity    : 1
-		});
-
-
-		var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading} );
-
-		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(10,5), pinkMat);
-		Ico.dynamic = true;
-
-		scene.add(Ico);
-}
 
 function loadSTL(){
 	var loader = new THREE.STLLoader();
@@ -385,13 +388,13 @@ function loadSTL(){
 					//createMesh();
 					addToScene();
 				} );
-				loader.load( 'LOGFILE.stl' );
+				loader.load( 'TUTOR.stl' );
 
 }
 
 function loadJSON() {
      
-        particlesCount = Math.floor(Object.size(pointData.points) / 3);
+    particlesCount = Math.floor(Object.size(pointData.points) / 3);
 
 		var color = new THREE.Color();
 		
@@ -459,68 +462,335 @@ function loadJSON() {
 		  
 		  
 		worker.postMessage(positions); // Send data to our worker.
+
 		createMesh();
 		  
 }
 
+function loadTXT(){
+
+	var regFileComplete = /(A|O)/g;
+
+	var counter = 0;
+
+	// Search for beginning and end in file
+	while ((match = regFileComplete.exec(logText)) != null) {
+		counter ++;
+	}
+
+	if(counter == 2){
+
+		console.log("Start and End detected");
+
+		var data = logText.substr(1,logText.length-2);
+
+		console.log("data: " + data);
+		
+
+
+//Parser - Get Points
+
+		var regPP = /(P)/g;
+		var ppArray = [2];
+
+		var pointsIndex = [];
+		var pointCounter = 0; 
+
+		var finalPoints = [];
+
+
+		while ((match = regPP.exec(data)) != null) {
+
+			pointsIndex.push(match.index);
+			
+			}
+
+			for (var i = 0; i < pointsIndex.length; i++) {
+				ppArray[0] = pointsIndex[i];
+				ppArray[1] = pointsIndex[i+1];
+
+
+
+				if(i % 2 == 0){
+
+					var newPointTXT = new THREE.Vector3(0,0,0);
+
+					var pointValid = false;
+
+					var point = data.substr(ppArray[0]+1,(ppArray[1])-(ppArray[0]+1));
+
+					//Get X Value
+						var regXX = /(x)/g;
+						var xxArray = [2];
+						counter = 0;
+						while ((match = regXX.exec(point)) != null) {
+							
+							if(counter < 3){
+								xxArray[counter] =  match.index;
+								counter ++;
+							}
+
+						}
+
+						var x = point.substr(xxArray[0]+1,xxArray[1]-(xxArray[0]+1));
+						
+						if( x.length > 0 ){
+							//Valid Value
+							newPointTXT.x = x;
+
+							pointValid = true;
+						} else {
+							pointValid = false;
+						}
+
+
+						
+
+
+					//Get Y Value
+						var regYY = /(y)/g;
+						var yyArray = [2];
+
+						counter = 0;
+
+						while ((match = regYY.exec(point)) != null) {
+	
+							if(counter < 3){
+								yyArray[counter] =  match.index;
+								counter ++;
+							}
+
+						}
+
+						var y = point.substr(yyArray[0]+1,yyArray[1]-(yyArray[0]+1));
+						
+						if( y.length > 0 ){
+							//Valid Value
+							newPointTXT.y = y;
+
+							pointValid = true;
+						} else {
+							pointValid = false;
+						}
+
+
+						
+
+
+					//Get Z Value
+
+						var regZZ = /(z)/g;
+						var zzArray = [2];
+						counter = 0;
+						while ((match = regZZ.exec(point)) != null) {
+							
+							if(counter < 3){
+								zzArray[counter] =  match.index;
+								counter ++;
+							}
+
+						}
+
+						var z = point.substr(zzArray[0]+1,zzArray[1]-(zzArray[0]+1));
+						
+						if( z.length > 0 ){
+							//Valid Value
+							newPointTXT.z = z;
+
+							pointValid = true;
+						} else {
+							pointValid = false;
+						}
+
+
+						if(pointValid){
+
+							finalPoints.push(newPointTXT);
+
+						}
+
+
+				}
+
+				
+			}
+			//console.log(finalPoints);
+	}
+
+
+// Create Point List like in JSON loader
+
+	particlesCount = finalPoints.length;
+
+		var color = new THREE.Color();
+		
+		positions = new Float32Array( particlesCount * 3 );
+		colors = new Float32Array( particlesCount * 3);
+		sizes = new Float32Array( particlesCount );
+		deleteArray = new Int32Array( particlesCount );
+	
+	vertexCounter = -1;
+
+     for ( var i = 0; i < particlesCount * 3; i += 3 ) {
+       
+     //   if(finalPoints[i] == undefined && i <=  particlesCount){
+					// console.log("something is wrong in the data at: " + i);
+					// continue;
+     //   }
+       vertexCounter ++;
+
+		// Point on XZ Plane
+		var x = finalPoints[vertexCounter].x * Math.cos(finalPoints[vertexCounter].y*(Math.PI/180));
+		var y = 0;
+		var z = finalPoints[vertexCounter].x * Math.sin(finalPoints[vertexCounter].y*(Math.PI/180));
+
+		
+
+		// Eliminate zero dots
+		if(y + x + z == 0){ 
+	    	continue;
+		}
+
+		var angle = (map(finalPoints[vertexCounter].z, 212, 812, 0, 180))*(Math.PI/180);
+		
+		//Translate Point
+		 x -=  10 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003);
+		 y -=  10 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
+		 z -= 0;
+		
+		// Rotate Point around Z Axis
+		x1 = x * Math.cos(angle) - y * Math.sin(angle);
+		y1 = x * Math.sin(angle) + y * Math.cos(angle);
+		z1 = z;
+		
+
+		var colorMapR = map(finalPoints[vertexCounter].x, 0, 8000, .5, 0);
+		var colorMapG = map(finalPoints[vertexCounter].x, 0, 3000, 0, .5);
+		var colorMapB = map(finalPoints[vertexCounter].x, 0, 5000, .5, .2);
+
+
+        var newColor = new THREE.Color( );
+        newColor.setRGB(0.2,0.2,colorMapB);
+
+       	// Eliminate zero dots
+		if(y1 + x1 + z1 == 0){ 
+	    	continue;
+		}
+        
+        positions[ i ]     = y1 * .1;
+		positions[ i + 1 ] = x1 * .1;
+		positions[ i + 2 ] = z1 * .1;
+		
+		colors[ i ]     = newColor.r;
+		colors[ i + 1 ] = newColor.g;
+		colors[ i + 2 ] = newColor.b;
+		
+		sizes[ vertexCounter] =  map(finalPoints[vertexCounter].x, 0, 5000, 0, 100);
+
+	}
+		  
+		  
+		worker.postMessage(positions); // Send data to our worker.
+
+		//console.log(positions);
+		createMesh();
+
+}
+
+function createSphere(){
+
+		var pinkMat = new THREE.MeshPhongMaterial({
+		  color      :  new THREE.Color("rgb(226,35,213)"),
+		  emissive   :  new THREE.Color("rgb(255,128,64)"),
+		  specular   :  new THREE.Color("rgb(255,155,255)"),
+		  shininess  :  10,
+		  shading    :  THREE.FlatShading,
+		  transparent: 1,
+		  opacity    : 1
+		});
+
+
+		var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
+
+		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,7), pinkMat);
+		Ico.dynamic = true;
+		Ico.doubleSided = true;
+
+		scene.add(Ico);
+
+}
+
+function updateSphere(deleteFaces){
+
+		var counter = 0;
+		for (var i = 0; i <= deleteFaces.length ; i++) {
+			if(deleteFaces[i] == 1){		
+				counter++;
+				Ico.geometry.vertices[Ico.geometry.faces[i].a] = 0;
+				Ico.geometry.vertices[Ico.geometry.faces[i].b] = 0;
+				Ico.geometry.vertices[Ico.geometry.faces[i].c] = 0;
+     			Ico.geometry.verticesNeedUpdate = true;
+			}
+		}
+		console.log(counter);
+
+}
+
 function createMesh(){
 
-	
 
 	// Create Mesh
-	  vertexCounterSize = 0;
-	  vertexCounter = 0;
-	  skipCounter = 0;
-	  deleteCounter = 0;
+	vertexCounterSize = 0;
+	vertexCounter = 0;
+	skipCounter = 0;
+	deleteCounter = 0;
 	
      // for(var i = 0; i < 1000; i+=3){  
-      for(var i = 0; i < positions.length; i+=3){  
-        
+	for(var i = 0; i < positions.length; i+=3){  
 
-        var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ]);  
-         
-    	
-        
-        
-        if(deleteArray[deleteCounter] == 1){
-           deleteCounter ++;
-           skipCounter ++;
-           vertexCounterSize++;
-           continue;
-        }
 
-        if(newPoint.x + newPoint.y + newPoint.z == 0){
-           deleteCounter ++;
-           skipCounter ++;
-           vertexCounterSize++;
-           continue;
-        } 
-        
-        if(vertexCounter % 3 == 0 || vertexCounter == 0){
-        	if(vertexCounter-1 != -1){
-        		 particleGeo.faces.push( new THREE.Face3(vertexCounter, vertexCounter+1, vertexCounter-1));
-        	}else{
-        		particleGeo.faces.push( new THREE.Face3(vertexCounter, vertexCounter+1, vertexCounter+2));
-        	}
-        	   
-        }
+		var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ]);  
+		 
 
-        deleteCounter ++;
-        vertexCounter ++;
-        vertexCounterSize++;
-                
-        particleGeo.vertices.push(
-           newPoint                
-        );
- 
-        
-        var newColor = new THREE.Color();
-        newColor.setRGB(	colors[ i ], 	colors[ i + 1 ], 	colors[ i + 2 ] );
-        customAttributes.customColor.value[ vertexCounter-1] = newColor;
-        customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];;
-       
+		if(deleteArray[deleteCounter] == 1){
+		   deleteCounter ++;
+		   skipCounter ++;
+		   vertexCounterSize++;
+		   continue;
+		}
 
-      }
+		if(newPoint.x + newPoint.y + newPoint.z == 0){
+		   deleteCounter ++;
+		   skipCounter ++;
+		   vertexCounterSize++;
+		   continue;
+		} 
+
+		if(vertexCounter % 3 == 0 || vertexCounter == 0){
+			if(vertexCounter-1 != -1){
+				 particleGeo.faces.push( new THREE.Face3(vertexCounter, vertexCounter+1, vertexCounter-1));
+			}else{
+				particleGeo.faces.push( new THREE.Face3(vertexCounter, vertexCounter+1, vertexCounter+2));
+			}
+			   
+		}
+
+		deleteCounter ++;
+		vertexCounter ++;
+		vertexCounterSize++;
+		        
+		particleGeo.vertices.push(
+		   newPoint                
+		);
+
+
+		var newColor = new THREE.Color();
+		newColor.setRGB(	colors[ i ], 	colors[ i + 1 ], 	colors[ i + 2 ] );
+		customAttributes.customColor.value[ vertexCounter-1] = newColor;
+		customAttributes.customSize.value[ vertexCounter-1] =  sizes[vertexCounterSize-1];;
+
+
+	}
 
        customAttributes.customColor.needsUpdate = true;
 	   customAttributes.customSize.needsUpdate = true;
@@ -543,8 +813,6 @@ function addToScene(){
 		});
 			
 			
-			
-			
 		this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
 		this.particleSystem.position.set(0, 0, 0);
 		this.particleSystem.dynamic = true;
@@ -552,119 +820,115 @@ function addToScene(){
 		this.particleSystem.sortParticles = false;
 		this.particleSystem.name = "particleSystem";
 		scene.add( this.particleSystem );	
-		createOctree();
+
 }
 
 function onMouseMove(event){
   
-  mouseCoord = new THREE.Vector3(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1,
-      0.5 );
-      
-  calcPointer();
+	mouseCoord = new THREE.Vector3( (event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5 );
+ 	
+ 	calcPointer();
 
-};
+}
 
 function onKeyDown(event) {
 
+
+			// Space Bar
 			if(event.charCode == 32){
 
 				//selectedMesh = new THREE.Geometry();
 
 				for ( var i = 0; i < particleGeo.vertices.length; i ++ ) {
               
-		             var vertex = particleGeo.vertices[i];
+		            var vertex = particleGeo.vertices[i];
 		             
 		              //Get the current camera position  
-		             new_pos.copy(camera.position);
+		            new_pos.copy(camera.position);
 		             
 		             //Get the smallest distance to the cube and if the distance is smaller than
 		             // the distance from camera to cube divided by ten (imaginary contact with sphere),
 		             // change the color
-		             if(raycaster.ray.distanceToPoint(vertex) <= new_pos.sub(vertex).length()/20 ){
-		                  
-		                 // console.log(i);
-		                  
-		                  var newColor = new THREE.Color( 0xffffff );
-		                  customAttributes.customColor.value[ i ] = newColor;
-		                  customAttributes.customSize.value[ i ] = 1;
+		            if(raycaster.ray.distanceToPoint(vertex) <= new_pos.sub(vertex).length()/20 ){
 		                  
 		                  
-		               //  var point = new THREE.Vector3(vertex.x,vertex.y,vertex.z)
+		                var newColor = new THREE.Color( 0xffffff );
+		                customAttributes.customColor.value[ i ] = newColor;
+		                customAttributes.customSize.value[ i ] = 1;
+		                  
+		                  
 
-		                  selectedMesh.vertices.push(vertex);
+   		                selectedMesh.vertices.push(vertex);
 		                  
+
+			            var material = new THREE.LineBasicMaterial({color: 0xffffff, opacity: .5 });
+
+			            material.transparent = true;
+
+						var geometry = new THREE.Geometry();
+						geometry.vertices.push(
+							new THREE.Vector3( 0, 0, 0 ),
+							vertex
+						);
+
+						var line = new THREE.Line( geometry, material );
+						scene.add( line );
 
 		                  
 						customAttributes.customColor.needsUpdate = true;
 						customAttributes.customSize.needsUpdate = true;
 
-	              }
+	              	}
 	              
-	             }
-	         } 
+	            }
+	        } 
+
+
+	         // Enter
+	        if (event.charCode == 0){
 
 
 
-	         if (event.charCode == 0){
+	          // Convert Meshes intp ArrayBuffer for Webworker
 
-	         	toDelete= [];
-	         	
-	         	for ( var i = 0; i < selectedMesh.vertices.length; i ++ ) {
-
-	         		// Test collision with lamp (Ico Mesh)
+	        	var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length * 3);
+	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length);
+	          	var icoFaces = new Float32Array(Ico.geometry.faces.length * 3);
 
 
+	        	var vertexCounter = 0;
+		        for (var i = 0; i <= selecteMeshBuffer.length - 3; i+=3) {
+		        	selecteMeshBuffer[i] =   selectedMesh.vertices[vertexCounter].x;
+		          	selecteMeshBuffer[i+1] = selectedMesh.vertices[vertexCounter].y;
+		          	selecteMeshBuffer[i+2] = selectedMesh.vertices[vertexCounter].z;
+		          	vertexCounter++;
+		        };
 
-	         		var direction = new THREE.Vector3(0,0,0);
-	         		direction = selectedMesh.vertices[i].sub(direction);
+	          	var vertexCounter = 0;
+		        for (var i = 0; i <= icoVertices.length - 3; i+=3) {
+		          	icoVertices[i] =   Ico.geometry.vertices[vertexCounter].x;
+		          	icoVertices[i+1] = Ico.geometry.vertices[vertexCounter].y;
+		          	icoVertices[i+2] = Ico.geometry.vertices[vertexCounter].z;
+		          	vertexCounter++;          	
 
-	    //      		var lineDirection = direction.clone();
+		        };
 
-	    //      		var material = new THREE.LineBasicMaterial({
-					// 	color: 0x000000
-					// });
-
-					// var geometry = new THREE.Geometry();
-					// geometry.vertices.push(
-					// 	new THREE.Vector3( 0, 0, 0 ),
-					// 	lineDirection
-					// );
-
-					// var line = new THREE.Line( geometry, material );
-					// scene.add( line );
-
-
-
-					direction.normalize();
-
-					var myRaycaster = new THREE.Raycaster(selectedMesh.vertices[i], direction);
-
-	         		for (var j = Ico.geometry.faces.length - 1; j >= 0; j--) {
-	         	
-	         			//console.log(myRaycaster.ray.distanceToPoint( Ico.geometry.faces[j].centroid ));
-	         			if(myRaycaster.ray.distanceToPoint( Ico.geometry.faces[j].centroid) <= .1){
-	         				
+		        var vertexCounter = 0;
+		        for (var i = 0; i <= icoFaces.length - 3; i+=3) {
+		          	icoFaces[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
+		          	icoFaces[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
+		          	icoFaces[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+		          	vertexCounter++;
+		        };
 
 
-	         				//console.log(j);
 
-	         				Ico.geometry.vertices[Ico.geometry.faces[j].a] = 0;
-	         				Ico.geometry.vertices[Ico.geometry.faces[j].b] = 0;
-	         				Ico.geometry.vertices[Ico.geometry.faces[j].c] = 0;
-	         				Ico.geometry.verticesNeedUpdate = true;
+        		var buffers = [ selecteMeshBuffer, icoVertices, icoFaces];
 
- 	         				toDelete.push(j);
-	         			}
-	         		
-	         		};
+         		cutoutWorker.postMessage(buffers);
 
-	         	}
 
-	         }
-             
-     
+	        }
     
 };
 
@@ -674,13 +938,7 @@ function calcPointer(){
   cameraVector.applyQuaternion( camera.quaternion );
    
 	mouseX = mouseCoord.x;
-	//console.log(event.clientX)
-	// Mouse Position on Screen (Worldpos?)
-   // var mv = new THREE.Vector3(
-   //     (event.clientX / window.innerWidth) * 2 - 1,
-   //     -(event.clientY / window.innerHeight) * 2 + 1,
-   //     0.5 );
-     
+
 	//New Projector Class picking ray
    raycaster = projector.pickingRay(mouseCoord, camera);
 
@@ -723,15 +981,15 @@ function checkCamera(){
   cameraOld = camera.quaternion.x;
 }
 
-function animate() 
-{
+function animate(){
   requestAnimationFrame( animate );
 	render();		
 	update();
+
 }
 
-function update()
-{
+function update(){
+
 	if ( keyboard.pressed("z") ) 
 	{ 
 		// do something
