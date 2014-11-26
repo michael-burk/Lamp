@@ -105,7 +105,7 @@ var mouseOpacity;
 var positions;
 var colors;
 var sizes;
-var deleteArray;
+var cutMeshData;
 
 var skipCounter;
 
@@ -151,13 +151,13 @@ var worker = new Worker('js/cleanMesh.js');
 
 worker.addEventListener('message', function(e) {
 
-	deleteArray = e.data;
+	cutMeshData = e.data;
 
 	scene.remove(particleSystem);
 	particleGeo = new THREE.Geometry();
 	createMesh();
 	stlFromGeometry( particleGeo, {download:true});
-	console.log('Worker said: ', e.data);
+	//console.log('Worker said: ', e.data);
 	
 
 }, false);
@@ -627,7 +627,7 @@ function loadTXT(){
 		positions = new Float32Array( particlesCount * 3 );
 		colors = new Float32Array( particlesCount * 3);
 		sizes = new Float32Array( particlesCount );
-		deleteArray = new Int32Array( particlesCount );
+		//deleteArray = new Int32Array( particlesCount );
 	
 	vertexCounter = -1;
 
@@ -720,19 +720,23 @@ function createSphere(){
 
 }
 
-function updateSphere(deleteFaces){
+function updateSphere(cutMeshData){
 
 		var counter = 0;
-		for (var i = 0; i <= deleteFaces.length ; i++) {
-			if(deleteFaces[i] == 1){		
-				counter++;
-				Ico.geometry.vertices[Ico.geometry.faces[i].a] = 0;
-				Ico.geometry.vertices[Ico.geometry.faces[i].b] = 0;
-				Ico.geometry.vertices[Ico.geometry.faces[i].c] = 0;
-     			Ico.geometry.verticesNeedUpdate = true;
-			}
-		}
-		console.log(counter);
+
+
+		console.log(cutMeshData);
+		// for (var i = 0; i <= deleteFaces.length ; i++) {
+		// 	if(deleteFaces[i] == 1){		
+		// 		counter++;
+		// 		Ico.geometry.vertices[Ico.geometry.faces[i].a] = 0;
+		// 		Ico.geometry.vertices[Ico.geometry.faces[i].b] = 0;
+		// 		Ico.geometry.vertices[Ico.geometry.faces[i].c] = 0;
+  //    			Ico.geometry.verticesNeedUpdate = true;
+		// 	}
+		// }
+
+		//console.log(counter);
 
 }
 
@@ -834,7 +838,7 @@ function onMouseMove(event){
 function onKeyDown(event) {
 
 
-			// Space Bar
+		// Space Bar
 			if(event.charCode == 32){
 
 				//selectedMesh = new THREE.Geometry();
@@ -884,7 +888,9 @@ function onKeyDown(event) {
 	        } 
 
 
-	         // Enter
+	    // Enter
+
+
 	        if (event.charCode == 0){
 
 
@@ -893,6 +899,7 @@ function onKeyDown(event) {
 
 	        	var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length * 3);
 	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length);
+	          	var icoFacesCentroid = new Float32Array(Ico.geometry.faces.length * 3);
 	          	var icoFaces = new Float32Array(Ico.geometry.faces.length * 3);
 
 
@@ -915,15 +922,23 @@ function onKeyDown(event) {
 
 		        var vertexCounter = 0;
 		        for (var i = 0; i <= icoFaces.length - 3; i+=3) {
-		          	icoFaces[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
-		          	icoFaces[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
-		          	icoFaces[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+		          	icoFacesCentroid[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
+		          	icoFacesCentroid[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
+		          	icoFacesCentroid[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+		          	vertexCounter++;
+		        };
+
+				var vertexCounter = 0;
+		        for (var i = 0; i <= icoFaces.length - 3; i+=3) {
+		          	icoFaces[i] =   Ico.geometry.faces[vertexCounter].a;
+		          	icoFaces[i+1] = Ico.geometry.faces[vertexCounter].b;
+		          	icoFaces[i+2] = Ico.geometry.faces[vertexCounter].c;
 		          	vertexCounter++;
 		        };
 
 
 
-        		var buffers = [ selecteMeshBuffer, icoVertices, icoFaces];
+        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroid, icoFaces];
 
          		cutoutWorker.postMessage(buffers);
 

@@ -5,10 +5,13 @@ importScripts('THREE.js');
 //Input Buffer
 var selectedVertices = e.data[0];
 var icoVertices = e.data[1];
-var icoFaces = e.data[2];
+var icoFacesCentroid = e.data[2];
+var icoFaces = e.data[3];
 
 // Output ArrayBuffer
 var cutOut = new Float32Array(icoFaces.length / 3);
+
+
 
  	for ( var i = 0; i <= selectedVertices.length; i += 3 ) {
 
@@ -24,25 +27,44 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 
 		var faceCounter = 0;
 
- 		for (var j =0; j <= icoFaces.length; j+=3) {
+		var closestFace;
+		var closetDistance = 10000;
+
+ 		for (var j =0; j <= icoFacesCentroid.length; j+=3) {
 
  			// Center of Face
-			var centroid = new THREE.Vector3(icoFaces[j],icoFaces[j+1],icoFaces[j+2]);
+			var centroid = new THREE.Vector3(icoFacesCentroid[j],icoFacesCentroid[j+1],icoFacesCentroid[j+2]);
 
-			// Does the ray intersect with the face?
- 			if(myRaycaster.ray.distanceToPoint(centroid) <= .04){
- 				
- 				// Set according slot in output buffer to 1
- 				cutOut[faceCounter] = 1;
 
- 			} 
+ 			if(myRaycaster.ray.distanceToPoint(centroid) <= closetDistance){
+ 					closetDistance = myRaycaster.ray.distanceToPoint(centroid);
+ 					closestFace = faceCounter;
+ 			}
 
  			faceCounter ++;
  		
+ 			if(closetDistance <= .04){
+
+ 				// Remove
+
+ 				// Set according slot in output buffer to 1
+ 				cutOut[closestFace] = 1;
+
+ 			} else {
+
+ 				//Subdivide
+
+ 			}
  		}
 
+ 		console.log(closestFace);
+
  	}
-	
- self.postMessage(cutOut);
+
+var buffers = [icoVertices, icoFaces];
+
+self.postMessage(buffers);
+
+// self.postMessage(cutOut);
 
 }, false);
