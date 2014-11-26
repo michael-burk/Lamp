@@ -106,6 +106,7 @@ var positions;
 var colors;
 var sizes;
 var cutMeshData;
+var deleteArray;
 
 var skipCounter;
 
@@ -128,6 +129,9 @@ var logText;
 //var Ico;
 var selectedMesh = new THREE.Geometry();
 var toDelete = [];
+var newLampGeo = new THREE.Geometry();
+var newLampMesh;
+
 
 // FUNCTIONS
  	
@@ -169,7 +173,7 @@ cutoutWorker.addEventListener('message', function(e) {
 
 	updateSphere(e.data);
 	//console.log('Worker said: ', e.data);
-	console.log(e.data.length);
+	//console.log(e.data.length);
 	
 
 }, false);
@@ -337,7 +341,7 @@ function init(){
   // });
 
 
-	loadSTL();
+//	loadSTL();
 
  //    $.get("LOGFILE.txt", function(respons) {
  //     	logfile = respons;
@@ -627,7 +631,7 @@ function loadTXT(){
 		positions = new Float32Array( particlesCount * 3 );
 		colors = new Float32Array( particlesCount * 3);
 		sizes = new Float32Array( particlesCount );
-		//deleteArray = new Int32Array( particlesCount );
+		deleteArray = new Int32Array( particlesCount );
 	
 	vertexCounter = -1;
 
@@ -654,8 +658,8 @@ function loadTXT(){
 		var angle = (map(finalPoints[vertexCounter].z, 212, 812, 0, 180))*(Math.PI/180);
 		
 		//Translate Point
-		 x -=  10 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003);
-		 y -=  10 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
+		 x -=  3 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003);
+		 y -=  3 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
 		 z -= 0;
 		
 		// Rotate Point around Z Axis
@@ -705,14 +709,15 @@ function createSphere(){
 		  specular   :  new THREE.Color("rgb(255,155,255)"),
 		  shininess  :  10,
 		  shading    :  THREE.FlatShading,
+		  side       : 	THREE.DoubleSide,
 		  transparent: 1,
 		  opacity    : 1
 		});
 
 
-		var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
+		// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
 
-		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,7), pinkMat);
+		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,1), pinkMat);
 		Ico.dynamic = true;
 		Ico.doubleSided = true;
 
@@ -725,7 +730,45 @@ function updateSphere(cutMeshData){
 		var counter = 0;
 
 
-		console.log(cutMeshData);
+		//console.log(cutMeshData[1]);
+
+		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
+
+			newLampGeo.vertices.push(new THREE.Vector3(cutMeshData[0][i],cutMeshData[0][i+1],cutMeshData[0][i+2]));
+			
+		}
+
+		for (var i = 0; i <= cutMeshData[1].length - 3 ; i+=3) {
+			newLampGeo.faces.push(new THREE.Face3(cutMeshData[1][i],cutMeshData[1][i+1],cutMeshData[1][i+2]));
+		}
+
+
+		newLampGeo.computeCentroids();
+		newLampGeo.computeFaceNormals();
+		newLampGeo.computeVertexNormals(); 
+
+		var pinkMat = new THREE.MeshPhongMaterial({
+		  color      :  new THREE.Color("rgb(226,35,213)"),
+		  emissive   :  new THREE.Color("rgb(255,128,64)"),
+		  specular   :  new THREE.Color("rgb(255,155,255)"),
+		  shininess  :  10,
+		  shading    :  THREE.FlatShading,
+		  side       : 	THREE.DoubleSide,
+		  transparent: 1,
+		  opacity    : 1
+		});
+
+
+		// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
+
+		var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+
+		newLampMesh = new THREE.Mesh(newLampGeo, pinkMat);
+
+		newLampMesh.name = "newLampMesh";
+		scene.add(newLampMesh);
+
+		scene.remove(Ico);
 		// for (var i = 0; i <= deleteFaces.length ; i++) {
 		// 	if(deleteFaces[i] == 1){		
 		// 		counter++;
@@ -898,7 +941,7 @@ function onKeyDown(event) {
 	          // Convert Meshes intp ArrayBuffer for Webworker
 
 	        	var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length * 3);
-	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length);
+	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length * 3);
 	          	var icoFacesCentroid = new Float32Array(Ico.geometry.faces.length * 3);
 	          	var icoFaces = new Float32Array(Ico.geometry.faces.length * 3);
 

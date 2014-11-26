@@ -11,7 +11,7 @@ var icoFaces = e.data[3];
 // Output ArrayBuffer
 var cutOut = new Float32Array(icoFaces.length / 3);
 
-
+	//console.log(e.data[3]);
 
  	for ( var i = 0; i <= selectedVertices.length; i += 3 ) {
 
@@ -57,14 +57,12 @@ var cutOut = new Float32Array(icoFaces.length / 3);
  			}
  		}
 
- 		console.log(closestFace);
+ 		//console.log(closestFace);
 
  	}
 
 var buffers = [icoVertices, icoFaces];
 
 self.postMessage(buffers);
-
-// self.postMessage(cutOut);
 
 }, false);
