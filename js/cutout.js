@@ -10,6 +10,8 @@ var icoFaces = e.data[3];
 
 var newIcoVertices = new Float32Array();
 var newIcoFaces = new Float32Array();
+var debugPoints;
+var subDivisionPoints = [];
 
 // Output ArrayBuffer
 var cutOut = new Float32Array(icoFaces.length / 3);
@@ -33,11 +35,12 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 		var closestFace;
 		var closestDistance = 10000;
 
+
+		// Get closestFace and closestDistance
  		for (var j =0; j <= icoFacesCentroid.length -3; j+=3) {
 
  			// Center of Face
 			var centroid = new THREE.Vector3(icoFacesCentroid[j],icoFacesCentroid[j+1],icoFacesCentroid[j+2]);
-
 
  			if(myRaycaster.ray.distanceToPoint(centroid) <= closestDistance){
  					closestDistance = myRaycaster.ray.distanceToPoint(centroid);
@@ -49,24 +52,20 @@ var cutOut = new Float32Array(icoFaces.length / 3);
  			
  		}
 
+ 		// Identify unique, hit faces?
+
 
  		if(closestDistance <= .04){
 
- 				// Remove
-
- 				// Set according slot in output buffer to 1
- 				//cutOut[closestFace] = 1;
-
+ 			// Remove
  		}
 
  		if(closestDistance <= 2 && closestDistance >= .04) {
- 		//if(closestDistance <= .04){
+
+
 			//Subdivide
 
-			console.log("closestFace: " + closestFace);
-			console.log(icoFaces);
-
-
+			//console.log("closestFace: " + closestFace);
 
 			// Get adjacent faces of closestFace
 			var faceCounter = 0;
@@ -79,26 +78,24 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 
 					for (var p = 0; p <= 2; p++) {
 
-						//console.log(closestFace+p);
-
-						if( icoFaces[l] == icoFaces[closestFace*3+p]){
+						// List of face indices at the position closestFace * 3 (because xyz) + addition (p) for xyz
+						if( icoFaces[l] == icoFaces[closestFace * 3 + p]){
 							
 							counter ++;
 						}
 
-						if(icoFaces[l+1] == icoFaces[closestFace*3+p]){
+						if(icoFaces[l+1] == icoFaces[closestFace * 3 + p]){
 							counter ++;
 						}
 
-						if(icoFaces[l+2] == icoFaces[closestFace*3+p]){
+						if(icoFaces[l+2] == icoFaces[closestFace * 3 + p]){
 							counter ++;
 						}
 					}
 				
-
+				// At least two common indices
 				if(counter >= 2){
 					deleteFaces.push(faceCounter);
-					//counter = 0;
 				}
 
 				counter = 0;
@@ -118,30 +115,68 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 
 			for (var l = 0; l <= newIcoFaces.length - 3; l+=3) {
 
+				// Does this face appear in the deleteFaces list?
 				for (var p = 0; p <= deleteFaces.length - 1; p++) {
 					if(idCounter == deleteFaces[p]){
 						deleteCounter ++;
 					}
 				}
-
-				//console.log(deleteCounter);
 				
+				
+
+				/////////////////////////////////////////////////
+				/////////////////////////////////////////////////
+				/////////////////////////////////////////////////
+
+				// Delete has to be done after the loop, because the the face ID's get messed up by this
+				
+				// If so, delete
 				if(deleteCounter <= 0){
 					newIcoFaces[l] = icoFaces[l];
 					newIcoFaces[l+1] = icoFaces[l+1];	
 					newIcoFaces[l+2] = icoFaces[l+2];		
-				} else {
-					//deleteCounter+=3;
-				}
+				}else{
+					newIcoFaces[l] = 10;
+					newIcoFaces[l+1] = 10;
+					newIcoFaces[l+2] = 10;
+				} 
 				
 				idCounter++;
 				deleteCounter = 0;
 
 			};
 
-			// newIcoFaces[newIcoFaces.length -1 ] = 42;
-			// newIcoFaces[newIcoFaces.length -2 ] = 43;
-			// newIcoFaces[newIcoFaces.length -3 ] = 44;
+
+			// Reconstruct Faces
+
+			for (var p = 0; p <= deleteFaces.length - 1; p++) {
+			//	if(deleteFaces[p] != closestFace){
+					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3],
+														icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +1],
+														icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +2]));
+					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3],
+														icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +1],
+														icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +2]));
+					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3],
+														icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +1],
+														icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +2]));
+					
+			//	}
+				
+			
+			}
+			
+			debugPoints = new Float32Array(subDivisionPoints.length * 3);
+
+			var counter = 0;
+			for(var i = 0; i <= debugPoints.length -3; i +=3){
+				debugPoints[i] = subDivisionPoints[counter].x;
+				debugPoints[i+1] = subDivisionPoints[counter].y;
+				debugPoints[i+2] = subDivisionPoints[counter].z;
+				counter ++;
+			}
+
+			//console.log(debugPoints);
 
 
 			idCounter = 0;
@@ -151,17 +186,6 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 					newIcoVertices[m+2] = icoVertices[m+2];
 			};
 
-			
-
-			// newIcoVertices[newIcoVertices.length -1 ] = 0;
-			// newIcoVertices[newIcoVertices.length -2 ] = 0;
-			// newIcoVertices[newIcoVertices.length -3 ] = 0;
-			// newIcoVertices[newIcoVertices.length -4 ] = 2000;
-			// newIcoVertices[newIcoVertices.length -5 ] = 2000;
-			// newIcoVertices[newIcoVertices.length -6 ] = 2000;
-			// newIcoVertices[newIcoVertices.length -7 ] = 2000;
-			// newIcoVertices[newIcoVertices.length -8 ] = -2000;
-			// newIcoVertices[newIcoVertices.length -9 ] = -2000;
 
 			icoFaces = newIcoFaces;
 
@@ -193,7 +217,7 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 //console.log(newIcoFaces);
 
 
-var buffers = [newIcoVertices, newIcoFaces];
+var buffers = [newIcoVertices, newIcoFaces, debugPoints];
 
 self.postMessage(buffers);
 

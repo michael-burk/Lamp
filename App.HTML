@@ -730,8 +730,23 @@ function createSphere(){
 function updateSphere(cutMeshData){
 
 
-		//console.log(cutMeshData);
+		console.log(cutMeshData[2]);
 
+		//Draw debug boxes
+
+
+		var geometry = new THREE.BoxGeometry( .5, .5, .5 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+		var cube = new THREE.Mesh( geometry, material );
+
+
+		for(var i = 0; i <= cutMeshData[2].length -3; i +=3){
+			var cube = new THREE.Mesh( geometry, material );
+			cube.position = new THREE.Vector3(cutMeshData[2][i],cutMeshData[2][i+1],cutMeshData[2][i+2]);
+			scene.add( cube );
+		}
+
+		
 		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
 
 			newLampGeo.vertices.push(new THREE.Vector3(cutMeshData[0][i],cutMeshData[0][i+1],cutMeshData[0][i+2]));
