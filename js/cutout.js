@@ -53,6 +53,7 @@ var cutOut = new Float32Array(icoFaces.length / 3);
  		}
 
  		// Identify unique, hit faces?
+ 		// JAJAJAJAJAJA!
 
 
  		if(closestDistance <= .04){
@@ -73,7 +74,7 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 			var counter = 0;
 
 
-			// Which faces have a common indices with closestFace
+		// Which faces have a common indices with closestFace
 			for (var l = 0; l <= icoFaces.length - 3; l+=3) {
 
 					for (var p = 0; p <= 2; p++) {
@@ -104,8 +105,9 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 			}
 
 			console.log(deleteFaces);
-				
 
+
+			// Creating new arrays for subdivision
 
 			newIcoVertices = new Float32Array(icoVertices.length);
 			newIcoFaces = new Float32Array(icoFaces.length);
@@ -122,14 +124,13 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 					}
 				}
 				
-				
 
 				/////////////////////////////////////////////////
 				/////////////////////////////////////////////////
 				/////////////////////////////////////////////////
 
 				// Delete has to be done after the loop, because the the face ID's get messed up by this
-				
+
 				// If so, delete
 				if(deleteCounter <= 0){
 					newIcoFaces[l] = icoFaces[l];
@@ -149,6 +150,8 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 
 			// Reconstruct Faces
 
+
+			// The points of the faces, that are to be subdivided (including adjacent faces)
 			for (var p = 0; p <= deleteFaces.length - 1; p++) {
 			//	if(deleteFaces[p] != closestFace){
 					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3],
@@ -175,10 +178,9 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 				debugPoints[i+2] = subDivisionPoints[counter].z;
 				counter ++;
 			}
+			
 
-			//console.log(debugPoints);
-
-
+			// Leave the Vertices as they are for now
 			idCounter = 0;
 			for (var m = 0; m <= newIcoVertices.length - 3; m+=3) {
 					newIcoVertices[m] = icoVertices[m];
@@ -187,12 +189,12 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 			};
 
 
-			icoFaces = newIcoFaces;
+			//icoFaces = newIcoFaces;
 
 
 		} else {
 
-			// todo: aus for-loop auslagern
+			// Leave everything as it is
 
 			newIcoVertices = new Float32Array(icoVertices.length);
 			newIcoFaces = new Float32Array(icoFaces.length);
@@ -209,12 +211,8 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 		}
 
 
- 		//console.log(closestDistance);
-
  	}
 
-
-//console.log(newIcoFaces);
 
 
 var buffers = [newIcoVertices, newIcoFaces, debugPoints];
