@@ -132,6 +132,8 @@ var toDelete = [];
 var newLampGeo = new THREE.Geometry();
 var newLampMesh;
 
+var icoVertices;
+
 
 // FUNCTIONS
  	
@@ -341,7 +343,7 @@ function init(){
   // });
 
 
-//	loadSTL();
+	loadSTL();
 
  //    $.get("LOGFILE.txt", function(respons) {
  //     	logfile = respons;
@@ -392,7 +394,7 @@ function loadSTL(){
 					//createMesh();
 					addToScene();
 				} );
-				loader.load( 'TUTOR.stl' );
+				loader.load( 'Tutor.stl' );
 
 }
 
@@ -727,10 +729,8 @@ function createSphere(){
 
 function updateSphere(cutMeshData){
 
-		var counter = 0;
 
-
-		//console.log(cutMeshData[1]);
+		console.log(cutMeshData);
 
 		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
 
@@ -747,6 +747,7 @@ function updateSphere(cutMeshData){
 		newLampGeo.computeFaceNormals();
 		newLampGeo.computeVertexNormals(); 
 
+
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),
 		  emissive   :  new THREE.Color("rgb(255,128,64)"),
@@ -759,8 +760,6 @@ function updateSphere(cutMeshData){
 		});
 
 
-		// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
-
 		var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
 
 		newLampMesh = new THREE.Mesh(newLampGeo, pinkMat);
@@ -769,17 +768,7 @@ function updateSphere(cutMeshData){
 		scene.add(newLampMesh);
 
 		scene.remove(Ico);
-		// for (var i = 0; i <= deleteFaces.length ; i++) {
-		// 	if(deleteFaces[i] == 1){		
-		// 		counter++;
-		// 		Ico.geometry.vertices[Ico.geometry.faces[i].a] = 0;
-		// 		Ico.geometry.vertices[Ico.geometry.faces[i].b] = 0;
-		// 		Ico.geometry.vertices[Ico.geometry.faces[i].c] = 0;
-  //    			Ico.geometry.verticesNeedUpdate = true;
-		// 	}
-		// }
 
-		//console.log(counter);
 
 }
 
