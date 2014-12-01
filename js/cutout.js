@@ -1,20 +1,40 @@
+var closestFace;
+var closestDistance;
+
+//Input Buffer
+var selectedVertices;
+var icoVertices;
+var icoFacesCentroid;
+var icoFaces;
+
+var newIcoVertices;
+var newIcoFaces;
+var debugPoints;
+var subDivisionPoints ;
+
+
+// Output ArrayBuffer
+ var cutOut;
+
 self.addEventListener('message', function(e) {
 
 importScripts('THREE.js');  
 
 //Input Buffer
-var selectedVertices = e.data[0];
-var icoVertices = e.data[1];
-var icoFacesCentroid = e.data[2];
-var icoFaces = e.data[3];
+ selectedVertices = e.data[0];
+ icoVertices = e.data[1];
+ icoFacesCentroid = e.data[2];
+ icoFaces = e.data[3];
 
-var newIcoVertices = new Float32Array();
-var newIcoFaces = new Float32Array();
-var debugPoints;
-var subDivisionPoints = [];
+ newIcoVertices = new Float32Array();
+ newIcoFaces = new Float32Array();
+ debugPoints;
+ subDivisionPoints = [];
 
 // Output ArrayBuffer
-var cutOut = new Float32Array(icoFaces.length / 3);
+ cutOut = new Float32Array(icoFaces.length / 3);
+
+
 
 	console.log("work, work!");
 	console.log("selected length: " + selectedVertices.length);
@@ -34,10 +54,9 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 		var myRaycaster = new THREE.Raycaster(vertex, direction);
 
 		var faceCounter = 0;
+		
 
-		var closestFace;
-		var closestDistance = 10000;
-
+		closestDistance = 100000;
 
 		// Get closestFace and closestDistance
  		for (var j =0; j <= icoFacesCentroid.length -3; j+=3) {
@@ -58,6 +77,18 @@ var cutOut = new Float32Array(icoFaces.length / 3);
  		// Identify unique, hit faces?
  		// JAJAJAJAJAJA!
 
+ 		subdivide();
+
+	}
+ 	
+
+var buffers = [newIcoVertices, newIcoFaces, debugPoints];
+
+self.postMessage(buffers);
+
+}, false);
+
+function subdivide(hitFaces){
 
  		if(closestDistance <= .04){
 
@@ -208,16 +239,4 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 					newIcoVertices[m] = icoVertices[m];
 			}
 		}
-
-	}
- 	
-
-
-
-
-
-var buffers = [newIcoVertices, newIcoFaces, debugPoints];
-
-self.postMessage(buffers);
-
-}, false);
+}
