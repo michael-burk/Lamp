@@ -10,7 +10,9 @@ var icoFaces;
 var newIcoVertices;
 var newIcoFaces;
 var debugPoints;
-var subDivisionPoints ;
+var subDivisionPoints;
+
+var closestFaces = [];
 
 
 // Output ArrayBuffer
@@ -42,7 +44,7 @@ importScripts('THREE.js');
  	for ( var i = 0; i <= selectedVertices.length - 3; i += 3 ) {
 
 
- 		console.log("selected" + i);
+ 		//console.log("selected" + i);
 
  		// Test collision with lamp (Ico Mesh)
 
@@ -74,12 +76,36 @@ importScripts('THREE.js');
  			
  		}
 
- 		// Identify unique, hit faces?
- 		// JAJAJAJAJAJA!
+ 		if(closestDistance <= 2 && closestDistance >= .04) {
+ 			closestFaces.push(closestFace);
+ 		}	
 
- 		subdivide();
+ 		
 
 	}
+
+	if(closestFaces.length > 0){
+
+		subdivide(closestFaces);
+
+	} else {
+
+			// Leave everything as it is
+
+			newIcoVertices = new Float32Array(icoVertices.length);
+			newIcoFaces = new Float32Array(icoFaces.length);
+			
+			for(var l = 0; l <= icoFaces.length - 1; l++) {
+					newIcoFaces[l] = icoFaces[l];	
+				
+			}
+
+			for(var m = 0; m <= icoVertices.length - 1; m++) {
+					newIcoVertices[m] = icoVertices[m];
+			}
+
+	}
+
  	
 
 var buffers = [newIcoVertices, newIcoFaces, debugPoints];
@@ -88,24 +114,22 @@ self.postMessage(buffers);
 
 }, false);
 
+
+
+
 function subdivide(hitFaces){
 
- 		if(closestDistance <= .04){
 
- 			// Remove
- 		}
+		console.log(closestFaces);
+		var deleteFaces = [];
 
- 		if(closestDistance <= 2 && closestDistance >= .04) {
+		for (var i = 0; i <= hitFaces.length - 1; i++) {
 
-
-			//Subdivide
-
-			console.log("closestFace: " + closestFace);
+			var closestFace = hitFaces[i];
 
 			// Get adjacent faces of closestFace
 			var faceCounter = 0;
-			var deleteFaces = [];
-			var counter = 0;
+						var counter = 0;
 
 
 			// Which faces have a common indices with closestFace
@@ -128,7 +152,7 @@ function subdivide(hitFaces){
 				}
 				
 				// At least two common indices
-				if(counter >= 2){
+				if(counter == 2){
 					deleteFaces.push(faceCounter);
 				}
 
@@ -137,13 +161,22 @@ function subdivide(hitFaces){
 				faceCounter++;
 			}
 
+
 			console.log(deleteFaces);
+
+		}
+
 
 
 			// Creating new arrays for subdivision
 
-			newIcoVertices = new Float32Array(icoVertices.length);
-			newIcoFaces = new Float32Array(icoFaces.length);
+			// Same length as before + three new vertices for every hitFace
+			newIcoVertices = new Float32Array(icoVertices.length + (hitFaces.length * 3 * 3));
+			//newIcoVertices = new Float32Array(icoVertices.length);
+
+			// Same length as before + three new faces for hitface + two new faces for every adjacent face (deleteFaces)
+			newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3));
+			//newIcoFaces = new Float32Array(icoFaces.length + 3);
 			
 			var idCounter = 0;
 			var deleteCounter = 0;
@@ -156,23 +189,22 @@ function subdivide(hitFaces){
 						deleteCounter ++;
 					}
 				}
-				
 
-				/////////////////////////////////////////////////
-				/////////////////////////////////////////////////
-				/////////////////////////////////////////////////
+			//	console.log(idCounter);
+			//	console.log(closestFace);
 
-				// Delete has to be done after the loop, because the the face ID's get messed up by this
 
-				// If so, delete
+				// Does this face appear in the deleteFaces list? 
 				if(deleteCounter <= 0){
 					newIcoFaces[l] = icoFaces[l];
 					newIcoFaces[l+1] = icoFaces[l+1];	
 					newIcoFaces[l+2] = icoFaces[l+2];		
-				}else{
-					newIcoFaces[l] = 10;
-					newIcoFaces[l+1] = 10;
-					newIcoFaces[l+2] = 10;
+				}
+				// If so, delete
+				if(deleteCounter > 0 || idCounter == closestFace){
+					newIcoFaces[l] = 0;
+					newIcoFaces[l+1] = 0;
+					newIcoFaces[l+2] = 0;
 				} 
 				
 				idCounter++;
@@ -186,32 +218,32 @@ function subdivide(hitFaces){
 
 			// The points of the faces, that are to be subdivided (including adjacent faces)
 			for (var p = 0; p <= deleteFaces.length - 1; p++) {
-				//	if(deleteFaces[p] != closestFace){
-					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3],
-														icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +1],
-														icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +2]));
-					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3],
-														icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +1],
-														icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +2]));
-					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3],
-														icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +1],
-														icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +2]));
-					
-				//	}
+					subDivisionPoints.push(new THREE.Vector3( icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +0],
+															  icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +1],
+															  icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +2]));
+					subDivisionPoints.push(new THREE.Vector3( icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +0],
+															  icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +1],
+															  icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +2]));
+					subDivisionPoints.push(new THREE.Vector3( icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +0],
+															  icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +1],
+															  icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +2]));
 			}
 			
-			debugPoints = new Float32Array(subDivisionPoints.length * 3);
+			// Data for debug boxes
+			debugPoints = new Float32Array(subDivisionPoints.length * 3 + 3);
 
 			var counter = 0;
-			for(var u = 0; u <= debugPoints.length -3; u +=3){
+			for(var u = 0; u <= debugPoints.length -3 -3; u +=3){
 				debugPoints[u] = subDivisionPoints[counter].x;
 				debugPoints[u+1] = subDivisionPoints[counter].y;
 				debugPoints[u+2] = subDivisionPoints[counter].z;
 				counter ++;
 			}
-			
+		
 
-			// Leave the Vertices as they are for now
+
+
+			// Keep all old vertices
 			idCounter = 0;
 			for (var m = 0; m <= newIcoVertices.length - 3; m+=3) {
 					newIcoVertices[m] = icoVertices[m];
@@ -220,23 +252,72 @@ function subdivide(hitFaces){
 			}
 
 
+			var newVertices = [];
+			var hitFaceID = 0;
+			// Calculate new vertices
+			for (var p = 0; p <= hitFaces.length * 3 - 3; p+=3) {
+
+				//three centroids of hitFace outlines
+
+				var v0 = new THREE.Vector3( icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +0]* 3 +0],
+											icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +0]* 3 +1],
+											icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +0]* 3 +2]);
+				var v1 = new THREE.Vector3( icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +1]* 3 +0],
+											icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +1]* 3 +1],
+											icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +1]* 3 +2]);
+				var v2 = new THREE.Vector3( icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +2]* 3 +0],
+											icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +2]* 3 +1],
+											icoVertices[icoFaces[ hitFaces[hitFaceID]*3 +2]* 3 +2]);
+
+
+
+				var centroid0 = v0.clone().add(v1.clone());
+				var centroid1 = v1.clone().add(v2.clone());
+				var centroid2 = v0.clone().add(v2.clone());
+
+				centroid0.divideScalar(2);
+				centroid1.divideScalar(2);
+				centroid2.divideScalar(2);
+
+				newVertices.push(centroid0);
+				newVertices.push(centroid1);
+				newVertices.push(centroid2);
+
+				debugPoints[debugPoints.length - 3 + 0] = centroid2.x;
+				debugPoints[debugPoints.length - 3 + 1] = centroid2.y;
+				debugPoints[debugPoints.length - 3 + 2] = centroid2.z;
+
+				hitFaceID ++;
+			}
+
+			console.log(newVertices);
+
+			// Add new vertices
+			var offset =  icoVertices.length;
+			var vertexCounter = 0;
+			for (var p = 0; p <= hitFaces.length * 3 * 3 - 3; p+=3) {
+				newIcoVertices[offset + p + 0] = newVertices[vertexCounter].x;
+				newIcoVertices[offset + p + 1] = newVertices[vertexCounter].y;
+				newIcoVertices[offset + p + 2] = newVertices[vertexCounter].z;
+				vertexCounter ++;
+			}
+
+
+
+			//Calc new faces
+			var newFaces = [];
+
+			//Add new faces
+
+			var offset =  icoFaces.length;
+			for (var p = 0; p <= hitFaces.length * 4 * 3 - 3; p+=3) {
+				for (var q = 0; q <= deleteFaces.length * 2 * 3 ; q++) {
+					newIcoFaces[offset + p + q + 0] = 0;
+					newIcoFaces[offset + p + q + 1] = 0;
+					newIcoFaces[offset + p + q + 2] = 0;
+				}
+			}
+
+
 			icoFaces = newIcoFaces;
-
-
-		} else {
-
-			// Leave everything as it is
-
-			newIcoVertices = new Float32Array(icoVertices.length);
-			newIcoFaces = new Float32Array(icoFaces.length);
-			
-			for(var l = 0; l <= icoFaces.length - 1; l++) {
-					newIcoFaces[l] = icoFaces[l];	
-				
-			}
-
-			for(var m = 0; m <= icoVertices.length - 1; m++) {
-					newIcoVertices[m] = icoVertices[m];
-			}
-		}
 }
