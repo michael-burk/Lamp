@@ -17,9 +17,12 @@ var subDivisionPoints = [];
 var cutOut = new Float32Array(icoFaces.length / 3);
 
 	console.log("work, work!");
-	//console.log(selectedVertices);
+	console.log("selected length: " + selectedVertices.length);
 
  	for ( var i = 0; i <= selectedVertices.length - 3; i += 3 ) {
+
+
+ 		console.log("selected" + i);
 
  		// Test collision with lamp (Ico Mesh)
 
@@ -66,7 +69,7 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 
 			//Subdivide
 
-			//console.log("closestFace: " + closestFace);
+			console.log("closestFace: " + closestFace);
 
 			// Get adjacent faces of closestFace
 			var faceCounter = 0;
@@ -74,25 +77,24 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 			var counter = 0;
 
 
-		// Which faces have a common indices with closestFace
+			// Which faces have a common indices with closestFace
 			for (var l = 0; l <= icoFaces.length - 3; l+=3) {
 
-					for (var p = 0; p <= 2; p++) {
+				for (var p = 0; p <= 2; p++) {
 
-						// List of face indices at the position closestFace * 3 (because xyz) + addition (p) for xyz
-						if( icoFaces[l] == icoFaces[closestFace * 3 + p]){
-							
-							counter ++;
-						}
-
-						if(icoFaces[l+1] == icoFaces[closestFace * 3 + p]){
-							counter ++;
-						}
-
-						if(icoFaces[l+2] == icoFaces[closestFace * 3 + p]){
-							counter ++;
-						}
+					// List of face indices at the position closestFace * 3 (because xyz) + addition (p) for xyz
+					if( icoFaces[l] == icoFaces[closestFace * 3 + p]){
+						counter ++;
 					}
+
+					if(icoFaces[l+1] == icoFaces[closestFace * 3 + p]){
+						counter ++;
+					}
+
+					if(icoFaces[l+2] == icoFaces[closestFace * 3 + p]){
+						counter ++;
+					}
+				}
 				
 				// At least two common indices
 				if(counter >= 2){
@@ -145,7 +147,7 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 				idCounter++;
 				deleteCounter = 0;
 
-			};
+			}
 
 
 			// Reconstruct Faces
@@ -153,7 +155,7 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 
 			// The points of the faces, that are to be subdivided (including adjacent faces)
 			for (var p = 0; p <= deleteFaces.length - 1; p++) {
-			//	if(deleteFaces[p] != closestFace){
+				//	if(deleteFaces[p] != closestFace){
 					subDivisionPoints.push(new THREE.Vector3(	icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3],
 														icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +1],
 														icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +2]));
@@ -164,18 +166,16 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 														icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +1],
 														icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +2]));
 					
-			//	}
-				
-			
+				//	}
 			}
 			
 			debugPoints = new Float32Array(subDivisionPoints.length * 3);
 
 			var counter = 0;
-			for(var i = 0; i <= debugPoints.length -3; i +=3){
-				debugPoints[i] = subDivisionPoints[counter].x;
-				debugPoints[i+1] = subDivisionPoints[counter].y;
-				debugPoints[i+2] = subDivisionPoints[counter].z;
+			for(var u = 0; u <= debugPoints.length -3; u +=3){
+				debugPoints[u] = subDivisionPoints[counter].x;
+				debugPoints[u+1] = subDivisionPoints[counter].y;
+				debugPoints[u+2] = subDivisionPoints[counter].z;
 				counter ++;
 			}
 			
@@ -186,10 +186,10 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 					newIcoVertices[m] = icoVertices[m];
 					newIcoVertices[m+1] = icoVertices[m+1];
 					newIcoVertices[m+2] = icoVertices[m+2];
-			};
+			}
 
 
-			//icoFaces = newIcoFaces;
+			icoFaces = newIcoFaces;
 
 
 		} else {
@@ -199,19 +199,20 @@ var cutOut = new Float32Array(icoFaces.length / 3);
 			newIcoVertices = new Float32Array(icoVertices.length);
 			newIcoFaces = new Float32Array(icoFaces.length);
 			
-			for (var l = 0; l <= icoFaces.length - 1; l++) {
+			for(var l = 0; l <= icoFaces.length - 1; l++) {
 					newIcoFaces[l] = icoFaces[l];	
 				
-			};
+			}
 
-			for (var m = 0; m <= icoVertices.length - 1; m++) {
+			for(var m = 0; m <= icoVertices.length - 1; m++) {
 					newIcoVertices[m] = icoVertices[m];
-					
-			};
+			}
 		}
 
+	}
+ 	
 
- 	}
+
 
 
 
