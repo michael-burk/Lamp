@@ -771,13 +771,15 @@ function updateSphere(cutMeshData){
 		  shading    :  THREE.FlatShading,
 		  side       : 	THREE.DoubleSide,
 		  transparent: 1,
-		  opacity    : 1
+		  opacity    : 1,
+		  wireframe: true
 		});
 
 
 		var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
 
 		newLampMesh = new THREE.Mesh(newLampGeo, pinkMat);
+
 
 		newLampMesh.name = "newLampMesh";
 		scene.add(newLampMesh);
