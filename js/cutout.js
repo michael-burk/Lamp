@@ -366,13 +366,13 @@ function subdivide(hitFaces){
 
 			for (var l = 0; l <= hitFaces.length - 1; l++) {
 				// Center Polygon
-				newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
-				newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
-				newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = newVertexIDs[2+(l*3)] / 3;
+				//newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
+				//newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
+				//newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = newVertexIDs[2+(l*3)] / 3;
 
-				// newIcoFaces[offset + (9+(l*3)) + 0] = 1;
-				// newIcoFaces[offset + (9+(l*3)) + 1] = 1;
-				// newIcoFaces[offset + (9+(l*3)) + 2] = 1;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = 0;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = 0;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = 0;
 			}
 
 
@@ -428,9 +428,10 @@ function subdivide(hitFaces){
 
 			//console.log(deleteFacesTopIndices);
 			//[24, 22, 13, 16, 14, 34];
-			deleteFacesTopIndices = [24, 22, 13, 16, 14, 34];
+			deleteFacesTopIndices = [24, 22, 13, 14, 34];
+			newVertexIDs = [126,129,132,138,141];
 			
-			var faceIndices = [2,3];
+			var faceIndices = [3,2];
 			var counter;
 
 			offset += hitFaces.length * 4 * 3;
@@ -440,22 +441,41 @@ function subdivide(hitFaces){
 
 			for (var h = 0; h <= hitFaces.length - 1; h++) {
 
+				var sub = 3-faceIndices[h];
 				faceOff = faceCounter * 6;
 				counter = 0;
 
 				for (var q = 0; q <= faceIndices[h] * 6 - 6; q+=6) {
 
-					//console.log(faceOff);
 					console.log(faceCounter);
 
-						newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
-						newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
-						newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + counter ];
+						// newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
+						// newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
+						// newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + counter ];
+						
+						// if(faceCounter < 3){
+						// 	newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
+						// 	newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
+						// 	newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + counter ];
 
-						newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
-						newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
-						newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+1)%3];
+						// 	newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
+						// 	newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
+						// 	newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+1)%3]; //<- It's him!... maybe
+						
+						// }else{
+							newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
+							newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
+							newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + (counter+sub)%3 ];
 
+							newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
+							newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
+							newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+sub+1)%3]; //<- It's him!... maybe
+						// }
+						// newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
+						// newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
+						// newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+1)%3]; //<- It's him!... maybe
+										
+						
 						// newIcoFaces[offset + faceOff + q + 0] = 7;
 						// newIcoFaces[offset + faceOff + q + 1] = 7;
 						// newIcoFaces[offset + faceOff + q + 2] = 7;
@@ -466,6 +486,8 @@ function subdivide(hitFaces){
 						counter ++;
 						faceCounter ++;
 				}
+
+
 
 			}
 
