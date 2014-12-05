@@ -429,26 +429,29 @@ function subdivide(hitFaces){
 			console.log(deleteFacesTopIndices);
 
 
+
 			offset += hitFaces.length * 4 * 3;
-			
+			var face;
 
 			for (var h = 0; h <= hitFaces.length - 1; h++) {
+				face = h * 6 * 3;
 				faceCounter = 0;
-				for (var q = 0; q <= deleteFaces.length * 2 * 3 -3; q+=6) {
+				for (var q = 0; q <= deleteFacesTopIndices.length * 3 -3; q+=6) {
 
-						// newIcoFaces[offset + q + 0] = deleteFacesTopIndices[faceCounter];
-						// newIcoFaces[offset + q + 1] = newVertexIDs[faceCounter] / 3;
-						// newIcoFaces[offset + q + 2] = icoFaces[ hitFaces[h] * 3 + faceCounter ];
-						// newIcoFaces[offset + q + 3] = deleteFacesTopIndices[faceCounter];
-						// newIcoFaces[offset + q + 4] = newVertexIDs[(faceCounter)] / 3;
-						// newIcoFaces[offset + q + 5] = icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3];
 
-						newIcoFaces[offset + q + 0] = 7;
-						newIcoFaces[offset + q + 1] = 7;
-						newIcoFaces[offset + q + 2] = 7;
-						newIcoFaces[offset + q + 3] = 7;
-						newIcoFaces[offset + q + 4] = 7;
-						newIcoFaces[offset + q + 5] = 7;
+						newIcoFaces[offset + face + q + 0] = deleteFacesTopIndices[faceCounter+h*3];
+						newIcoFaces[offset + face + q + 1] = newVertexIDs[faceCounter+h*3] / 3;
+						newIcoFaces[offset + face + q + 2] = icoFaces[ hitFaces[h] * 3 + faceCounter ];
+						newIcoFaces[offset + face + q + 3] = deleteFacesTopIndices[faceCounter+h*3];
+						newIcoFaces[offset + face + q + 4] = newVertexIDs[faceCounter+h*3] / 3;
+						newIcoFaces[offset + face + q + 5] = icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3];
+
+						// newIcoFaces[offset + face + q + 0] = 7;
+						// newIcoFaces[offset + face + q + 1] = 7;
+						// newIcoFaces[offset + face + q + 2] = 7;
+						// newIcoFaces[offset + face + q + 3] = 7;
+						// newIcoFaces[offset + face + q + 4] = 7;
+						// newIcoFaces[offset + face + q + 5] = 7;
 
 						faceCounter ++;
 				}
