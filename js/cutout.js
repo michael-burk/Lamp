@@ -199,7 +199,7 @@ function subdivide(hitFaces){
 			newIcoVertices = new Float32Array(icoVertices.length + (hitFaces.length * 3 * 3));
 
 			// Same length as before + three new faces for hitface + two new faces for every adjacent face (deleteFaces)
-			newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3));
+			newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3) -6 );
 			
 			var idCounter = 0;
 			var deleteCounter = 0;
@@ -426,33 +426,44 @@ function subdivide(hitFaces){
 
 			deleteFacesTopIndices = sorted;
 
-			console.log(deleteFacesTopIndices);
-
-
+			//console.log(deleteFacesTopIndices);
+			//[24, 22, 13, 16, 14, 34];
+			deleteFacesTopIndices = [24, 22, 13, 16, 14, 34];
+			
+			var faceIndices = [2,3];
+			var counter;
 
 			offset += hitFaces.length * 4 * 3;
-			var face;
+			var faceOff = 0;
+
+			faceCounter = 0;
 
 			for (var h = 0; h <= hitFaces.length - 1; h++) {
-				face = h * 6 * 3;
-				faceCounter = 0;
-				for (var q = 0; q <= deleteFacesTopIndices.length * 3 -3; q+=6) {
 
+				faceOff = faceCounter * 6;
+				counter = 0;
 
-						newIcoFaces[offset + face + q + 0] = deleteFacesTopIndices[faceCounter+h*3];
-						newIcoFaces[offset + face + q + 1] = newVertexIDs[faceCounter+h*3] / 3;
-						newIcoFaces[offset + face + q + 2] = icoFaces[ hitFaces[h] * 3 + faceCounter ];
-						newIcoFaces[offset + face + q + 3] = deleteFacesTopIndices[faceCounter+h*3];
-						newIcoFaces[offset + face + q + 4] = newVertexIDs[faceCounter+h*3] / 3;
-						newIcoFaces[offset + face + q + 5] = icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3];
+				for (var q = 0; q <= faceIndices[h] * 6 - 6; q+=6) {
 
-						// newIcoFaces[offset + face + q + 0] = 7;
-						// newIcoFaces[offset + face + q + 1] = 7;
-						// newIcoFaces[offset + face + q + 2] = 7;
-						// newIcoFaces[offset + face + q + 3] = 7;
-						// newIcoFaces[offset + face + q + 4] = 7;
-						// newIcoFaces[offset + face + q + 5] = 7;
+					//console.log(faceOff);
+					console.log(faceCounter);
 
+						newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
+						newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
+						newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + counter ];
+
+						newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
+						newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
+						newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+1)%3];
+
+						// newIcoFaces[offset + faceOff + q + 0] = 7;
+						// newIcoFaces[offset + faceOff + q + 1] = 7;
+						// newIcoFaces[offset + faceOff + q + 2] = 7;
+						// newIcoFaces[offset + faceOff + q + 3] = 7;
+						// newIcoFaces[offset + faceOff + q + 4] = 7;
+						// newIcoFaces[offset + faceOff + q + 5] = 7;
+
+						counter ++;
 						faceCounter ++;
 				}
 
