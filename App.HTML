@@ -739,12 +739,15 @@ function updateSphere(cutMeshData){
 		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
 		var cube = new THREE.Mesh( geometry, material );
 
+		if(cutMeshData[2] != undefined){
+			for(var i = 0; i <= cutMeshData[2].length -3; i +=3){
+				var cube = new THREE.Mesh( geometry, material );
+				cube.position = new THREE.Vector3(cutMeshData[2][i],cutMeshData[2][i+1],cutMeshData[2][i+2]);
+				scene.add( cube );
+			}
 
-		for(var i = 0; i <= cutMeshData[2].length -3; i +=3){
-			var cube = new THREE.Mesh( geometry, material );
-			cube.position = new THREE.Vector3(cutMeshData[2][i],cutMeshData[2][i+1],cutMeshData[2][i+2]);
-			scene.add( cube );
 		}
+
 
 		
 		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {

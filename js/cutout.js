@@ -45,8 +45,6 @@ importScripts('THREE.js');
  	for ( var i = 0; i <= selectedVertices.length - 3; i += 3 ) {
 
 
- 		//console.log("selected" + i);
-
  		// Test collision with lamp (Ico Mesh)
 
  		var vertex = new THREE.Vector3(selectedVertices[i],selectedVertices[i+1],selectedVertices[i+2]);
@@ -81,7 +79,6 @@ importScripts('THREE.js');
  			closestFaces.push(closestFace);
  		}	
 
- 		
 
 	}
 
@@ -216,9 +213,6 @@ function subdivide(hitFaces){
 					}
 				}
 
-			//	console.log(idCounter);
-			//	console.log(closestFace);
-
 
 				// Does this face appear in the deleteFaces list? 
 				if(deleteCounter <= 0){
@@ -266,8 +260,6 @@ function subdivide(hitFaces){
 				counter ++;
 			}
 		
-
-
 
 			// Keep all old vertices
 			idCounter = 0;
@@ -317,10 +309,9 @@ function subdivide(hitFaces){
 				hitFaceID ++;
 			}
 
-			//console.log(newVertices);
 
 			// Add new vertices
-			var offset =  icoVertices.length;
+			var offset = icoVertices.length;
 			var vertexCounter = 0;
 			var newVertexIDs = [];
 			for (var p = 0; p <= hitFaces.length * 3 * 3 - 3; p+=3) {
@@ -334,34 +325,59 @@ function subdivide(hitFaces){
 			console.log("newVertexIDs :" + newVertexIDs);
 
 
+
 			//Add new faces
 
-			var offset = icoFaces.length;
-			var faceCounter = 0;
-
-			//console.log("hitFaces " + hitFaces);
 
 			// Loop for all hitFaces?
 			/////////////////////////////////////////////////////////////////
 
-			for (var p = 0; p <= 9 - 3; p+=3) {
 
-					newIcoFaces[offset + p + 0] = newVertexIDs[faceCounter] / 3;
-					newIcoFaces[offset + p + 1] = icoFaces[ hitFaces[0] * 3 + faceCounter ];
-					newIcoFaces[offset + p + 2] = newVertexIDs[(faceCounter+2)%3] / 3;
+			//Subdividing HitFace
+
+			var offset = icoFaces.length;
+			var faceCounter = 0;
+			faceCounter = 0;
+
+			// Outer Polygons of HitFace
+			for (var l = 0; l <= hitFaces.length - 1; l++) {
+
+				
+
+				for (var p = 0; p <= 9 - 3; p+=3) {
+
+					newIcoFaces[offset + (l*9) + p + 0] = newVertexIDs[ l*3 + (faceCounter)%3] / 3;
+					newIcoFaces[offset + (l*9) + p + 1] = icoFaces[ hitFaces[l] * 3 + faceCounter%3 ];
+					newIcoFaces[offset + (l*9) + p + 2] = newVertexIDs[  l*3 + (faceCounter+2) %3 ] / 3;
+
+					// console.log(l*3 + (faceCounter)%3);
+					// console.log(icoFaces[hitFaces[l] * 3 + faceCounter%3]);
+					// console.log(  l*3 + (faceCounter+2) %3);
+
+					// newIcoFaces[offset + (l*9) + p + 0] = 1;
+					// newIcoFaces[offset + (l*9) + p + 1] = 2;
+					// newIcoFaces[offset + (l*9) + p + 2] = 3;
 					faceCounter++;
-					
+						
+				}
+
 			}
 
 
-			// Center Polygon
-			newIcoFaces[offset + 9 + 0] = newVertexIDs[0] / 3;
-			newIcoFaces[offset + 9 + 1] = newVertexIDs[1] / 3;
-			newIcoFaces[offset + 9 + 2] = newVertexIDs[2] / 3;
+			for (var l = 0; l <= hitFaces.length - 1; l++) {
+				// Center Polygon
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = newVertexIDs[2+(l*3)] / 3;
 
-			// newIcoFaces[offset + 9 + 0] = 1;
-			// newIcoFaces[offset + 9 + 1] = 1;
-			// newIcoFaces[offset + 9 + 2] = 1;
+				// newIcoFaces[offset + (9+(l*3)) + 0] = 1;
+				// newIcoFaces[offset + (9+(l*3)) + 1] = 1;
+				// newIcoFaces[offset + (9+(l*3)) + 2] = 1;
+			}
+
+
+
+			
 
 
 
@@ -371,31 +387,38 @@ function subdivide(hitFaces){
 			// Not working for several hiFaces -> distance has to be compared for each face
 
 			var sorted = [];
-			var smallestValue = 10000;
+			var smallestValue;
+			var face;
 			
-			for (var p = 0; p <= newVertexIDs.length - 1; p++) {
-			
-				
-				var v2 = new THREE.Vector3( newIcoVertices[newVertexIDs[p]],
-											    newIcoVertices[(newVertexIDs[p]) + 1],
-											    newIcoVertices[(newVertexIDs[p]) + 2]);
-
-
+			for (var h = 0; h <= hitFaces.length - 1; h++) {
 				smallestValue = 10000;
+				face = h*3;
 
-				for (var q = 0; q <= deleteFacesTopIndices.length - 1; q++) {
-					
-					var v1 = new THREE.Vector3( newIcoVertices[deleteFacesTopIndices[q] * 3],
-										    newIcoVertices[(deleteFacesTopIndices[q]  * 3) + 1],
-										    newIcoVertices[(deleteFacesTopIndices[q]  * 3) + 2]);
-
-					 var sub = new THREE.Vector3(0,0,0);
-					 sub.subVectors(v1,v2);
+				for (var p = 0; p <= 3 - 1; p++) {
 				
-					if(sub.length() < smallestValue){
-						smallestValue = sub.length();
-						sorted[p] = deleteFacesTopIndices[q];
+					
+					var v2 = new THREE.Vector3( newIcoVertices[newVertexIDs[p+face]],
+												newIcoVertices[(newVertexIDs[p+face]) + 1],
+												newIcoVertices[(newVertexIDs[p+face]) + 2]);
+
+
+					smallestValue = 10000;
+
+					for (var q = 0; q <= 3 - 1; q++) {
+						
+						var v1 = new THREE.Vector3( newIcoVertices[deleteFacesTopIndices[q+face] * 3],
+											    	newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 1],
+											   		newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 2]);
+
+						 var sub = new THREE.Vector3(0,0,0);
+						 sub.subVectors(v1,v2);
+					
+						if(sub.length() < smallestValue){
+							smallestValue = sub.length();
+							sorted[p+face] = deleteFacesTopIndices[q+face];
+						}
 					}
+
 				}
 
 			}
@@ -407,17 +430,29 @@ function subdivide(hitFaces){
 
 
 			offset += hitFaces.length * 4 * 3;
-			faceCounter = 0;
-			for (var q = 0; q <= deleteFaces.length * 2 * 3 -3; q+=6) {
+			
 
-					newIcoFaces[offset + q + 0] = deleteFacesTopIndices[faceCounter];
-					newIcoFaces[offset + q + 1] = newVertexIDs[faceCounter] / 3;
-					newIcoFaces[offset + q + 2] = icoFaces[ hitFaces[0] * 3 + faceCounter ];
-					newIcoFaces[offset + q + 3] = deleteFacesTopIndices[faceCounter];
-					newIcoFaces[offset + q + 4] = newVertexIDs[(faceCounter)] / 3;
-					newIcoFaces[offset + q + 5] = icoFaces[ hitFaces[0] * 3 + (faceCounter+1)%3];
+			for (var h = 0; h <= hitFaces.length - 1; h++) {
+				faceCounter = 0;
+				for (var q = 0; q <= deleteFaces.length * 2 * 3 -3; q+=6) {
 
-					faceCounter ++;
+						// newIcoFaces[offset + q + 0] = deleteFacesTopIndices[faceCounter];
+						// newIcoFaces[offset + q + 1] = newVertexIDs[faceCounter] / 3;
+						// newIcoFaces[offset + q + 2] = icoFaces[ hitFaces[h] * 3 + faceCounter ];
+						// newIcoFaces[offset + q + 3] = deleteFacesTopIndices[faceCounter];
+						// newIcoFaces[offset + q + 4] = newVertexIDs[(faceCounter)] / 3;
+						// newIcoFaces[offset + q + 5] = icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3];
+
+						newIcoFaces[offset + q + 0] = 7;
+						newIcoFaces[offset + q + 1] = 7;
+						newIcoFaces[offset + q + 2] = 7;
+						newIcoFaces[offset + q + 3] = 7;
+						newIcoFaces[offset + q + 4] = 7;
+						newIcoFaces[offset + q + 5] = 7;
+
+						faceCounter ++;
+				}
+
 			}
 
 
