@@ -196,7 +196,7 @@ function subdivide(hitFaces){
 			// Creating new arrays for subdivision
 
 			// Same length as before + three new vertices for every hitFace
-			newIcoVertices = new Float32Array(icoVertices.length + (hitFaces.length * 3 * 3));
+			newIcoVertices = new Float32Array(icoVertices.length + (hitFaces.length * 3 * 3) - 3);
 
 			// Same length as before + three new faces for hitface + two new faces for every adjacent face (deleteFaces)
 			newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3) -12 );
@@ -298,23 +298,50 @@ function subdivide(hitFaces){
 				centroid1.divideScalar(2);
 				centroid2.divideScalar(2);
 
-				newVertices.push(centroid0);
-				newVertices.push(centroid1);
-				newVertices.push(centroid2);
+				var c0 = false;
+				var c1 = false;
+				var c2 = false;	
+				var sub = new THREE.Vector3(0,0,0);
 
-				// debugPoints[debugPoints.length - 3 + 0] = centroid2.x;
-				// debugPoints[debugPoints.length - 3 + 1] = centroid2.y;
-				// debugPoints[debugPoints.length - 3 + 2] = centroid2.z;
+				for (var q = 0; q <= newVertices.length - 1; q++) {
+					
+					sub = new THREE.Vector3(0,0,0);
+					if(sub.subVectors(newVertices[q],centroid0).length() == 0){
+						c0 = true;
+					}
+						
+					sub = new THREE.Vector3(0,0,0);
+					if(sub.subVectors(newVertices[q],centroid1).length() == 0){
+						c1 = true;
+					}
+						
+					sub = new THREE.Vector3(0,0,0);
+					if(sub.subVectors(newVertices[q],centroid2).length() == 0){
+						c2 = true;
+					}
+					
+				}
+
+				if(!c0){
+					newVertices.push(centroid0);
+				}
+				if(!c1){
+					newVertices.push(centroid1);
+				}
+				if(!c2){
+					newVertices.push(centroid2);
+				}
 
 				hitFaceID ++;
 			}
 
+			console.log(newVertices.length);
 
 			// Add new vertices
 			var offset = icoVertices.length;
 			var vertexCounter = 0;
 			var newVertexIDs = [];
-			for (var p = 0; p <= hitFaces.length * 3 * 3 - 3; p+=3) {
+			for (var p = 0; p <= newVertices.length * 3  - 3; p+=3) {
 				newIcoVertices[offset + p + 0] = newVertices[vertexCounter].x;
 				newIcoVertices[offset + p + 1] = newVertices[vertexCounter].y;
 				newIcoVertices[offset + p + 2] = newVertices[vertexCounter].z;
@@ -423,7 +450,7 @@ function subdivide(hitFaces){
 
 			}
 			
-
+			// console.log("sorted: " + sorted);
 			deleteFacesTopIndices = sorted;
 
 			//console.log(deleteFacesTopIndices);
@@ -449,7 +476,7 @@ function subdivide(hitFaces){
 
 				for (var q = 0; q <= faceIndices[h] * 6 - 6; q+=6) {
 
-					console.log(faceCounter);
+//					console.log(faceCounter);
 
 					newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
 					newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
