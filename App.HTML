@@ -765,6 +765,7 @@ function updateSphere(cutMeshData){
 		newLampGeo.computeFaceNormals();
 		newLampGeo.computeVertexNormals(); 
 
+		stlFromGeometry( newLampGeo, {download:true});
 
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),
@@ -775,7 +776,7 @@ function updateSphere(cutMeshData){
 		  side       : 	THREE.DoubleSide,
 		  transparent: 	1,
 		  opacity    : 	1,
-		  wireframe	 : 	false
+		  wireframe	 : 	true
 		});
 
 

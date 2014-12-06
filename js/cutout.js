@@ -196,7 +196,7 @@ function subdivide(hitFaces){
 			}
 
 
-			// console.log("deleteFaces " + deleteFaces);
+			//console.log("deleteFaces " + deleteFaces);
 			// console.log("deleteFacesTopIndices " + deleteFacesTopIndices);
 
 		}
