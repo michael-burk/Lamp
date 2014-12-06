@@ -92,7 +92,7 @@ importScripts('THREE.js');
 	}
 
 	if(closestFaces.length > 0){
-
+		var custom = [77,78,76,21,23];
 		subdivide(closestFaces);
 
 	} else {
@@ -114,8 +114,8 @@ importScripts('THREE.js');
 	}
 
  	
-
-var buffers = [newIcoVertices, newIcoFaces, debugPoints];
+//debugPoints
+var buffers = [newIcoVertices, newIcoFaces];
 
 self.postMessage(buffers);
 
@@ -127,7 +127,7 @@ self.postMessage(buffers);
 function subdivide(hitFaces){
 
 
-		console.log(closestFaces);
+		//console.log(closestFaces);
 
 		var deleteFaces = [];
 		var top = 0;
@@ -144,7 +144,7 @@ function subdivide(hitFaces){
 			var counterOld = 0;
 			var top2 = 0;
 			
-			console.log("closestFace " + closestFace);
+			//console.log("closestFace " + closestFace);
 
 			// Which faces have a common index with closestFace
 			for (var l = 0; l <= icoFaces.length - 3; l+=3) {
@@ -196,8 +196,8 @@ function subdivide(hitFaces){
 			}
 
 
-			console.log("deleteFaces " + deleteFaces);
-			console.log("deleteFacesTopIndices " + deleteFacesTopIndices);
+			// console.log("deleteFaces " + deleteFaces);
+			// console.log("deleteFacesTopIndices " + deleteFacesTopIndices);
 
 		}
 
@@ -274,13 +274,13 @@ function subdivide(hitFaces){
 			// Data for debug boxes
 			debugPoints = new Float32Array(subDivisionPoints.length * 3);
 
-			var counter = 0;
-			for(var u = 0; u <= debugPoints.length -3; u +=3){
-				debugPoints[u] = subDivisionPoints[counter].x;
-				debugPoints[u+1] = subDivisionPoints[counter].y;
-				debugPoints[u+2] = subDivisionPoints[counter].z;
-				counter ++;
-			}
+			// var counter = 0;
+			// for(var u = 0; u <= debugPoints.length -3; u +=3){
+			// 	debugPoints[u] = subDivisionPoints[counter].x;
+			// 	debugPoints[u+1] = subDivisionPoints[counter].y;
+			// 	debugPoints[u+2] = subDivisionPoints[counter].z;
+			// 	counter ++;
+			// }
 		
 
 			// Keep all old vertices
@@ -299,9 +299,9 @@ function subdivide(hitFaces){
 			var newVertexCounter = 0;
 			
 
-			var cloneVertices = new Array(hitFaces.length*3);
+			
 
-			for (var c = cloneVertices.length-1; c >= 0; -- c) cloneVertices[c] = 0;
+			//for (var c = cloneVertices.length-1; c >= 0; -- c) cloneVertices[c] = 0;
 
 
 			// Calculate new vertices
@@ -341,29 +341,19 @@ function subdivide(hitFaces){
 				var c1Clones = [];
 				var c2Clones = [];
 
-				console.log("newVertices length: " + newVertices.length);
+			//	console.log("newVertices length: " + newVertices.length);
 				for (var q = 0; q <= newVertices.length - 1; q++) {
 					
 					sub = new THREE.Vector3(0,0,0);
 					if(sub.subVectors(newVertices[q],centroid0).length() == 0){
 						c0 = true;
 						c0Clones.push(offset + q*3);
-						cloneVertices[q] = 1;
-
-						// console.log(q+1);
-						// console.log(newVertexCounter);
-						// cloneVertices[newVertexCounter] = 1;
 					}
 						
 					sub = new THREE.Vector3(0,0,0);
 					if(sub.subVectors(newVertices[q],centroid1).length() == 0){
 						c1 = true;
 						c1Clones.push(offset + q*3);
-						cloneVertices[q] = 1;
-
-						// console.log(q+1);
-						// console.log(newVertexCounter);
-						// cloneVertices[newVertexCounter] = 1;
 
 					}
 						
@@ -371,12 +361,6 @@ function subdivide(hitFaces){
 					if(sub.subVectors(newVertices[q],centroid2).length() == 0){
 						c2 = true;
 						c2Clones.push(offset + q*3);
-						cloneVertices[q] = 1;
-
-						// console.log(q+1);
-						// console.log(newVertexCounter);
-						// cloneVertices[newVertexCounter] = 1;
-
 					}
 					
 				}
@@ -392,12 +376,11 @@ function subdivide(hitFaces){
 				}else{
 					for (var c = 0; c <= c0Clones.length - 1; c++) {
 						newVertexIDs.push(c0Clones[c]);
-						cloneVertices[newVertexCounter] = 1;
 						newVertexCounter++;
 					}
-					debugPoints[debugPoints.length - 3 + 0] = centroid0.x;
-					debugPoints[debugPoints.length - 3 + 1] = centroid0.y;
-					debugPoints[debugPoints.length - 3 + 2] = centroid0.z;
+					// debugPoints[debugPoints.length - 3 + 0] = centroid0.x;
+					// debugPoints[debugPoints.length - 3 + 1] = centroid0.y;
+					// debugPoints[debugPoints.length - 3 + 2] = centroid0.z;
 				}
 
 				if(!c1){
@@ -407,12 +390,11 @@ function subdivide(hitFaces){
 				}else{
 					for (var c = 0; c <= c1Clones.length - 1; c++) {
 						newVertexIDs.push(c1Clones[c]);
-						cloneVertices[newVertexCounter] = 1;
 						newVertexCounter++;
 					}
-					debugPoints[debugPoints.length - 3 + 0] = centroid1.x;
-					debugPoints[debugPoints.length - 3 + 1] = centroid1.y;
-					debugPoints[debugPoints.length - 3 + 2] = centroid1.z;
+					// debugPoints[debugPoints.length - 3 + 0] = centroid1.x;
+					// debugPoints[debugPoints.length - 3 + 1] = centroid1.y;
+					// debugPoints[debugPoints.length - 3 + 2] = centroid1.z;
 				}
 
 				if(!c2){
@@ -422,12 +404,11 @@ function subdivide(hitFaces){
 				}else{
 					for (var c = 0; c <= c2Clones.length - 1; c++) {
 						newVertexIDs.push(c2Clones[c]);
-						cloneVertices[newVertexCounter] = 1;
 						newVertexCounter++;
 					}
-					debugPoints[debugPoints.length - 3 + 0] = centroid2.x;
-					debugPoints[debugPoints.length - 3 + 1] = centroid2.y;
-					debugPoints[debugPoints.length - 3 + 2] = centroid2.z;
+					// debugPoints[debugPoints.length - 3 + 0] = centroid2.x;
+					// debugPoints[debugPoints.length - 3 + 1] = centroid2.y;
+					// debugPoints[debugPoints.length - 3 + 2] = centroid2.z;
 				}
 				
 
@@ -442,18 +423,35 @@ function subdivide(hitFaces){
 			// Add new vertices
 			
 			var vertexCounter = 0;
+			//var newVertexIDs2 = [];
 			
 			for (var p = 0; p <= newVertices.length * 3 - 3; p+=3) {
 				newIcoVertices[offset + p + 0] = newVertices[vertexCounter].x;
 				newIcoVertices[offset + p + 1] = newVertices[vertexCounter].y;
 				newIcoVertices[offset + p + 2] = newVertices[vertexCounter].z;
-				//newVertexIDs.push(offset + p);
+				//newVertexIDs2.push(offset + p);
+				
 				vertexCounter ++;
 			}
 
-			console.log("newVertexIDs: " + newVertexIDs);
-			console.log("clones: " + cloneVertices);
-			console.log("newVertexCounter: " + newVertexCounter);
+			var cloneVertices = [];
+			for (var v = 0; v <= newVertexIDs.length - 1; v++) {
+				var clone = 0;
+				for (var w = 0; w <= newVertexIDs.length - 1; w++) {
+					if(newVertexIDs[v] == newVertexIDs[w]){
+						clone ++;
+					}
+				}
+				if(clone>1){
+					cloneVertices.push(1);
+				}else{
+					cloneVertices.push(0);
+				}
+			}
+
+			// console.log("newVertexIDs: " + newVertexIDs);
+			// console.log("clones: " + cloneVertices);
+			// console.log("newVertexCounter: " + newVertexCounter);
 
 
 			//Add new faces
@@ -561,21 +559,24 @@ function subdivide(hitFaces){
 
 			deleteFacesTopIndices = sorted;
 
-			//console.log(deleteFacesTopIndices);
 
 			
 			faceOffset += hitFaces.length * 4 * 3;
 
 			var face;
 
-			//cloneVertices = [1,0,0,1,1,0,1,0,0];
+			//cloneVertices = [1,0,0,1,0,0,0,1,0,0,1,0];
+		
 
+			var skipCounter = 0;
 			for (var h = 0; h <= hitFaces.length - 1; h++) {
 				face = h * 6 * 3;
 				faceCounter = 0;
+
 				for (var q = 0; q <= deleteFacesTopIndices.length * 2 * 3 -3; q+=6) {
 
 						clone = cloneVertices[faceCounter+h*3];
+
 
 						if(clone == 0){
 							newIcoFaces[faceOffset + face + q + 0] = deleteFacesTopIndices[faceCounter+h*3];
@@ -595,17 +596,11 @@ function subdivide(hitFaces){
 							newIcoFaces[faceOffset + face + q + 5] = 7;
 						}
 
-							// newIcoFaces[faceOffset + face + q + 0] = 7;
-							// newIcoFaces[faceOffset + face + q + 1] = 7;
-							// newIcoFaces[faceOffset + face + q + 2] = 7;
-							// newIcoFaces[faceOffset + face + q + 3] = 7;
-							// newIcoFaces[faceOffset + face + q + 4] = 7;
-							// newIcoFaces[faceOffset + face + q + 5] = 7;
 						
 
 
 						faceCounter ++;
-						//console.log(faceCounter);
+
 				}
 
 			}
