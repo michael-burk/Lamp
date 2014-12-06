@@ -231,17 +231,29 @@ function subdivide(hitFaces){
 					newIcoFaces[l+2] = icoFaces[l+2];		
 				}
 				// If so, delete
-				if(deleteCounter > 0 || idCounter == closestFace){
+				if(deleteCounter > 0 ){
 					newIcoFaces[l] = 0;
 					newIcoFaces[l+1] = 0;
 					newIcoFaces[l+2] = 0;
 				} 
+
+				for (var f = 0; f <= hitFaces.length - 1; f++) {
+					var closestFace = hitFaces[f];
+					if(idCounter == closestFace){
+						newIcoFaces[l] = 0;
+						newIcoFaces[l+1] = 0;
+						newIcoFaces[l+2] = 0;
+					}
+				}	
 				
 				idCounter++;
 				deleteCounter = 0;
 
 			}
 
+
+
+			
 
 			// Reconstruct Faces
 
@@ -464,17 +476,17 @@ function subdivide(hitFaces){
 
 				for (var p = 0; p <= 9 - 3; p+=3) {
 
-					// newIcoFaces[faceOffset + (l*9) + p + 0] = newVertexIDs[ l*3 + (faceCounter)%3] / 3;
-					// newIcoFaces[faceOffset + (l*9) + p + 1] = icoFaces[ hitFaces[l] * 3 + faceCounter%3 ];
-					// newIcoFaces[faceOffset + (l*9) + p + 2] = newVertexIDs[  l*3 + (faceCounter+2) %3 ] / 3;
+					newIcoFaces[faceOffset + (l*9) + p + 0] = newVertexIDs[ l*3 + (faceCounter)%3] / 3;
+					newIcoFaces[faceOffset + (l*9) + p + 1] = icoFaces[ hitFaces[l] * 3 + faceCounter%3 ];
+					newIcoFaces[faceOffset + (l*9) + p + 2] = newVertexIDs[  l*3 + (faceCounter+2) %3 ] / 3;
 
 					// console.log(l*3 + (faceCounter)%3);
 					// console.log(icoFaces[hitFaces[l] * 3 + faceCounter%3]);
 					// console.log(  l*3 + (faceCounter+2) %3);
 
-					newIcoFaces[faceOffset + (l*9) + p + 0] = 1;
-					newIcoFaces[faceOffset + (l*9) + p + 1] = 1;
-					newIcoFaces[faceOffset + (l*9) + p + 2] = 1;
+					// newIcoFaces[faceOffset + (l*9) + p + 0] = 1;
+					// newIcoFaces[faceOffset + (l*9) + p + 1] = 1;
+					// newIcoFaces[faceOffset + (l*9) + p + 2] = 1;
 					faceCounter++;
 						
 				}
