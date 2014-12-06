@@ -273,6 +273,10 @@ function subdivide(hitFaces){
 			var newVertices = [];
 			var hitFaceID = 0;
 
+			var offset = icoVertices.length;
+			var newVertexIDs = [];
+
+
 			// Calculate new vertices
 			for (var p = 0; p <= hitFaces.length * 3 - 3; p+=3) {
 
@@ -298,23 +302,97 @@ function subdivide(hitFaces){
 				centroid1.divideScalar(2);
 				centroid2.divideScalar(2);
 
+				// newVertices.push(centroid0);
+				// newVertices.push(centroid1);
+				// newVertices.push(centroid2);
+				
+				var c0 = false;
+				var c1 = false;
+				var c2 = false;	
+
+				var sub = new THREE.Vector3(0,0,0);
+				
+				// newVertices.push(centroid0);
+				// newVertices.push(centroid1);
+				// newVertices.push(centroid2);
+
+				var c0Clones = [];
+				var c1Clones = [];
+				var c2Clones = [];
+
+				// for (var q = 0; q <= newVertices.length - 1; q++) {
+					
+				// 	sub = new THREE.Vector3(0,0,0);
+				// 	if(sub.subVectors(newVertices[q],centroid0).length() == 0){
+				// 		c0 = true;
+				// 		c0Clones.push(offset + q);
+				// 	}
+						
+				// 	sub = new THREE.Vector3(0,0,0);
+				// 	if(sub.subVectors(newVertices[q],centroid1).length() == 0){
+				// 		c1 = true;
+				// 		c1Clones.push(offset + q);
+				// 	}
+						
+				// 	sub = new THREE.Vector3(0,0,0);
+				// 	if(sub.subVectors(newVertices[q],centroid2).length() == 0){
+				// 		c2 = true;
+				// 		c2Clones.push(offset + q);
+				// 	}
+					
+				// }
+
+				// if(!c0){
+				// 	newVertices.push(centroid0);
+				// 	newVertexIDs.push(offset + newVertices.length*3);
+				// }else{
+				// 	for (var c = 0; c <= c0Clones.length - 1; c++) {
+				// 		newVertexIDs.push(c0Clones[c]);
+				// 	}
+				// 	debugPoints[debugPoints.length - 3 + 0] = centroid0.x;
+				// 	debugPoints[debugPoints.length - 3 + 1] = centroid0.y;
+				// 	debugPoints[debugPoints.length - 3 + 2] = centroid0.z;
+				// }
+				// if(!c1){
+				// 	newVertices.push(centroid1);
+				// 	newVertexIDs.push(offset + newVertices.length*3);
+				// }else{
+				// 	for (var c = 0; c <= c1Clones.length - 1; c++) {
+				// 		newVertexIDs.push(c1Clones[c]);
+				// 	}
+				// 	debugPoints[debugPoints.length - 3 + 0] = centroid1.x;
+				// 	debugPoints[debugPoints.length - 3 + 1] = centroid1.y;
+				// 	debugPoints[debugPoints.length - 3 + 2] = centroid1.z;
+				// }
+				// if(!c2){
+				// 	newVertices.push(centroid2);
+				// 	newVertexIDs.push(offset + newVertices.length*3);
+				// }else{
+				// 	for (var c = 0; c <= c2Clones.length - 1; c++) {
+				// 		newVertexIDs.push(c2Clones[c]);
+				// 	}
+				// 	debugPoints[debugPoints.length - 3 + 0] = centroid2.x;
+				// 	debugPoints[debugPoints.length - 3 + 1] = centroid2.y;
+				// 	debugPoints[debugPoints.length - 3 + 2] = centroid2.z;
+				// }
+				
 				newVertices.push(centroid0);
 				newVertices.push(centroid1);
 				newVertices.push(centroid2);
-
-				// debugPoints[debugPoints.length - 3 + 0] = centroid2.x;
-				// debugPoints[debugPoints.length - 3 + 1] = centroid2.y;
-				// debugPoints[debugPoints.length - 3 + 2] = centroid2.z;
+				
 
 				hitFaceID ++;
 			}
 
 
+			
+			// console.log("new Vertices: " + newVertices);
+
 			// Add new vertices
-			var offset = icoVertices.length;
+			// var offset = icoVertices.length;
 			var vertexCounter = 0;
-			var newVertexIDs = [];
-			for (var p = 0; p <= hitFaces.length * 3 * 3 - 3; p+=3) {
+			// var newVertexIDs = [];
+			for (var p = 0; p <= newVertices.length * 3 - 3; p+=3) {
 				newIcoVertices[offset + p + 0] = newVertices[vertexCounter].x;
 				newIcoVertices[offset + p + 1] = newVertices[vertexCounter].y;
 				newIcoVertices[offset + p + 2] = newVertices[vertexCounter].z;
@@ -322,15 +400,12 @@ function subdivide(hitFaces){
 				vertexCounter ++;
 			}
 
+			
 			console.log("newVertexIDs :" + newVertexIDs);
-
 
 
 			//Add new faces
 
-
-			// Loop for all hitFaces?
-			/////////////////////////////////////////////////////////////////
 
 
 			//Subdividing HitFace
@@ -339,24 +414,21 @@ function subdivide(hitFaces){
 			var faceCounter = 0;
 			faceCounter = 0;
 
+
 			// Outer Polygons of HitFace
 			for (var l = 0; l <= hitFaces.length - 1; l++) {
-
 				
 
 				for (var p = 0; p <= 9 - 3; p+=3) {
 
-					newIcoFaces[offset + (l*9) + p + 0] = newVertexIDs[ l*3 + (faceCounter)%3] / 3;
-					newIcoFaces[offset + (l*9) + p + 1] = icoFaces[ hitFaces[l] * 3 + faceCounter%3 ];
-					newIcoFaces[offset + (l*9) + p + 2] = newVertexIDs[  l*3 + (faceCounter+2) %3 ] / 3;
+					// newIcoFaces[offset + (l*9) + p + 0] = newVertexIDs[ l*3 + (faceCounter)%3] / 3;
+					// newIcoFaces[offset + (l*9) + p + 1] = icoFaces[ hitFaces[l] * 3 + faceCounter%3 ];
+					// newIcoFaces[offset + (l*9) + p + 2] = newVertexIDs[  l*3 + (faceCounter+2) %3 ] / 3;
 
-					// console.log(l*3 + (faceCounter)%3);
-					// console.log(icoFaces[hitFaces[l] * 3 + faceCounter%3]);
-					// console.log(  l*3 + (faceCounter+2) %3);
+					newIcoFaces[offset + (l*9) + p + 0] = 1;
+					newIcoFaces[offset + (l*9) + p + 1] = 2;
+					newIcoFaces[offset + (l*9) + p + 2] = 3;
 
-					// newIcoFaces[offset + (l*9) + p + 0] = 1;
-					// newIcoFaces[offset + (l*9) + p + 1] = 2;
-					// newIcoFaces[offset + (l*9) + p + 2] = 3;
 					faceCounter++;
 						
 				}
@@ -366,13 +438,13 @@ function subdivide(hitFaces){
 
 			for (var l = 0; l <= hitFaces.length - 1; l++) {
 				// Center Polygon
-				//newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
-				//newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
-				//newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = newVertexIDs[2+(l*3)] / 3;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
+				newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = newVertexIDs[2+(l*3)] / 3;
 
-				newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = 0;
-				newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = 0;
-				newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = 0;
+				// newIcoFaces[offset + faceCounter*3 + (l*3) + 0] = 0;
+				// newIcoFaces[offset + faceCounter*3 + (l*3) + 1] = 0;
+				// newIcoFaces[offset + faceCounter*3 + (l*3) + 2] = 0;
 			}
 
 
@@ -383,8 +455,6 @@ function subdivide(hitFaces){
 
 			// Sort deleteFacesTopIndices
 			/////////////////////////////////////////////////
-
-			// Not working for several hiFaces -> distance has to be compared for each face
 
 			var sorted = [];
 			var smallestValue;
@@ -428,9 +498,12 @@ function subdivide(hitFaces){
 			deleteFacesTopIndices = sorted;
 
 			console.log("deleteFacesTopIndices sorted: " + deleteFacesTopIndices);
+
+
 			//[24, 22, 13, 16, 14, 34];
+			//[126,129,132,135,138,141]
 			deleteFacesTopIndices = [22, 13, 14, 34];
-			newVertexIDs = [129,132,138,141];
+			newVertexIDs = [126,129,135,138]; //<- Why this?
 			
 			// Dont forget to change newIcoFaces length !
 
@@ -452,13 +525,21 @@ function subdivide(hitFaces){
 
 					console.log(faceCounter);
 
-					newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
-					newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
-					newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + (counter+sub)%3 ];
+					// newIcoFaces[offset + faceOff + q + 0] = deleteFacesTopIndices[faceCounter];
+					// newIcoFaces[offset + faceOff + q + 1] = newVertexIDs[faceCounter] / 3;
+					// newIcoFaces[offset + faceOff + q + 2] = icoFaces[ hitFaces[h] * 3 + (counter)%3 ];
 
-					newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
-					newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
-					newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+sub+1)%3]; 
+					// newIcoFaces[offset + faceOff + q + 3] = deleteFacesTopIndices[faceCounter];
+					// newIcoFaces[offset + faceOff + q + 4] = newVertexIDs[faceCounter] / 3;
+					// newIcoFaces[offset + faceOff + q + 5] = icoFaces[ hitFaces[h] * 3 + (counter+1)%3]; 
+
+					newIcoFaces[offset + faceOff + q + 0] = 7;
+					newIcoFaces[offset + faceOff + q + 1] = 7;
+					newIcoFaces[offset + faceOff + q + 2] = 7;
+
+					newIcoFaces[offset + faceOff + q + 3] = 7;
+					newIcoFaces[offset + faceOff + q + 4] = 7;
+					newIcoFaces[offset + faceOff + q + 5] = 7;
 	
 					counter ++;
 					faceCounter ++;
