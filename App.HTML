@@ -281,6 +281,7 @@ function init(){
 	// SKYBOX/FOG
 	var newColor = new THREE.Color( );
         newColor.setRGB(0.9,0.9,0.9);
+        newColor.setRGB(0.3,0.3,0.3);
   
 	var skyBoxGeometry = new THREE.CubeGeometry( 15000, 15000, 15000 );
 	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: newColor, side: THREE.BackSide } );
@@ -765,6 +766,7 @@ function updateSphere(cutMeshData){
 		newLampGeo.computeFaceNormals();
 		newLampGeo.computeVertexNormals(); 
 
+		//Export STL
 		stlFromGeometry( newLampGeo, {download:true});
 
 		var pinkMat = new THREE.MeshPhongMaterial({
@@ -929,7 +931,7 @@ function onKeyDown(event) {
 						);
 
 						var line = new THREE.Line( geometry, material );
-						scene.add( line );
+						//scene.add( line );
 
 		                  
 						customAttributes.customColor.needsUpdate = true;
