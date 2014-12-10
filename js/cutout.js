@@ -44,7 +44,20 @@ importScripts('THREE.js');
 	console.log("work, work!");
 	console.log("selected length: " + selectedVertices.length);
 
- 	for ( var i = 0; i <= selectedVertices.length - 3; i += 3 ) {
+ 	
+	hitTest();
+ 	
+//debugPoints
+var buffers = [newIcoVertices, newIcoFaces];
+
+self.postMessage(buffers);
+
+}, false);
+
+
+
+function hitTest(){
+	for ( var i = 0; i <= selectedVertices.length - 3; i += 3 ) {
 
 
  		// Test collision with lamp (Ico Mesh)
@@ -118,176 +131,11 @@ importScripts('THREE.js');
 			}
 
 	}
-
- 	
-//debugPoints
-var buffers = [newIcoVertices, newIcoFaces];
-
-self.postMessage(buffers);
-
-}, false);
-
-
-
-
-
-
-
-function calcDeleteFaces(){
-		
-		var top = 0;
-		
-			
-		for (var i = 0; i <= hitFaces.length - 1; i++) {
-
-			var closestFace = hitFaces[i];
-
-			// Get adjacent faces of closestFace
-			//deleteFaces = [];
-			var faceCounter = 0;
-			var counter = 0;
-			var counterOld = 0;
-			var top2 = 0;
-			
-			//console.log("closestFace " + closestFace);
-
-			// Which faces have a common index with closestFace
-			for (var l = 0; l <= icoFaces.length - 3; l+=3) {
-
-				for (var p = 0; p <= 2; p++) {
-					// List of face indices at the position closestFace * 3 (because xyz) + addition (p) for xyz
-					
-					if( icoFaces[l + p] == icoFaces[closestFace * 3 + 0]){
-						counter ++;
-					}else{
-						top = icoFaces[l + p];
-					}
-
-					if(icoFaces[l + p] == icoFaces[closestFace * 3 + 1]){
-						counter ++;
-					}else{
-						top = icoFaces[l + p];
-					}
-
-					if(icoFaces[l + p] == icoFaces[closestFace * 3 + 2]){
-						counter ++;
-					}else{
-						top = icoFaces[l + p];
-					}
-
-					if(counter == counterOld){
-						top2 = top;
-					}
-					
-					counterOld = counter;
-
-				}
-
-
-				//  Two common indices
-				if(counter == 2){
-					deleteFaces.push(faceCounter);
-					deleteFacesTopIndices.push(top2);
-				} 
-
-				top = 0;
-				top2 = 0;
-
-
-				counter = 0;
-				counterOld = 0;
-
-				faceCounter++;
-			}
-
-
-			
-			
-
-		}
-		console.log("deleteFacesTopIndices " + deleteFacesTopIndices);
-		console.log("hitFaces " + hitFaces);
-
-
-		console.log("deleteFaces " + deleteFaces);
-		
-
-		//////////////////////////////////////////////////
-		// Test needed for double deleteFaces
-		//////////////////////////////////////////////////
-
-		var newDeleteFaces = [];
-		var deleteFaceCloneCounter = 0;
-		var hitFacesCounter;
-
-		for (var j = 0; j <= deleteFaces.length -1 ; j++) {
-			
-			deleteFaceCloneCounter = 0;
-
-			for (var k = 0; k <= deleteFaces.length -1 ; k++) {
-
-				if(deleteFaces[j] == deleteFaces[k]){
-					deleteFaceCloneCounter++;
-				}
-
-			}
-
-			//console.log(deleteFaceCloneCounter);
-
-
-			if(deleteFaceCloneCounter > 1 ){
-
-
-				hitFacesCounter = 0;
-
-				for (var l = 0; l <= hitFaces.length -1 ; l++) {
-
-					
-
-					if(hitFaces[l] == deleteFaces[j]){
-						hitFacesCounter++;
-					}
-
-
-				}
-
-				if(hitFacesCounter == 0){
-					hitFaces.push(deleteFaces[j]);
-				}
-				
-				// console.log("double delete face!");
-			}
-
-		 }
-
-		 console.log("hitFaces " + hitFaces);
-
-
-		console.log("deleteFaces " + deleteFaces);
-
-
-		 if(hitFaceCountOld < hitFaces.length){
-		 	hitFaceCountOld = hitFaces.length;
-		 	console.log("halloo");
-		 	deleteFaces = [];
-		 	deleteFacesTopIndices = [];
-		 	calcDeleteFaces();
-
-		 }
-
-
-		 //hitFaces = [61,62,42,41,43,40,60];
-
-
 }
 
 function subdivide(){
 
 		calcDeleteFaces();
-
-		//console.log("deleteFaces " + newDeleteFaces);
-
-
 
 			// Creating new arrays for subdivision
 
@@ -340,9 +188,9 @@ function subdivide(){
 			}
 
 
-
+			/////////////////////////////////////////
 			// Reconstruct Faces
-
+			/////////////////////////////////////////
 
 			// The points of the faces, that are to be subdivided (including adjacent faces)
 			for (var p = 0; p <= deleteFaces.length - 1; p++) {
@@ -401,7 +249,6 @@ function subdivide(){
 											icoVertices[icoFaces[ hitFaces[hitFaceID]*3+2]* 3 +2]);
 
 
-
 				var centroid0 = v0.clone().add(v1.clone());
 				var centroid1 = v1.clone().add(v2.clone());
 				var centroid2 = v0.clone().add(v2.clone());
@@ -421,8 +268,6 @@ function subdivide(){
 				var c0Clones = [];
 				var c1Clones = [];
 				var c2Clones = [];
-
-			//	console.log("newVertices length: " + newVertices.length);
 
 
 				// Check for clone indices
@@ -448,8 +293,6 @@ function subdivide(){
 					}
 					
 				}
-
-
 
 				if(!c0){
 					newVertices.push(centroid0);
@@ -484,11 +327,6 @@ function subdivide(){
 						newVertexCounter++;
 					}
 				}
-				
-
-				// newVertices.push(centroid0);
-				// newVertices.push(centroid1);
-				// newVertices.push(centroid2);
 
 				hitFaceID ++;
 			}
@@ -520,10 +358,6 @@ function subdivide(){
 					cloneVertices.push(0);
 				}
 			}
-
-			// console.log("newVertexIDs: " + newVertexIDs);
-			// console.log("clones: " + cloneVertices);
-			// console.log("newVertexCounter: " + newVertexCounter);
 
 
 			//Add new faces
@@ -558,6 +392,7 @@ function subdivide(){
 			//faceOffset+=9;
 
 			for (var l = 0; l <= hitFaces.length - 1; l++) {
+			
 				// Center Polygon
 				newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
 				newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
@@ -573,9 +408,9 @@ function subdivide(){
 			
 
 
-
+			/////////////////////////////////////////
 			// Sort deleteFacesTopIndices
-			/////////////////////////////////////////////////
+			/////////////////////////////////////////
 
 			var sorted = [];
 			var smallestValue;
@@ -591,7 +426,6 @@ function subdivide(){
 					var v2 = new THREE.Vector3( newIcoVertices[newVertexIDs[p+face]],
 												newIcoVertices[(newVertexIDs[p+face]) + 1],
 												newIcoVertices[(newVertexIDs[p+face]) + 2]);
-
 
 					smallestValue = 10000;
 
@@ -660,3 +494,137 @@ function subdivide(){
 
 			icoFaces = newIcoFaces;
 }
+
+
+function calcDeleteFaces(){
+		
+		var top = 0;
+		
+			
+		for (var i = 0; i <= hitFaces.length - 1; i++) {
+
+			var closestFace = hitFaces[i];
+
+			// Get adjacent faces of closestFace
+
+			var faceCounter = 0;
+			var counter = 0;
+			var counterOld = 0;
+			var top2 = 0;
+			
+
+			// Which faces have a common index with closestFace
+			for (var l = 0; l <= icoFaces.length - 3; l+=3) {
+
+				for (var p = 0; p <= 2; p++) {
+
+					// List of face indices at the position closestFace * 3 (because xyz) + addition (p) for xyz
+					
+					if( icoFaces[l + p] == icoFaces[closestFace * 3 + 0]){
+						counter ++;
+					}else{
+						top = icoFaces[l + p];
+					}
+
+					if(icoFaces[l + p] == icoFaces[closestFace * 3 + 1]){
+						counter ++;
+					}else{
+						top = icoFaces[l + p];
+					}
+
+					if(icoFaces[l + p] == icoFaces[closestFace * 3 + 2]){
+						counter ++;
+					}else{
+						top = icoFaces[l + p];
+					}
+
+					if(counter == counterOld){
+						top2 = top;
+					}
+					
+					counterOld = counter;
+
+				}
+
+
+				//  Two common indices
+				if(counter == 2){
+					deleteFaces.push(faceCounter);
+					deleteFacesTopIndices.push(top2);
+				} 
+
+				top = 0;
+				top2 = 0;
+
+
+				counter = 0;
+				counterOld = 0;
+
+				faceCounter++;
+			}
+
+		}
+
+		
+
+		//////////////////////////////////////////////////
+		// Test for double deleteFaces
+		//////////////////////////////////////////////////
+
+		var newDeleteFaces = [];
+		var deleteFaceCloneCounter = 0;
+		var hitFacesCounter;
+
+		for (var j = 0; j <= deleteFaces.length -1 ; j++) {
+			
+			deleteFaceCloneCounter = 0;
+
+			for (var k = 0; k <= deleteFaces.length -1 ; k++) {
+
+				if(deleteFaces[j] == deleteFaces[k]){
+					deleteFaceCloneCounter++;
+				}
+
+			}
+
+
+			if(deleteFaceCloneCounter > 1 ){
+
+
+				hitFacesCounter = 0;
+
+				for (var l = 0; l <= hitFaces.length -1 ; l++) {
+
+					
+
+					if(hitFaces[l] == deleteFaces[j]){
+						hitFacesCounter++;
+					}
+
+
+				}
+
+				if(hitFacesCounter == 0){
+					hitFaces.push(deleteFaces[j]);
+				}
+				
+			}
+
+		 }
+
+
+
+		 if(hitFaceCountOld < hitFaces.length){
+		 	hitFaceCountOld = hitFaces.length;
+		 	console.log("halloo");
+		 	deleteFaces = [];
+		 	deleteFacesTopIndices = [];
+		 	calcDeleteFaces();
+
+		 }
+
+
+
+
+}
+
