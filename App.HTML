@@ -749,7 +749,6 @@ function updateSphere(cutMeshData){
 
 		}
 
-
 		
 		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
 
@@ -767,7 +766,7 @@ function updateSphere(cutMeshData){
 		newLampGeo.computeVertexNormals(); 
 
 		//Export STL
-		stlFromGeometry( newLampGeo, {download:true});
+		//stlFromGeometry( newLampGeo, {download:true});
 
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),
