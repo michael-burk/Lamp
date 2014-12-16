@@ -43,12 +43,11 @@ importScripts('THREE.js');
  cutOut = new Float32Array(icoFaces.length / 3);
 
 
-
-	console.log("work, work!");
-	console.log("selected length: " + selectedVertices.length);
+console.log("work, work!");
+//console.log("selected length: " + selectedVertices.length);
 
  	
-	hitTest();
+hitTest();
  	
 //debugPoints
 var buffers = [newIcoVertices, newIcoFaces];
