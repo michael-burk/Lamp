@@ -8,7 +8,11 @@ var icoFacesCentroid;
 var icoFaces;
 
 var newIcoVertices;
+
+
 var newIcoFaces;
+var newIcoFacesArray  = [];
+
 var debugPoints;
 var subDivisionPoints;
 
@@ -146,12 +150,13 @@ function subdivide(){
 	newIcoVertices = new Float32Array(icoVertices.length + (hitFaces.length * 3 * 3));
 
 	// Same length as before + three new faces for hitface + two new faces for every adjacent face (deleteFaces)
-	newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3));
+	//newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3));
+	
 	
 	var idCounter = 0;
 	var deleteCounter = 0;
 
-	for (var l = 0; l <= newIcoFaces.length - 3; l+=3) {
+	for (var l = 0; l <= icoFaces.length - 3; l+=3) {
 
 		// Does this face appear in the deleteFaces list?
 		for (var p = 0; p <= deleteFaces.length - 1; p++) {
@@ -162,26 +167,38 @@ function subdivide(){
 
 
 		// Does this face appear in the deleteFaces list? 
-		if(deleteCounter <= 0){
-			newIcoFaces[l] = icoFaces[l];
-			newIcoFaces[l+1] = icoFaces[l+1];	
-			newIcoFaces[l+2] = icoFaces[l+2];		
+		if(deleteCounter == 0){
+
+			// newIcoFaces[l] =   icoFaces[l];
+			// newIcoFaces[l+1] = icoFaces[l+1];	
+			// newIcoFaces[l+2] = icoFaces[l+2];
+
+			newIcoFacesArray.push(icoFaces[l]);
+			newIcoFacesArray.push(icoFaces[l+1]);
+			newIcoFacesArray.push(icoFaces[l+2]);	
+
+			newIcoFaces[l] = -1;
+			newIcoFaces[l+1] = -1;
+			newIcoFaces[l+2] = -1;
+	
 		}
 
 		// If so, delete
 		if(deleteCounter > 0 ){
-			newIcoFaces[l] = 0;
-			newIcoFaces[l+1] = 0;
-			newIcoFaces[l+2] = 0;
+			newIcoFaces[l] = -1;
+			newIcoFaces[l+1] = -1;
+			newIcoFaces[l+2] = -1;
+
 		} 
 
 		// "Delete" hitFaces
 		for (var f = 0; f <= hitFaces.length - 1; f++) {
 			var closestFace = hitFaces[f];
 			if(idCounter == closestFace){
-				newIcoFaces[l] = 0;
-				newIcoFaces[l+1] = 0;
-				newIcoFaces[l+2] = 0;
+				newIcoFaces[l] = -1;
+				newIcoFaces[l+1] = -1;
+				newIcoFaces[l+2] = -1;
+
 			}
 		}	
 		
@@ -347,7 +364,6 @@ function subdivide(){
 		vertexCounter ++;
 	}
 
-	console.log(newIcoVertices);
 
 	var cloneVertices = [];
 	for (var v = 0; v <= newVertexIDs.length - 1; v++) {
@@ -380,21 +396,15 @@ function subdivide(){
 
 		for (var p = 0; p <= 9 - 3; p+=3) {
 
-			newIcoFaces[faceOffset + (l*9) + p + 0] = icoFaces[ hitFaces[l] * 3 + faceCounter % 3 ];
-			newIcoFaces[faceOffset + (l*9) + p + 1] = newVertexIDs[ l * 3 + (faceCounter) % 3] / 3;
-			newIcoFaces[faceOffset + (l*9) + p + 2] = newVertexIDs[ l * 3 + (faceCounter + 2) % 3 ] / 3;
-
-			// console.log(newVertices);
+			newIcoFacesArray.push(icoFaces[ hitFaces[l] * 3 + faceCounter % 3 ]);
+			newIcoFacesArray.push(newVertexIDs[ l * 3 + (faceCounter) % 3] / 3);
+			newIcoFacesArray.push(newVertexIDs[ l * 3 + (faceCounter + 2) % 3 ] / 3);
 
 			///////////////////////////////////////
 			// Calculate new CENTROID
 			///////////////////////////////////////
 
-			console.log(newIcoVertices[newIcoFaces[faceOffset + (l * 9) + p + 0]]);
-
-			// newIcoFaces[faceOffset + (l*9) + p + 0] = 1;
-			// newIcoFaces[faceOffset + (l*9) + p + 1] = 1;
-			// newIcoFaces[faceOffset + (l*9) + p + 2] = 1;
+			//console.log(newIcoVertices[newIcoFaces[faceOffset + (l * 9) + p + 0]]);
 
 			faceCounter++;
 				
@@ -405,13 +415,13 @@ function subdivide(){
 	for (var l = 0; l <= hitFaces.length - 1; l++) {
 	
 		// Center Polygon
-		newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 0] = newVertexIDs[0+(l*3)] / 3;
-		newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 1] = newVertexIDs[1+(l*3)] / 3;
-		newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 2] = newVertexIDs[2+(l*3)] / 3;
 
-		// newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 0] = 0;
-		// newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 1] = 0;
-		// newIcoFaces[faceOffset + faceCounter*3 + (l*3) + 2] = 0;
+
+		// newIcoFacesArray.push(newVertexIDs[0+(l*3)] / 3);
+		// newIcoFacesArray.push(newVertexIDs[1+(l*3)] / 3);
+		// newIcoFacesArray.push(newVertexIDs[2+(l*3)] / 3);
+
+
 	}
 
 
@@ -473,37 +483,41 @@ function subdivide(){
 		face = h * 6 * 3;
 		faceCounter = 0;
 
-		for (var q = 0; q <= deleteFacesTopIndices.length * 2 * 3 -3; q+=6) {
+
+		for (var q = 0; q <= (newVertexIDs.length/hitFaces.length)*2 -2; q+=2) {
 
 				clone = cloneVertices[faceCounter+h*3];
+			
 
 				if(clone == 0){
 
 					// Clockwise indices sorting for normals
-					newIcoFaces[faceOffset + face + q + 0] = deleteFacesTopIndices[faceCounter+h*3];
-					newIcoFaces[faceOffset + face + q + 1] = newVertexIDs[faceCounter+h*3] / 3;
-					newIcoFaces[faceOffset + face + q + 2] = icoFaces[ hitFaces[h] * 3 + faceCounter ];
-					
-					newIcoFaces[faceOffset + face + q + 3] = deleteFacesTopIndices[faceCounter+h*3];
-					newIcoFaces[faceOffset + face + q + 4] = icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3];
-					newIcoFaces[faceOffset + face + q + 5] = newVertexIDs[faceCounter+h*3] / 3;
+
+					newIcoFacesArray.push(deleteFacesTopIndices[faceCounter+h*3]);
+					newIcoFacesArray.push(newVertexIDs[faceCounter+h*3] / 3);
+					newIcoFacesArray.push(icoFaces[ hitFaces[h] * 3 + faceCounter ]);
+
+					newIcoFacesArray.push(deleteFacesTopIndices[faceCounter+h*3]);
+					newIcoFacesArray.push(icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3]);
+					newIcoFacesArray.push(newVertexIDs[faceCounter+h*3] / 3);
+
 
 				}else{
 
-					newIcoFaces[faceOffset + face + q + 0] = 0;
-					newIcoFaces[faceOffset + face + q + 1] = 0;
-					newIcoFaces[faceOffset + face + q + 2] = 0;
-					newIcoFaces[faceOffset + face + q + 3] = 0;
-					newIcoFaces[faceOffset + face + q + 4] = 0;
-					newIcoFaces[faceOffset + face + q + 5] = 0;
-
+					
 				}
-
+				
+				
 				faceCounter ++;
 		}
 
 	}
+	
+	newIcoFaces = new Float32Array(newIcoFacesArray.length);
 
+	newIcoFaces = newIcoFacesArray;
+
+	console.log(newIcoFacesArray);
 
 	icoFaces = newIcoFaces;
 
