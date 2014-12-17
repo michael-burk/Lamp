@@ -25,7 +25,7 @@ var deleteFaces = [];
 var hitFaces = [];
 var hitFaceCountOld = 0;
 
-var depth = 5;
+var depth = 1;
 var depthCounter = 0;
 
 
@@ -294,9 +294,9 @@ function subdivide(){
 		newIcoVertices[offset + p + 1] = newVertices[vertexCounter].y;
 		newIcoVertices[offset + p + 2] = newVertices[vertexCounter].z;
 
-		// debugPointsArray.push(newVertices[vertexCounter].x);
-		// debugPointsArray.push(newVertices[vertexCounter].y);
-		// debugPointsArray.push(newVertices[vertexCounter].z);
+		debugPointsArray.push(newVertices[vertexCounter].x);
+		debugPointsArray.push(newVertices[vertexCounter].y);
+		debugPointsArray.push(newVertices[vertexCounter].z);
 
 
 		vertexCounter ++;
@@ -358,9 +358,9 @@ function subdivide(){
 										icoFacesCentroids[l+1],
 										icoFacesCentroids[l+2] );
 		
-			debugPointsArray.push(v1.x);
-			debugPointsArray.push(v1.y);
-			debugPointsArray.push(v1.z);
+			// debugPointsArray.push(v1.x);
+			// debugPointsArray.push(v1.y);
+			// debugPointsArray.push(v1.z);
 
 			newCentroids.push(v1.x);
 			newCentroids.push(v1.y);
@@ -412,9 +412,9 @@ function subdivide(){
 
 			var centroid = addition.divideScalar(3);
 
-			debugPointsArray.push(centroid.x);
-			debugPointsArray.push(centroid.y);
-			debugPointsArray.push(centroid.z);
+			// debugPointsArray.push(centroid.x);
+			// debugPointsArray.push(centroid.y);
+			// debugPointsArray.push(centroid.z);
 
 			newCentroids.push(centroid.x);
 			newCentroids.push(centroid.y);
@@ -459,9 +459,9 @@ function subdivide(){
 
 			var centroid = addition.divideScalar(3);
 
-			debugPointsArray.push(centroid.x);
-			debugPointsArray.push(centroid.y);
-			debugPointsArray.push(centroid.z);
+			// debugPointsArray.push(centroid.x);
+			// debugPointsArray.push(centroid.y);
+			// debugPointsArray.push(centroid.z);
 
 			newCentroids.push(centroid.x);
 			newCentroids.push(centroid.y);
@@ -476,53 +476,53 @@ function subdivide(){
 	// Sort deleteFacesTopIndices
 	/////////////////////////////////////////
 
-	// var sorted = [];
-	// var smallestValue;
-	// var face;
+	var sorted = [];
+	var smallestValue;
+	var face;
 	
-	// for (var h = 0; h <= hitFaces.length - 1; h++) {
-	// 	smallestValue = 10000;
-	// 	face = h*3;
+	for (var h = 0; h <= hitFaces.length - 1; h++) {
+		smallestValue = 10000;
+		face = h*3;
 
-	// 	for (var p = 0; p <= 3 - 1; p++) {
+		for (var p = 0; p <= 3 - 1; p++) {
 		
 			
-	// 		var v2 = new THREE.Vector3( newIcoVertices[newVertexIDs[p+face]],
-	// 									newIcoVertices[(newVertexIDs[p+face]) + 1],
-	// 									newIcoVertices[(newVertexIDs[p+face]) + 2]);
+			var v2 = new THREE.Vector3( newIcoVertices[newVertexIDs[p+face]],
+										newIcoVertices[(newVertexIDs[p+face]) + 1],
+										newIcoVertices[(newVertexIDs[p+face]) + 2]);
 
 			
-	// 		smallestValue = 10000;
+			smallestValue = 10000;
 
-	// 		for (var q = 0; q <= 3 - 1; q++) {
+			for (var q = 0; q <= 3 - 1; q++) {
 				
-	// 			var v1 = new THREE.Vector3( newIcoVertices[deleteFacesTopIndices[q+face] * 3],
-	// 								    	newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 1],
-	// 								   		newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 2]);
+				var v1 = new THREE.Vector3( newIcoVertices[deleteFacesTopIndices[q+face] * 3],
+									    	newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 1],
+									   		newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 2]);
 
-	// 			debugPointsArray.push(v1.x);
-	// 			debugPointsArray.push(v1.y);
-	// 			debugPointsArray.push(v1.z);
+				debugPointsArray.push(v1.x);
+				debugPointsArray.push(v1.y);
+				debugPointsArray.push(v1.z);
 
 
-	// 			var sub = new THREE.Vector3(0,0,0);
-	// 			sub.subVectors(v1,v2);
+				var sub = new THREE.Vector3(0,0,0);
+				sub.subVectors(v1,v2);
 			
-	// 			if(sub.length() < smallestValue){
-	// 				smallestValue = sub.length();
-	// 				sorted[p+face] = deleteFacesTopIndices[q+face];
-	// 			}
+				if(sub.length() < smallestValue){
+					smallestValue = sub.length();
+					sorted[p+face] = deleteFacesTopIndices[q+face];
+				}
 
-	// 		}
+			}
 
-	// 	}
+		}
 
-	// }	
+	}	
 
-	// console.log(deleteFacesTopIndices);	
-	// console.log(sorted);	
+	console.log(deleteFacesTopIndices);	
+	console.log(sorted);	
 
-	// console.log(deleteFaces);	
+	console.log(deleteFaces);	
 	
 	//deleteFacesTopIndices = sorted;
 	
@@ -596,9 +596,9 @@ function subdivide(){
 
 					var centroid = addition.divideScalar(3);
 
-					debugPointsArray.push(centroid.x);
-					debugPointsArray.push(centroid.y);
-					debugPointsArray.push(centroid.z);
+					// debugPointsArray.push(centroid.x);
+					// debugPointsArray.push(centroid.y);
+					// debugPointsArray.push(centroid.z);
 
 					newCentroids.push(centroid.x);
 					newCentroids.push(centroid.y);
@@ -622,9 +622,9 @@ function subdivide(){
 
 					var centroid = addition.divideScalar(3);
 
-					debugPointsArray.push(centroid.x);
-					debugPointsArray.push(centroid.y);
-					debugPointsArray.push(centroid.z);
+					// debugPointsArray.push(centroid.x);
+					// debugPointsArray.push(centroid.y);
+					// debugPointsArray.push(centroid.z);
 
 					newCentroids.push(centroid.x);
 					newCentroids.push(centroid.y);
@@ -680,75 +680,60 @@ function calcDeleteFaces(){
 		for (var i = 0; i <= hitFaces.length - 1; i++) {
 
 			var closestFace = hitFaces[i];
-			//console.log("closestFace " + closestFace);
+			console.log("closestFace " + closestFace);
 			// Get adjacent faces of closestFace
 
 			var faceCounter = 0;
-			var counterA = 0;
-			var counterB = 0;
 			var counter = 0;
 			var counterOld = 0;
 			var top2 = 0;
-
-			compareAll(icoFaces[closestFace * 3 + 0], icoFaces[closestFace * 3 + 1]);
-			compareAll(icoFaces[closestFace * 3 + 1], icoFaces[closestFace * 3 + 2]);
-			compareAll(icoFaces[closestFace * 3 + 2], icoFaces[closestFace * 3 + 0]);
-	
-
-		}
-						
-		var sameIndices = [];
-		var top;
-
-		function compareAll(a,b){
-			
-			faceCounter = 0;
-			counterA = 0;
-			counterB = 0;
 			
 
+			// Compare the other way around ?
+			//////////////////////////////////
+
+			// Which faces have a common index with closestFace
 			for (var l = 0; l <= icoFaces.length - 3; l+=3) {
-				sameIndices = [];
-				if( icoFaces[l] == a){
-						counterA++;
-						sameIndices.push(a);
-				}else if( icoFaces[l] == b){
-						counterB++;
-						sameIndices.push(b);
-				}else{
-					top = icoFaces[l];
+			
+				var sameIndices = [];
+
+				for (var p = 0; p <= 2; p++) {
+
+					// List of face indices at the position closestFace * 3 (because xyz) + addition (p) for xyz
+		
+					if( icoFaces[l + p] == icoFaces[closestFace * 3 + 0]){
+						counter ++;
+						sameIndices.push(icoFaces[l + p]);
+					}
+
+					if( icoFaces[l + p] == icoFaces[closestFace * 3 + 1]){
+						counter ++;
+						sameIndices.push(icoFaces[l + p]);
+					}
+
+					if( icoFaces[l + p] == icoFaces[closestFace * 3 + 2]){
+						counter ++;
+						sameIndices.push(icoFaces[l + p]);
+					}
+
 				}
 
-				if( icoFaces[l+1] == a){
-						counterA++;
-						sameIndices.push(a);
-				}else if( icoFaces[l+1] == b){
-						counterB++;
-						sameIndices.push(b);
-				}else{
-					top = icoFaces[l+1];
-				}
-
-				if( icoFaces[l+2] == a){
-						counterA++;
-						sameIndices.push(a);
-				}else if( icoFaces[l+2] == b){
-						counterB++;
-						sameIndices.push(b);
-				}else{
-					top = icoFaces[l+2];
-				}
-				
 				//  Two common indices
-				if(counterA == 1 && counterB == 1 && faceCounter != closestFace){
+				if(counter == 2){
 					deleteFaces.push(faceCounter);
-					deleteFacesTopIndices.push(top);
+					//console.log(sameIndices);
+					for(var q = 0; q <= 2; q++){
+						if(icoFaces[faceCounter*3+q] != sameIndices[0] && icoFaces[faceCounter*3+q] != sameIndices[1]){
+							deleteFacesTopIndices.push(icoFaces[faceCounter*3+q]);
+						}
+					}
 				} 
 
-				counterA = 0;
-				counterB = 0;
+				counter = 0;
+
 				faceCounter++;
 			}
+
 		}
 
 

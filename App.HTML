@@ -742,9 +742,12 @@ function updateSphere(cutMeshData){
 
 		if(cutMeshData[2] != undefined){
 			for(var i = 0; i <= cutMeshData[2].length -3; i +=3){
+
+				//var geometry = new THREE.BoxGeometry( .1*i+1, .1*i+1, .1*i+1);
 				var cube = new THREE.Mesh( geometry, material );
 				cube.position = new THREE.Vector3(cutMeshData[2][i],cutMeshData[2][i+1],cutMeshData[2][i+2]);
 					scene.add( cube );
+
 			}
 
 		}
@@ -766,7 +769,7 @@ function updateSphere(cutMeshData){
 		newLampGeo.computeVertexNormals(); 
 
 		//Export STL
-		//stlFromGeometry( newLampGeo, {download:true});
+		stlFromGeometry( newLampGeo, {download:true});
 
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),
