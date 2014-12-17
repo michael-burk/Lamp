@@ -913,6 +913,8 @@ function onKeyDown(event) {
 		                var newColor = new THREE.Color( 0xffffff );
 		                customAttributes.customColor.value[ i ] = newColor;
 		                customAttributes.customSize.value[ i ] = 1;
+		                  
+		                  
 
    		                selectedMesh.vertices.push(vertex);
 		                  
@@ -928,7 +930,7 @@ function onKeyDown(event) {
 						);
 
 						var line = new THREE.Line( geometry, material );
-						scene.add( line );
+						//scene.add( line );
 
 		                  
 						customAttributes.customColor.needsUpdate = true;
