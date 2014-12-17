@@ -515,7 +515,10 @@ function subdivide(){
 	}	
 
 	console.log(deleteFacesTopIndices);	
-	//deleteFacesTopIndices = sorted;
+	deleteFacesTopIndices = sorted;
+	
+
+
 	//console.log(deleteFaces);	
 
 	// if(depthCounter == 1){
