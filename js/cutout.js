@@ -25,7 +25,7 @@ var deleteFaces = [];
 var hitFaces = [];
 var hitFaceCountOld = 0;
 
-var depth = 5;
+var depth = 6;
 var depthCounter = 0;
 
 
@@ -206,13 +206,29 @@ function subdivide(){
 		var centroid1 = v1.clone().add(v2.clone());
 		var centroid2 = v0.clone().add(v2.clone());
 
+		// centroid0.divideScalar(1.99);
+		// centroid1.divideScalar(1.99);
+		// centroid2.divideScalar(1.99);
+
 		centroid0.divideScalar(2);
 		centroid1.divideScalar(2);
 		centroid2.divideScalar(2);
 
 
 		var sub = new THREE.Vector3(0,0,0);
+
+		// var offset = centroid0.copy().sub(sub.copy());
 		
+		// centroid0 += offset *.1;
+
+		// var offset = centroid1.copy().sub(sub.copy());
+		
+		// centroid1 += offset *.1;
+
+		// var offset = centroid2.copy().sub(sub.copy());
+		
+		// centroid2 += offset *.1;
+
 	
 		var c0 = false;
 		var c1 = false;
@@ -294,10 +310,6 @@ function subdivide(){
 		newIcoVertices[offset + p + 1] = newVertices[vertexCounter].y;
 		newIcoVertices[offset + p + 2] = newVertices[vertexCounter].z;
 
-		// debugPointsArray.push(newVertices[vertexCounter].x);
-		// debugPointsArray.push(newVertices[vertexCounter].y);
-		// debugPointsArray.push(newVertices[vertexCounter].z);
-
 
 		vertexCounter ++;
 	}
@@ -358,9 +370,9 @@ function subdivide(){
 										icoFacesCentroids[l+1],
 										icoFacesCentroids[l+2] );
 		
-			debugPointsArray.push(v1.x);
-			debugPointsArray.push(v1.y);
-			debugPointsArray.push(v1.z);
+			// debugPointsArray.push(v1.x);
+			// debugPointsArray.push(v1.y);
+			// debugPointsArray.push(v1.z);
 
 			newCentroids.push(v1.x);
 			newCentroids.push(v1.y);
@@ -412,9 +424,9 @@ function subdivide(){
 
 			var centroid = addition.divideScalar(3);
 
-			debugPointsArray.push(centroid.x);
-			debugPointsArray.push(centroid.y);
-			debugPointsArray.push(centroid.z);
+			// debugPointsArray.push(centroid.x);
+			// debugPointsArray.push(centroid.y);
+			// debugPointsArray.push(centroid.z);
 
 			newCentroids.push(centroid.x);
 			newCentroids.push(centroid.y);
@@ -432,110 +444,52 @@ function subdivide(){
 	
 		// Center Polygon
 
-		var a = newVertexIDs[0+(l*3)] / 3;
-		var b = newVertexIDs[1+(l*3)] / 3;
-		var c = newVertexIDs[2+(l*3)] / 3;
-
-		newIcoFacesArray.push(a);
-		newIcoFacesArray.push(b);
-		newIcoFacesArray.push(c);
-
-
-		// Calculate new CENTROID
-
-			var v0 = new THREE.Vector3( newIcoVertices[a*3 + 0],
-										newIcoVertices[a*3 + 1],
-										newIcoVertices[a*3 + 2] );
-
-			var v1 = new THREE.Vector3( newIcoVertices[b*3 + 0],
-										newIcoVertices[b*3 + 1],
-										newIcoVertices[b*3 + 2] );
-
-			var v2 = new THREE.Vector3( newIcoVertices[c*3 + 0],
-										newIcoVertices[c*3 + 1],
-										newIcoVertices[c*3 + 2] );
+			if(depthCounter < depth -1){
+				
+	
 			
-			var addition = v0.clone().add(v1.clone()).add(v2.clone());
 
-			var centroid = addition.divideScalar(3);
+				var a = newVertexIDs[0+(l*3)] / 3;
+				var b = newVertexIDs[1+(l*3)] / 3;
+				var c = newVertexIDs[2+(l*3)] / 3;
 
-			debugPointsArray.push(centroid.x);
-			debugPointsArray.push(centroid.y);
-			debugPointsArray.push(centroid.z);
+				newIcoFacesArray.push(a);
+				newIcoFacesArray.push(b);
+				newIcoFacesArray.push(c);
 
-			newCentroids.push(centroid.x);
-			newCentroids.push(centroid.y);
-			newCentroids.push(centroid.z);
+
+				// Calculate new CENTROID
+
+				var v0 = new THREE.Vector3( newIcoVertices[a*3 + 0],
+											newIcoVertices[a*3 + 1],
+											newIcoVertices[a*3 + 2] );
+
+				var v1 = new THREE.Vector3( newIcoVertices[b*3 + 0],
+											newIcoVertices[b*3 + 1],
+											newIcoVertices[b*3 + 2] );
+
+				var v2 = new THREE.Vector3( newIcoVertices[c*3 + 0],
+											newIcoVertices[c*3 + 1],
+											newIcoVertices[c*3 + 2] );
+				
+				var addition = v0.clone().add(v1.clone()).add(v2.clone());
+
+				var centroid = addition.divideScalar(3);
+
+				// debugPointsArray.push(centroid.x);
+				// debugPointsArray.push(centroid.y);
+				// debugPointsArray.push(centroid.z);
+
+				newCentroids.push(centroid.x);
+				newCentroids.push(centroid.y);
+				newCentroids.push(centroid.z);
+
+
+			}
 
 
 
 	}
-
-
-	/////////////////////////////////////////
-	// Sort deleteFacesTopIndices
-	/////////////////////////////////////////
-
-	// var sorted = [];
-	// var smallestValue;
-	// var face;
-	
-	// for (var h = 0; h <= hitFaces.length - 1; h++) {
-	// 	smallestValue = 10000;
-	// 	face = h*3;
-
-	// 	for (var p = 0; p <= 3 - 1; p++) {
-		
-			
-	// 		var v2 = new THREE.Vector3( newIcoVertices[newVertexIDs[p+face]],
-	// 									newIcoVertices[(newVertexIDs[p+face]) + 1],
-	// 									newIcoVertices[(newVertexIDs[p+face]) + 2]);
-
-			
-	// 		smallestValue = 10000;
-
-	// 		for (var q = 0; q <= 3 - 1; q++) {
-				
-	// 			var v1 = new THREE.Vector3( newIcoVertices[deleteFacesTopIndices[q+face] * 3],
-	// 								    	newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 1],
-	// 								   		newIcoVertices[(deleteFacesTopIndices[q+face]  * 3) + 2]);
-
-	// 			debugPointsArray.push(v1.x);
-	// 			debugPointsArray.push(v1.y);
-	// 			debugPointsArray.push(v1.z);
-
-
-	// 			var sub = new THREE.Vector3(0,0,0);
-	// 			sub.subVectors(v1,v2);
-			
-	// 			if(sub.length() < smallestValue){
-	// 				smallestValue = sub.length();
-	// 				sorted[p+face] = deleteFacesTopIndices[q+face];
-	// 			}
-
-	// 		}
-
-	// 	}
-
-	// }	
-
-	// console.log(deleteFacesTopIndices);	
-	// console.log(sorted);	
-
-	// console.log(deleteFaces);	
-	
-	//deleteFacesTopIndices = sorted;
-	
-
-
-	//console.log(deleteFaces);	
-
-	// if(depthCounter == 1){
-	// 	deleteFacesTopIndices = [43,16,34];
-	// }
-	
-
-
 
 
 	/////////////////////////////
@@ -596,9 +550,9 @@ function subdivide(){
 
 					var centroid = addition.divideScalar(3);
 
-					debugPointsArray.push(centroid.x);
-					debugPointsArray.push(centroid.y);
-					debugPointsArray.push(centroid.z);
+					// debugPointsArray.push(centroid.x);
+					// debugPointsArray.push(centroid.y);
+					// debugPointsArray.push(centroid.z);
 
 					newCentroids.push(centroid.x);
 					newCentroids.push(centroid.y);
@@ -622,9 +576,9 @@ function subdivide(){
 
 					var centroid = addition.divideScalar(3);
 
-					debugPointsArray.push(centroid.x);
-					debugPointsArray.push(centroid.y);
-					debugPointsArray.push(centroid.z);
+					// debugPointsArray.push(centroid.x);
+					// debugPointsArray.push(centroid.y);
+					// debugPointsArray.push(centroid.z);
 
 					newCentroids.push(centroid.x);
 					newCentroids.push(centroid.y);
