@@ -4,7 +4,8 @@ var closestDistance;
 //Input Buffer
 var selectedVertices;
 var icoVertices;
-var icoFacesCentroid;
+var icoFacesCentroids;
+var newCentroids = [];
 var icoFaces;
 
 var newIcoVertices;
@@ -14,6 +15,8 @@ var newIcoFaces;
 var newIcoFacesArray  = [];
 
 var debugPoints;
+var debugPointsArray = [];
+
 var subDivisionPoints;
 
 var closestFaces = [];
@@ -22,11 +25,9 @@ var deleteFaces = [];
 var hitFaces = [];
 var hitFaceCountOld = 0;
 
-var depth = 0;
+var depth = 1;
 var depthCounter = 0;
 
-// Output ArrayBuffer
- var cutOut;
 
 self.addEventListener('message', function(e) {
 
@@ -35,7 +36,7 @@ importScripts('THREE.js');
 //Input Buffer
  selectedVertices = e.data[0];
  icoVertices = e.data[1];
- icoFacesCentroid = e.data[2];
+ icoFacesCentroids = e.data[2];
  icoFaces = e.data[3];
 
  newIcoVertices = new Float32Array();
@@ -43,8 +44,6 @@ importScripts('THREE.js');
  debugPoints;
  subDivisionPoints = [];
 
-// Output ArrayBuffer
- cutOut = new Float32Array(icoFaces.length / 3);
 
 
 console.log("work, work!");
@@ -52,9 +51,12 @@ console.log("work, work!");
 
  	
 hitTest();
+
+debugPoints = new Float32Array(debugPointsArray.length);
+debugPoints = debugPointsArray;
  	
 //debugPoints
-var buffers = [newIcoVertices, newIcoFaces];
+var buffers = [newIcoVertices, newIcoFaces,debugPoints];
 
 self.postMessage(buffers);
 
@@ -81,10 +83,10 @@ function hitTest(){
 		closestDistance = 100000;
 
 		// Get closestFace and closestDistance
- 		for (var j =0; j <= icoFacesCentroid.length -3; j+=3) {
+ 		for (var j =0; j <= icoFacesCentroids.length -3; j+=3) {
 
  			// Center of Face
-			var centroid = new THREE.Vector3(icoFacesCentroid[j],icoFacesCentroid[j+1],icoFacesCentroid[j+2]);
+			var centroid = new THREE.Vector3(icoFacesCentroids[j],icoFacesCentroids[j+1],icoFacesCentroids[j+2]);
 
  			if(myRaycaster.ray.distanceToPoint(centroid) <= closestDistance){
  					closestDistance = myRaycaster.ray.distanceToPoint(centroid);
@@ -141,7 +143,6 @@ function hitTest(){
 
 function subdivide(){
 
-	
 	calcDeleteFaces();
 
 	// Creating new arrays for subdivision
@@ -152,90 +153,11 @@ function subdivide(){
 	// Same length as before + three new faces for hitface + two new faces for every adjacent face (deleteFaces)
 	//newIcoFaces = new Float32Array(icoFaces.length + (hitFaces.length * 4 * 3) + (deleteFaces.length * 2 * 3));
 	
-	
-	var idCounter = 0;
-	var deleteCounter = 0;
-
-	for (var l = 0; l <= icoFaces.length - 3; l+=3) {
-
-		// Does this face appear in the deleteFaces list?
-		for (var p = 0; p <= deleteFaces.length - 1; p++) {
-			if(idCounter == deleteFaces[p]){
-				deleteCounter ++;
-			}
-		}
 
 
-		// Does this face appear in the deleteFaces list? 
-		if(deleteCounter == 0){
-
-			// newIcoFaces[l] =   icoFaces[l];
-			// newIcoFaces[l+1] = icoFaces[l+1];	
-			// newIcoFaces[l+2] = icoFaces[l+2];
-
-			newIcoFacesArray.push(icoFaces[l]);
-			newIcoFacesArray.push(icoFaces[l+1]);
-			newIcoFacesArray.push(icoFaces[l+2]);	
-
-			newIcoFaces[l] = -1;
-			newIcoFaces[l+1] = -1;
-			newIcoFaces[l+2] = -1;
-	
-		}
-
-		// If so, delete
-		if(deleteCounter > 0 ){
-			newIcoFaces[l] = -1;
-			newIcoFaces[l+1] = -1;
-			newIcoFaces[l+2] = -1;
-
-		} 
-
-		// "Delete" hitFaces
-		for (var f = 0; f <= hitFaces.length - 1; f++) {
-			var closestFace = hitFaces[f];
-			if(idCounter == closestFace){
-				newIcoFaces[l] = -1;
-				newIcoFaces[l+1] = -1;
-				newIcoFaces[l+2] = -1;
-
-			}
-		}	
-		
-		idCounter++;
-		deleteCounter = 0;
-
-	}
-
-
-	/////////////////////////////////////////
-	// Reconstruct Faces
-	/////////////////////////////////////////
-
-	// The points of the faces, that are to be subdivided (including adjacent faces)
-	for (var p = 0; p <= deleteFaces.length - 1; p++) {
-			subDivisionPoints.push(new THREE.Vector3( icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +0],
-													  icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +1],
-													  icoVertices[icoFaces[ deleteFaces[p]*3 +0]* 3 +2]));
-			subDivisionPoints.push(new THREE.Vector3( icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +0],
-													  icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +1],
-													  icoVertices[icoFaces[ deleteFaces[p]*3 +1]* 3 +2]));
-			subDivisionPoints.push(new THREE.Vector3( icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +0],
-													  icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +1],
-													  icoVertices[icoFaces[ deleteFaces[p]*3 +2]* 3 +2]));
-	}
-	
-	// Data for debug boxes
-	debugPoints = new Float32Array(subDivisionPoints.length * 3);
-
-	// var counter = 0;
-	// for(var u = 0; u <= debugPoints.length -3; u +=3){
-	// 	debugPoints[u] = subDivisionPoints[counter].x;
-	// 	debugPoints[u+1] = subDivisionPoints[counter].y;
-	// 	debugPoints[u+2] = subDivisionPoints[counter].z;
-	// 	counter ++;
-	// }
-
+	//////////////////////////////////
+	// Calculate new vertices
+	//////////////////////////////////
 
 	// Keep all old vertices
 	idCounter = 0;
@@ -252,8 +174,7 @@ function subdivide(){
 	var newVertexIDs = [];
 	var newVertexCounter = 0;
 
-
-	// Calculate new vertices
+	
 	for (var p = 0; p <= hitFaces.length * 3 - 3; p+=3) {
 
 		//three centroids of hitFace outlines
@@ -365,6 +286,7 @@ function subdivide(){
 	}
 
 
+	// Check for clone Vertices
 	var cloneVertices = [];
 	for (var v = 0; v <= newVertexIDs.length - 1; v++) {
 		var clone = 0;
@@ -381,8 +303,62 @@ function subdivide(){
 	}
 
 
+	/////////////////////////////////////////
+	// Reconstruct Faces
+	/////////////////////////////////////////
 
-	//Add new faces
+
+	// Keep old faces
+
+	var idCounter = 0;
+	var deleteCounter = 0;
+
+	for (var l = 0; l <= icoFaces.length - 3; l+=3) {
+
+		// Does this face appear in the deleteFaces list?
+		for (var p = 0; p <= deleteFaces.length - 1; p++) {
+			if(idCounter == deleteFaces[p]){
+				deleteCounter ++;
+			}
+		}
+
+		// Does this face appear in the hitFaces list? 
+		for (var q = 0; q <= hitFaces.length - 1; q++) {
+			var closestFace = hitFaces[q];
+			if(idCounter == closestFace){
+				deleteCounter ++;
+			}
+		}
+
+
+		if(deleteCounter == 0){
+
+			newIcoFacesArray.push(icoFaces[l]);
+			newIcoFacesArray.push(icoFaces[l+1]);
+			newIcoFacesArray.push(icoFaces[l+2]);	
+
+			// Keep these centroids
+			newCentroids.push(icoFacesCentroids[l]);
+			newCentroids.push(icoFacesCentroids[l+1]);
+			newCentroids.push(icoFacesCentroids[l+2]);	
+
+			var v1 = new THREE.Vector3( icoFacesCentroids[l+0],
+										icoFacesCentroids[l+1],
+										icoFacesCentroids[l+2] );
+		
+			// debugPointsArray.push(v1.x);
+			// debugPointsArray.push(v1.y);
+			// debugPointsArray.push(v1.z);
+
+			// newCentroids.push(v1.x);
+			// newCentroids.push(v1.y);
+			// newCentroids.push(v1.z);
+		}
+		
+		idCounter++;
+		deleteCounter = 0;
+
+	}
 
 
 	//Subdividing HitFace
@@ -396,15 +372,42 @@ function subdivide(){
 
 		for (var p = 0; p <= 9 - 3; p+=3) {
 
-			newIcoFacesArray.push(icoFaces[ hitFaces[l] * 3 + faceCounter % 3 ]);
-			newIcoFacesArray.push(newVertexIDs[ l * 3 + (faceCounter) % 3] / 3);
-			newIcoFacesArray.push(newVertexIDs[ l * 3 + (faceCounter + 2) % 3 ] / 3);
+			var a = icoFaces[ hitFaces[l] * 3 + faceCounter % 3 ];
+			var b = newVertexIDs[ l * 3 + (faceCounter) % 3] / 3;
+			var c = newVertexIDs[ l * 3 + (faceCounter + 2) % 3 ] / 3;
+			
+			newIcoFacesArray.push(a);
+			newIcoFacesArray.push(b);
+			newIcoFacesArray.push(c);
 
-			///////////////////////////////////////
+			
 			// Calculate new CENTROID
-			///////////////////////////////////////
 
-			//console.log(newIcoVertices[newIcoFaces[faceOffset + (l * 9) + p + 0]]);
+			var v0 = new THREE.Vector3( newIcoVertices[a*3 + 0],
+										newIcoVertices[a*3 + 1],
+										newIcoVertices[a*3 + 2] );
+
+			var v1 = new THREE.Vector3( newIcoVertices[b*3 + 0],
+										newIcoVertices[b*3 + 1],
+										newIcoVertices[b*3 + 2] );
+
+			var v2 = new THREE.Vector3( newIcoVertices[c*3 + 0],
+										newIcoVertices[c*3 + 1],
+										newIcoVertices[c*3 + 2] );
+			
+			var addition = v0.clone().add(v1.clone()).add(v2.clone());
+
+			var centroid = addition.divideScalar(3);
+
+			debugPointsArray.push(centroid.x);
+			debugPointsArray.push(centroid.y);
+			debugPointsArray.push(centroid.z);
+
+			newCentroids.push(centroid.x);
+			newCentroids.push(centroid.y);
+			newCentroids.push(centroid.z);
+			
+
 
 			faceCounter++;
 				
@@ -416,17 +419,44 @@ function subdivide(){
 	
 		// Center Polygon
 
+		var a = newVertexIDs[0+(l*3)] / 3;
+		var b = newVertexIDs[1+(l*3)] / 3;
+		var c = newVertexIDs[2+(l*3)] / 3;
 
-		// newIcoFacesArray.push(newVertexIDs[0+(l*3)] / 3);
-		// newIcoFacesArray.push(newVertexIDs[1+(l*3)] / 3);
-		// newIcoFacesArray.push(newVertexIDs[2+(l*3)] / 3);
+		newIcoFacesArray.push(a);
+		newIcoFacesArray.push(b);
+		newIcoFacesArray.push(c);
+
+
+		// Calculate new CENTROID
+
+			var v0 = new THREE.Vector3( newIcoVertices[a*3 + 0],
+										newIcoVertices[a*3 + 1],
+										newIcoVertices[a*3 + 2] );
+
+			var v1 = new THREE.Vector3( newIcoVertices[b*3 + 0],
+										newIcoVertices[b*3 + 1],
+										newIcoVertices[b*3 + 2] );
+
+			var v2 = new THREE.Vector3( newIcoVertices[c*3 + 0],
+										newIcoVertices[c*3 + 1],
+										newIcoVertices[c*3 + 2] );
+			
+			var addition = v0.clone().add(v1.clone()).add(v2.clone());
+
+			var centroid = addition.divideScalar(3);
+
+			debugPointsArray.push(centroid.x);
+			debugPointsArray.push(centroid.y);
+			debugPointsArray.push(centroid.z);
+
+			newCentroids.push(centroid.x);
+			newCentroids.push(centroid.y);
+			newCentroids.push(centroid.z);
+
 
 
 	}
-
-
-
-	
 
 
 	/////////////////////////////////////////
@@ -470,10 +500,12 @@ function subdivide(){
 
 	}
 	
-
 	deleteFacesTopIndices = sorted;
 
-	
+	/////////////////////////////
+	//Add new outer faces
+	/////////////////////////////
+
 	faceOffset += hitFaces.length * 4 * 3;
 
 	var face;
@@ -493,20 +525,79 @@ function subdivide(){
 
 					// Clockwise indices sorting for normals
 
-					newIcoFacesArray.push(deleteFacesTopIndices[faceCounter+h*3]);
-					newIcoFacesArray.push(newVertexIDs[faceCounter+h*3] / 3);
-					newIcoFacesArray.push(icoFaces[ hitFaces[h] * 3 + faceCounter ]);
+					var a = deleteFacesTopIndices[faceCounter+h*3];
+					var b = newVertexIDs[faceCounter+h*3] / 3;
+					var c = icoFaces[ hitFaces[h] * 3 + faceCounter ];
 
-					newIcoFacesArray.push(deleteFacesTopIndices[faceCounter+h*3]);
-					newIcoFacesArray.push(icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3]);
-					newIcoFacesArray.push(newVertexIDs[faceCounter+h*3] / 3);
+					var d = deleteFacesTopIndices[faceCounter+h*3];
+					var e = icoFaces[ hitFaces[h] * 3 + (faceCounter+1)%3];
+					var f = newVertexIDs[faceCounter+h*3] / 3;
+
+					newIcoFacesArray.push(a);
+					newIcoFacesArray.push(b);
+					newIcoFacesArray.push(c);
+
+					newIcoFacesArray.push(d);
+					newIcoFacesArray.push(e);
+					newIcoFacesArray.push(f);
 
 
-				}else{
+					// Calculate new CENTROID
 
+					var v0 = new THREE.Vector3( newIcoVertices[a*3 + 0],
+												newIcoVertices[a*3 + 1],
+												newIcoVertices[a*3 + 2] );
+
+					var v1 = new THREE.Vector3( newIcoVertices[b*3 + 0],
+												newIcoVertices[b*3 + 1],
+												newIcoVertices[b*3 + 2] );
+
+					var v2 = new THREE.Vector3( newIcoVertices[c*3 + 0],
+												newIcoVertices[c*3 + 1],
+												newIcoVertices[c*3 + 2] );
 					
-				}
-				
+					var addition = v0.clone().add(v1.clone()).add(v2.clone());
+
+					var centroid = addition.divideScalar(3);
+
+					debugPointsArray.push(centroid.x);
+					debugPointsArray.push(centroid.y);
+					debugPointsArray.push(centroid.z);
+
+					newCentroids.push(centroid.x);
+					newCentroids.push(centroid.y);
+					newCentroids.push(centroid.z);
+
+
+
+					var v3 = new THREE.Vector3( newIcoVertices[d*3 + 0],
+												newIcoVertices[d*3 + 1],
+												newIcoVertices[d*3 + 2] );
+
+					var v4 = new THREE.Vector3( newIcoVertices[e*3 + 0],
+												newIcoVertices[e*3 + 1],
+												newIcoVertices[e*3 + 2] );
+
+					var v5 = new THREE.Vector3( newIcoVertices[f*3 + 0],
+												newIcoVertices[f*3 + 1],
+												newIcoVertices[f*3 + 2] );
+					
+					var addition = v3.clone().add(v4.clone()).add(v5.clone());
+
+					var centroid = addition.divideScalar(3);
+
+					debugPointsArray.push(centroid.x);
+					debugPointsArray.push(centroid.y);
+					debugPointsArray.push(centroid.z);
+
+					newCentroids.push(centroid.x);
+					newCentroids.push(centroid.y);
+					newCentroids.push(centroid.z);
+
+
+
+
+				}			
 				
 				faceCounter ++;
 		}
@@ -517,13 +608,15 @@ function subdivide(){
 
 	newIcoFaces = newIcoFacesArray;
 
-	console.log(newIcoFacesArray);
+	icoFacesCentroids = new Float32Array(newCentroids.length);
+
+	icoFacesCentroids = newCentroids;
 
 	icoFaces = newIcoFaces;
 
 	depthCounter++;
 
-	if(depthCounter <= depth){
+	if(depthCounter < depth){
 		hitTest();
 	}
 

@@ -736,7 +736,7 @@ function updateSphere(cutMeshData){
 		//Draw debug boxes
 
 
-		var geometry = new THREE.BoxGeometry( .5, .5, .5 );
+		var geometry = new THREE.BoxGeometry( .1, .1, .1 );
 		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
 		var cube = new THREE.Mesh( geometry, material );
 
@@ -744,7 +744,7 @@ function updateSphere(cutMeshData){
 			for(var i = 0; i <= cutMeshData[2].length -3; i +=3){
 				var cube = new THREE.Mesh( geometry, material );
 				cube.position = new THREE.Vector3(cutMeshData[2][i],cutMeshData[2][i+1],cutMeshData[2][i+2]);
-				scene.add( cube );
+					scene.add( cube );
 			}
 
 		}
@@ -777,7 +777,7 @@ function updateSphere(cutMeshData){
 		  side       : 	THREE.DoubleSide,
 		  transparent: 	1,
 		  opacity    : 	1,
-		  wireframe	 : 	false
+		  wireframe	 : 	true
 		});
 
 
@@ -953,7 +953,7 @@ function onKeyDown(event) {
 
 	        	var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length * 3);
 	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length * 3);
-	          	var icoFacesCentroid = new Float32Array(Ico.geometry.faces.length * 3);
+	          	var icoFacesCentroids = new Float32Array(Ico.geometry.faces.length * 3);
 	          	var icoFaces = new Float32Array(Ico.geometry.faces.length * 3);
 
 
@@ -976,9 +976,9 @@ function onKeyDown(event) {
 
 		        var vertexCounter = 0;
 		        for (var i = 0; i <= icoFaces.length - 3; i+=3) {
-		          	icoFacesCentroid[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
-		          	icoFacesCentroid[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
-		          	icoFacesCentroid[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+		          	icoFacesCentroids[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
+		          	icoFacesCentroids[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
+		          	icoFacesCentroids[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
 		          	vertexCounter++;
 		        };
 
@@ -992,7 +992,7 @@ function onKeyDown(event) {
 
 
 
-        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroid, icoFaces];
+        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroids, icoFaces];
 
          		cutoutWorker.postMessage(buffers);
 
