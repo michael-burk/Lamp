@@ -27,6 +27,8 @@
 <script type="text/javascript" src="js/STLLoader.js"></script>
 
 <script type="text/javascript" src="js/BoxGeometry.js"></script>
+<script type="text/javascript" src="js/TorusGeometry.js"></script>
+<script type="text/javascript" src="js/DodecahedronGeometry.js"></script>
 
 <div style="font-family: helvetica; position: absolute; left: 100px; top: 0; text-align: center; padding-top: 15px; background: white; opacity: .9; width: 120px; height: 100px; z-index: 100;"id="drop_zone">Drop files here</div>
 <output id="list"></output>
@@ -706,6 +708,45 @@ function loadTXT(){
 
 function createSphere(){
 
+	// var loader = new THREE.STLLoader();
+	// loader.addEventListener( 'load', function ( event ) {
+		
+	// 	var bulbGeo = event.content;
+
+	// 	var pinkMat = new THREE.MeshPhongMaterial({
+	// 	  color      :  new THREE.Color("rgb(226,35,213)"),
+	// 	  emissive   :  new THREE.Color("rgb(255,128,64)"),
+	// 	  specular   :  new THREE.Color("rgb(255,155,255)"),
+	// 	  shininess  :  10,
+	// 	  shading    :  THREE.FlatShading,
+	// 	  side       : 	THREE.DoubleSide,
+	// 	  transparent: 1,
+	// 	  opacity    : 1
+	// 	});
+
+
+	// 	// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
+
+
+	// 	bulbGeo.computeCentroids();
+	// 	bulbGeo.computeFaceNormals();
+	// 	bulbGeo.computeVertexNormals(); 
+
+
+	// 	Ico = new THREE.Mesh(bulbGeo, pinkMat);
+	// 	Ico.dynamic = true;
+	// 	Ico.doubleSided = true;
+
+	// 	scene.add(Ico);
+
+
+	// 	//addToScene();
+	// } );
+	// loader.load( 'ico.stl' );
+
+
+
+
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),
 		  emissive   :  new THREE.Color("rgb(255,128,64)"),
@@ -720,11 +761,37 @@ function createSphere(){
 
 		// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
 
-		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,1), pinkMat);
+		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,2), pinkMat);
+		// var box = new THREE.BoxGeometry(8,2,5);
+
+
+		// box.computeCentroids();
+	 // 	box.computeFaceNormals();
+	 // 	box.computeVertexNormals(); 
+
+	//	Ico = new THREE.Mesh(dode, pinkMat);
+		
+		// var torus = new THREE.TorusGeometry( 10, 3, 16, 100 );
+
+		// torus.computeCentroids();
+	 // 	torus.computeFaceNormals();
+	 // 	torus.computeVertexNormals(); 
+
+
+		// Ico = new THREE.Mesh(torus, pinkMat);
+
+
+	
+
+		
 		Ico.dynamic = true;
 		Ico.doubleSided = true;
 
 		scene.add(Ico);
+
+
+
+
 
 }
 

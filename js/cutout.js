@@ -741,9 +741,6 @@ function createShell(){
 	}
 
 
-//	console.log(newIcoVertices);
-	// console.log(shellFaces);
-	// console.log(shellVertices);
 }
 
 function calcDeleteFaces(){
