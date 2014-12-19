@@ -33,6 +33,7 @@ var centerArray = [];
 
 var centerMode = false;
 
+var thickness = .1;
 
 self.addEventListener('message', function(e) {
 
@@ -60,7 +61,7 @@ debugPoints = new Float32Array(debugPointsArray.length);
 debugPoints = debugPointsArray;
  	
 //debugPoints
-var buffers = [newIcoVertices, newIcoFaces,debugPoints];
+var buffers = [newIcoVertices, newIcoFaces, debugPoints];
 
 self.postMessage(buffers);
 
@@ -379,9 +380,6 @@ function subdivide(){
 										icoFacesCentroids[l+1],
 										icoFacesCentroids[l+2] );
 		
-			// debugPointsArray.push(v1.x);
-			// debugPointsArray.push(v1.y);
-			// debugPointsArray.push(v1.z);
 
 			newCentroids.push(v1.x);
 			newCentroids.push(v1.y);
@@ -435,9 +433,6 @@ function subdivide(){
 
 			var centroid = addition.divideScalar(3);
 
-			// debugPointsArray.push(centroid.x);
-			// debugPointsArray.push(centroid.y);
-			// debugPointsArray.push(centroid.z);
 
 			newCentroids.push(centroid.x);
 			newCentroids.push(centroid.y);
@@ -457,7 +452,7 @@ function subdivide(){
 
 		
 
-			if(depthCounter < depth ){
+		//	if(depthCounter < depth ){
 				
 
 				var a = newVertexIDs[0+(l*3)] / 3;
@@ -487,19 +482,17 @@ function subdivide(){
 
 				var centroid = addition.divideScalar(3);
 
-				// debugPointsArray.push(centroid.x);
-				// debugPointsArray.push(centroid.y);
-				// debugPointsArray.push(centroid.z);
 
 				newCentroids.push(centroid.x);
 				newCentroids.push(centroid.y);
 				newCentroids.push(centroid.z);
 
+				
 
-			}
+	//		}
 
-			centerArray.push(newIcoFacesArray.length/3 - 1);
-
+			
+			centerArray.push(newIcoFacesArray.length/3 -1);
 
 	}
 
@@ -562,9 +555,6 @@ function subdivide(){
 
 					var centroid = addition.divideScalar(3);
 
-					// debugPointsArray.push(centroid.x);
-					// debugPointsArray.push(centroid.y);
-					// debugPointsArray.push(centroid.z);
 
 					newCentroids.push(centroid.x);
 					newCentroids.push(centroid.y);
@@ -587,10 +577,6 @@ function subdivide(){
 					var addition = v3.clone().add(v4.clone()).add(v5.clone());
 
 					var centroid = addition.divideScalar(3);
-
-					// debugPointsArray.push(centroid.x);
-					// debugPointsArray.push(centroid.y);
-					// debugPointsArray.push(centroid.z);
 
 					newCentroids.push(centroid.x);
 					newCentroids.push(centroid.y);
@@ -640,15 +626,124 @@ function subdivide(){
 	}
 	if(depthCounter < depth + 1){
 		centerMode = true;
-		hitFaces = [79];
 		hitFaces = centerArray.slice();
-
 		deleteFaces = [];
 		deleteFacesTopIndices = [];
 		closestFaces = [];
 		subdivide();
+		createShell();
+	}
+	
+}
+
+var shellFaces = [];
+var shellVertices = [];
+
+function createShell(){
+
+	// Add faces for inner shell
+	var faceCounter = 0;
+	var centerCounter = 0;
+	for(var i = 0; i <= newIcoFaces.length -1; i+=3){
+
+	
+
+		if(faceCounter == centerArray[centerCounter]){
+			centerCounter++;
+		
+
+			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+			shellFaces.push(newIcoFaces[i]);
+			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
+
+			shellFaces.push(newIcoFaces[i]);
+			shellFaces.push(newIcoFaces[i]+1);
+			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
+
+
+			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+			shellFaces.push(newIcoFaces[i+1]);
+			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3+1);
+
+			shellFaces.push(newIcoFaces[i+1]);
+			shellFaces.push(newIcoFaces[i+1]+1);
+			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3+1);
+
+
+			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+			shellFaces.push(newIcoFaces[i+2]);
+			shellFaces.push(newIcoFaces[i]);
+
+			shellFaces.push(newIcoFaces[i]);
+			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+			
+			
+		}else{
+
+			shellFaces.push(newIcoFaces[i]);
+			shellFaces.push(newIcoFaces[i+1]);	
+			shellFaces.push(newIcoFaces[i+2]);
+
+			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);	
+			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+		}		
+		faceCounter ++;
 	}
 
+
+
+
+
+	// Add old vertices
+	for(var i = 0; i <= newIcoVertices.length -1; i++){
+		shellVertices.push(newIcoVertices[i]);	
+	}
+
+
+	// Add translated vertices for shell
+	var origin = new THREE.Vector3(0,0,0);
+	var sub = new THREE.Vector3(0,0,0);
+	for(var i = 0; i <= newIcoVertices.length -3; i+=3){
+		
+		var v1 = new THREE.Vector3(newIcoVertices[i],newIcoVertices[i+1],newIcoVertices[i+2]);
+		
+		sub = new THREE.Vector3(0,0,0);
+		sub.subVectors(origin,v1);
+
+		sub.normalize();
+
+		sub.multiplyScalar(thickness);
+
+		v1.addVectors(v1,sub);
+
+		shellVertices.push(v1.x);
+		shellVertices.push(v1.y);
+		shellVertices.push(v1.z);	
+	}
+
+
+	newIcoFaces = new Float32Array(shellFaces.length);
+
+
+	for (var h = 0; h <= shellFaces.length - 1; h++) {
+		newIcoFaces[h] = shellFaces[h];
+	}
+
+	icoFaces = newIcoFaces;
+
+
+	newIcoVertices = new Float32Array(shellVertices.length);
+
+	for (var h = 0; h <= shellVertices.length - 1; h++) {
+		newIcoVertices[h] = shellVertices[h];
+	}
+
+
+//	console.log(newIcoVertices);
+	// console.log(shellFaces);
+	// console.log(shellVertices);
 }
 
 function calcDeleteFaces(){
