@@ -27,6 +27,8 @@
 <script type="text/javascript" src="js/STLLoader.js"></script>
 
 <script type="text/javascript" src="js/BoxGeometry.js"></script>
+<script type="text/javascript" src="js/TorusGeometry.js"></script>
+<script type="text/javascript" src="js/DodecahedronGeometry.js"></script>
 
 <div style="font-family: helvetica; position: absolute; left: 100px; top: 0; text-align: center; padding-top: 15px; background: white; opacity: .9; width: 120px; height: 100px; z-index: 100;"id="drop_zone">Drop files here</div>
 <output id="list"></output>
@@ -105,6 +107,7 @@ var mouseOpacity;
 var positions;
 var colors;
 var sizes;
+var cutMeshData;
 var deleteArray;
 
 var skipCounter;
@@ -128,6 +131,11 @@ var logText;
 //var Ico;
 var selectedMesh = new THREE.Geometry();
 var toDelete = [];
+var newLampGeo = new THREE.Geometry();
+var newLampMesh;
+
+var icoVertices;
+
 
 // FUNCTIONS
  	
@@ -151,13 +159,13 @@ var worker = new Worker('js/cleanMesh.js');
 
 worker.addEventListener('message', function(e) {
 
-	deleteArray = e.data;
+	cutMeshData = e.data;
 
 	scene.remove(particleSystem);
 	particleGeo = new THREE.Geometry();
 	createMesh();
 	stlFromGeometry( particleGeo, {download:true});
-	console.log('Worker said: ', e.data);
+	//console.log('Worker said: ', e.data);
 	
 
 }, false);
@@ -169,7 +177,7 @@ cutoutWorker.addEventListener('message', function(e) {
 
 	updateSphere(e.data);
 	//console.log('Worker said: ', e.data);
-	console.log(e.data.length);
+	//console.log(e.data.length);
 	
 
 }, false);
@@ -275,6 +283,7 @@ function init(){
 	// SKYBOX/FOG
 	var newColor = new THREE.Color( );
         newColor.setRGB(0.9,0.9,0.9);
+        newColor.setRGB(0.3,0.3,0.3);
   
 	var skyBoxGeometry = new THREE.CubeGeometry( 15000, 15000, 15000 );
 	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: newColor, side: THREE.BackSide } );
@@ -388,7 +397,7 @@ function loadSTL(){
 					//createMesh();
 					addToScene();
 				} );
-				loader.load( 'TUTOR.stl' );
+				loader.load( 'Tutor.stl' );
 
 }
 
@@ -654,8 +663,8 @@ function loadTXT(){
 		var angle = (map(finalPoints[vertexCounter].z, 212, 812, 0, 180))*(Math.PI/180);
 		
 		//Translate Point
-		 x -=  10 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003);
-		 y -=  10 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
+		 x -=  3 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003);
+		 y -=  3 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
 		 z -= 0;
 		
 		// Rotate Point around Z Axis
@@ -699,40 +708,159 @@ function loadTXT(){
 
 function createSphere(){
 
+	// var loader = new THREE.STLLoader();
+	// loader.addEventListener( 'load', function ( event ) {
+		
+	// 	var bulbGeo = event.content;
+
+	// 	var pinkMat = new THREE.MeshPhongMaterial({
+	// 	  color      :  new THREE.Color("rgb(226,35,213)"),
+	// 	  emissive   :  new THREE.Color("rgb(255,128,64)"),
+	// 	  specular   :  new THREE.Color("rgb(255,155,255)"),
+	// 	  shininess  :  10,
+	// 	  shading    :  THREE.FlatShading,
+	// 	  side       : 	THREE.DoubleSide,
+	// 	  transparent: 1,
+	// 	  opacity    : 1
+	// 	});
+
+
+	// 	// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
+
+
+	// 	bulbGeo.computeCentroids();
+	// 	bulbGeo.computeFaceNormals();
+	// 	bulbGeo.computeVertexNormals(); 
+
+
+	// 	Ico = new THREE.Mesh(bulbGeo, pinkMat);
+	// 	Ico.dynamic = true;
+	// 	Ico.doubleSided = true;
+
+	// 	scene.add(Ico);
+
+
+	// 	//addToScene();
+	// } );
+	// loader.load( 'ico.stl' );
+
+
+
+
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),
 		  emissive   :  new THREE.Color("rgb(255,128,64)"),
 		  specular   :  new THREE.Color("rgb(255,155,255)"),
 		  shininess  :  10,
 		  shading    :  THREE.FlatShading,
+		  side       : 	THREE.DoubleSide,
 		  transparent: 1,
 		  opacity    : 1
 		});
 
 
-		var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
+		// var icoMaterial =  new THREE.MeshPhongMaterial( { color:new THREE.Color("rgb(255,255,255)"), shading:  THREE.FlatShading, side: THREE.DoubleSide} );
 
-		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,7), pinkMat);
+		Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,2), pinkMat);
+		// var box = new THREE.BoxGeometry(8,2,5);
+
+
+		// box.computeCentroids();
+	 // 	box.computeFaceNormals();
+	 // 	box.computeVertexNormals(); 
+
+	//	Ico = new THREE.Mesh(dode, pinkMat);
+		
+		// var torus = new THREE.TorusGeometry( 10, 3, 16, 100 );
+
+		// torus.computeCentroids();
+	 // 	torus.computeFaceNormals();
+	 // 	torus.computeVertexNormals(); 
+
+
+		// Ico = new THREE.Mesh(torus, pinkMat);
+
+
+	
+
+		
 		Ico.dynamic = true;
 		Ico.doubleSided = true;
 
 		scene.add(Ico);
 
+
+
+
+
 }
 
-function updateSphere(deleteFaces){
+function updateSphere(cutMeshData){
 
-		var counter = 0;
-		for (var i = 0; i <= deleteFaces.length ; i++) {
-			if(deleteFaces[i] == 1){		
-				counter++;
-				Ico.geometry.vertices[Ico.geometry.faces[i].a] = 0;
-				Ico.geometry.vertices[Ico.geometry.faces[i].b] = 0;
-				Ico.geometry.vertices[Ico.geometry.faces[i].c] = 0;
-     			Ico.geometry.verticesNeedUpdate = true;
+
+		console.log(cutMeshData);
+
+		//Draw debug boxes
+
+
+		var geometry = new THREE.BoxGeometry( .1, .1, .1 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+		var cube = new THREE.Mesh( geometry, material );
+
+		if(cutMeshData[2] != undefined){
+			for(var i = 0; i <= cutMeshData[2].length -3; i +=3){
+
+				//var geometry = new THREE.BoxGeometry( .1*i+1, .1*i+1, .1*i+1);
+				var cube = new THREE.Mesh( geometry, material );
+				cube.position = new THREE.Vector3(cutMeshData[2][i],cutMeshData[2][i+1],cutMeshData[2][i+2]);
+					scene.add( cube );
+
 			}
+
 		}
-		console.log(counter);
+
+		
+		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
+
+			newLampGeo.vertices.push(new THREE.Vector3(cutMeshData[0][i],cutMeshData[0][i+1],cutMeshData[0][i+2]));
+			
+		}
+
+		for (var i = 0; i <= cutMeshData[1].length - 3 ; i+=3) {
+			newLampGeo.faces.push(new THREE.Face3(cutMeshData[1][i],cutMeshData[1][i+1],cutMeshData[1][i+2]));
+		}
+
+
+		newLampGeo.computeCentroids();
+		newLampGeo.computeFaceNormals();
+		newLampGeo.computeVertexNormals(); 
+
+		//Export STL
+		stlFromGeometry( newLampGeo, {download:true});
+
+		var pinkMat = new THREE.MeshPhongMaterial({
+		  color      :  new THREE.Color("rgb(226,35,213)"),
+		  emissive   :  new THREE.Color("rgb(255,128,64)"),
+		  specular   :  new THREE.Color("rgb(255,155,255)"),
+		  shininess  :  10,
+		  shading    :  THREE.FlatShading,
+		  side       : 	THREE.DoubleSide,
+		  transparent: 	1,
+		  opacity    : 	1,
+		  wireframe	 : 	false
+		});
+
+
+		var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+
+		newLampMesh = new THREE.Mesh(newLampGeo, pinkMat);
+
+
+		newLampMesh.name = "newLampMesh";
+		scene.add(newLampMesh);
+
+		scene.remove(Ico);
+
 
 }
 
@@ -834,7 +962,7 @@ function onMouseMove(event){
 function onKeyDown(event) {
 
 
-			// Space Bar
+		// Space Bar
 			if(event.charCode == 32){
 
 				//selectedMesh = new THREE.Geometry();
@@ -872,7 +1000,7 @@ function onKeyDown(event) {
 						);
 
 						var line = new THREE.Line( geometry, material );
-						scene.add( line );
+						//scene.add( line );
 
 		                  
 						customAttributes.customColor.needsUpdate = true;
@@ -884,15 +1012,17 @@ function onKeyDown(event) {
 	        } 
 
 
-	         // Enter
-	        if (event.charCode == 0){
+	    // Enter
 
+
+	        if (event.charCode == 0){
 
 
 	          // Convert Meshes intp ArrayBuffer for Webworker
 
 	        	var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length * 3);
-	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length);
+	          	var icoVertices = new Float32Array(Ico.geometry.vertices.length * 3);
+	          	var icoFacesCentroids = new Float32Array(Ico.geometry.faces.length * 3);
 	          	var icoFaces = new Float32Array(Ico.geometry.faces.length * 3);
 
 
@@ -915,15 +1045,23 @@ function onKeyDown(event) {
 
 		        var vertexCounter = 0;
 		        for (var i = 0; i <= icoFaces.length - 3; i+=3) {
-		          	icoFaces[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
-		          	icoFaces[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
-		          	icoFaces[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+		          	icoFacesCentroids[i] =   Ico.geometry.faces[vertexCounter].centroid.x;
+		          	icoFacesCentroids[i+1] = Ico.geometry.faces[vertexCounter].centroid.y;
+		          	icoFacesCentroids[i+2] = Ico.geometry.faces[vertexCounter].centroid.z;
+		          	vertexCounter++;
+		        };
+
+				var vertexCounter = 0;
+		        for (var i = 0; i <= icoFaces.length - 3; i+=3) {
+		          	icoFaces[i] =   Ico.geometry.faces[vertexCounter].a;
+		          	icoFaces[i+1] = Ico.geometry.faces[vertexCounter].b;
+		          	icoFaces[i+2] = Ico.geometry.faces[vertexCounter].c;
 		          	vertexCounter++;
 		        };
 
 
 
-        		var buffers = [ selecteMeshBuffer, icoVertices, icoFaces];
+        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroids, icoFaces];
 
          		cutoutWorker.postMessage(buffers);
 
