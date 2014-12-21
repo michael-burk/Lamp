@@ -26,7 +26,7 @@ var deleteFaces = [];
 var hitFaces = [];
 var hitFaceCountOld = 0;
 
-var depth = 6;
+var depth = 5;
 var depthCounter = 1;
 
 var centerArray = [];
@@ -194,7 +194,9 @@ function subdivide(){
 
 	var newVertexCounter = 0;
 
-	
+	var origin;
+	var sub;
+
 	for (var p = 0; p <= hitFaces.length * 3 - 3; p+=3) {
 
 		//three centroids of hitFace outlines
@@ -221,6 +223,45 @@ function subdivide(){
 		centroid0.divideScalar(2);
 		centroid1.divideScalar(2);
 		centroid2.divideScalar(2);
+
+
+		var extrude = 3/depthCounter;
+
+		origin = new THREE.Vector3(0,0,0);
+		sub = new THREE.Vector3(0,0,0);
+
+		sub.subVectors(centroid0,origin);
+
+		sub.normalize();
+
+		sub.multiplyScalar(extrude);
+
+		centroid0.addVectors(centroid0,sub);
+
+		origin = new THREE.Vector3(0,0,0);
+		sub = new THREE.Vector3(0,0,0);
+
+		sub.subVectors(centroid1,origin);
+
+		sub.normalize();
+
+		sub.multiplyScalar(extrude);
+
+		centroid1.addVectors(centroid1,sub);
+
+		origin = new THREE.Vector3(0,0,0);
+		sub = new THREE.Vector3(0,0,0);
+
+		sub.subVectors(centroid2,origin);
+
+		sub.normalize();
+
+		sub.multiplyScalar(extrude);
+
+		centroid2.addVectors(centroid2,sub);
+
+
+		
 
 
 		var sub = new THREE.Vector3(0,0,0);
@@ -622,6 +663,7 @@ function subdivide(){
 	depthCounter++;
 
 	if(depthCounter < depth){
+		console.log(depthCounter);
 		hitTest();
 	}
 	if(depthCounter < depth + 1){
