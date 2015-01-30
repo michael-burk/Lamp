@@ -19,6 +19,7 @@
 <script src="js/jquery-2.1.1.min.js"></script>
 <script src="js/cleanMesh.js"></script>
 <script src="js/cutout.js"></script>
+<script src="js/FileSaver.min.js"></script>
 
 <!--Copyright (C) 2012 Philipp Sackl, envis precisely GmbH-->
 <script type="text/javascript" charset="utf-8" src="js/THREE2STL.js"></script>
@@ -164,7 +165,12 @@ worker.addEventListener('message', function(e) {
 	scene.remove(particleSystem);
 	particleGeo = new THREE.Geometry();
 	createMesh();
-	stlFromGeometry( particleGeo, {download:true});
+	var stl = stlFromGeometry( exportGeo, {download:false});
+
+	var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
+	saveAs(blob, "sphere.stl");
+
+	//stlFromGeometry( particleGeo, {download:false});
 	//console.log('Worker said: ', e.data);
 	
 
@@ -816,10 +822,21 @@ function updateSphere(cutMeshData){
 
 		}
 
-		
+
 		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
 
 			newLampGeo.vertices.push(new THREE.Vector3(cutMeshData[0][i],cutMeshData[0][i+1],cutMeshData[0][i+2]));
+			
+		}
+
+
+		var scaleFactor = 7.5;
+		
+		var exportGeo = new THREE.Geometry();
+
+		for (var i = 0; i <= cutMeshData[0].length - 3 ; i+=3) {
+
+			exportGeo.vertices.push(new THREE.Vector3(cutMeshData[0][i]*scaleFactor,cutMeshData[0][i+1]*scaleFactor,cutMeshData[0][i+2]*scaleFactor));
 			
 		}
 
@@ -827,13 +844,25 @@ function updateSphere(cutMeshData){
 			newLampGeo.faces.push(new THREE.Face3(cutMeshData[1][i],cutMeshData[1][i+1],cutMeshData[1][i+2]));
 		}
 
+		for (var i = 0; i <= cutMeshData[1].length - 3 ; i+=3) {
+			exportGeo.faces.push(new THREE.Face3(cutMeshData[1][i],cutMeshData[1][i+1],cutMeshData[1][i+2]));
+		}
+
 
 		newLampGeo.computeCentroids();
 		newLampGeo.computeFaceNormals();
 		newLampGeo.computeVertexNormals(); 
 
+		exportGeo.computeCentroids();
+		exportGeo.computeFaceNormals();
+		exportGeo.computeVertexNormals(); 
+
+
 		//Export STL
-		stlFromGeometry( newLampGeo, {download:true});
+		var stl = stlFromGeometry( exportGeo, {download:false});
+
+		var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, "sphere.stl");
 
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(226,35,213)"),

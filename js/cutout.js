@@ -33,7 +33,7 @@ var centerArray = [];
 
 var centerMode = false;
 
-var thickness = .2;
+var thickness = .2 * 1.75;
 
 self.addEventListener('message', function(e) {
 

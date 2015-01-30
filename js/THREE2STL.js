@@ -78,9 +78,7 @@ function stlFromGeometry( geometry, options ) {
 
 	stl += 'endsolid'
 
-	if ( download ) {
-		document.location = 'data:Application/octet-stream, ' + encodeURIComponent( stl )
-	}
 
 	return stl
+
 }
