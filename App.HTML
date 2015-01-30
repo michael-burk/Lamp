@@ -283,7 +283,7 @@ function init(){
 	// SKYBOX/FOG
 	var newColor = new THREE.Color( );
         newColor.setRGB(0.9,0.9,0.9);
-        newColor.setRGB(0.3,0.3,0.3);
+        //newColor.setRGB(0.3,0.3,0.3);
   
 	var skyBoxGeometry = new THREE.CubeGeometry( 15000, 15000, 15000 );
 	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: newColor, side: THREE.BackSide } );
@@ -346,7 +346,7 @@ function init(){
   // });
 
 
-	loadSTL();
+	//loadSTL();
 
  //    $.get("LOGFILE.txt", function(respons) {
  //     	logfile = respons;
@@ -377,7 +377,7 @@ function loadSTL(){
 						var distance = subVector.length();
 
 
-						var colorMapR = map(distance, 0, 8000, .5, 0);
+						var colorMapR = map(distance, 0, 5000, .5, 0);
 						var colorMapG = map(distance, 0, 3000, 0, .5);
 						var colorMapB = map(distance, 0, 500, .5, .2);
 
@@ -444,7 +444,7 @@ function loadJSON() {
 		z1 = z;
 		
 
-		var colorMapR = map(pointData.points[i].x, 0, 8000, .5, 0);
+		var colorMapR = map(pointData.points[i].x, 0, 5000, .5, 0);
 		var colorMapG = map(pointData.points[i].x, 0, 3000, 0, .5);
 		var colorMapB = map(pointData.points[i].x, 0, 5000, .5, .2);
 
@@ -551,9 +551,6 @@ function loadTXT(){
 						} else {
 							pointValid = false;
 						}
-
-
-						
 
 
 					//Get Y Value
@@ -663,7 +660,7 @@ function loadTXT(){
 		var angle = (map(finalPoints[vertexCounter].z, 212, 812, 0, 180))*(Math.PI/180);
 		
 		//Translate Point
-		 x -=  3 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003);
+		 x -=  3 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003); 
 		 y -=  3 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
 		 z -= 0;
 		
@@ -686,8 +683,8 @@ function loadTXT(){
 	    	continue;
 		}
         
-        positions[ i ]     = y1 * .1;
-		positions[ i + 1 ] = x1 * .1;
+    positions[ i ]     = y1 * .1;
+		positions[ i + 1 ] = x1 * -.1;
 		positions[ i + 2 ] = z1 * .1;
 		
 		colors[ i ]     = newColor.r;
@@ -920,7 +917,7 @@ function createMesh(){
 
 	}
 
-       customAttributes.customColor.needsUpdate = true;
+     customAttributes.customColor.needsUpdate = true;
 	   customAttributes.customSize.needsUpdate = true;
       
        console.log("skipped: " + skipCounter);

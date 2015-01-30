@@ -33,7 +33,7 @@ var centerArray = [];
 
 var centerMode = false;
 
-var thickness = .1;
+var thickness = .2;
 
 self.addEventListener('message', function(e) {
 
@@ -634,8 +634,6 @@ function subdivide(){
 	}
 	
 	// Fill Buffer
-
-
 	newIcoFaces = new Float32Array(newIcoFacesArray.length);
 
 
@@ -687,8 +685,6 @@ function createShell(){
 	var faceCounter = 0;
 	var centerCounter = 0;
 	for(var i = 0; i <= newIcoFaces.length -1; i+=3){
-
-	
 
 		if(faceCounter == centerArray[centerCounter]){
 			centerCounter++;
@@ -742,7 +738,6 @@ function createShell(){
 	for(var i = 0; i <= newIcoVertices.length -1; i++){
 		shellVertices.push(newIcoVertices[i]);	
 	}
-
 
 	// Add translated vertices for shell
 	var origin = new THREE.Vector3(0,0,0);

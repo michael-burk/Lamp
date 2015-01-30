@@ -51,8 +51,8 @@ File dataFile;
 void setup() {
 
   //var = 0;
-  motorAngleStart = 250;
-  motorAngleEnd = 712;
+  motorAngleStart = 175;
+  motorAngleEnd = 805;
   //motorAngleEnd = 350;
 
   slotCounterRepeat = 0;
@@ -201,13 +201,13 @@ void loop() {
 
 
 
-      // Serial.println(slotCounter);
+       Serial.println(slotCounter);
 
       if(slotCounter >= 500 || slotCounterRepeat > 1){
 
         slotCounterRepeat = 0;    
 
-        Serial.println(motorAngle);
+      //  Serial.println(motorAngle);
         Dynamixel.move(1,motorAngle);        
 
         dataFile = SD.open("logfile.txt", O_CREAT | O_APPEND | O_WRITE);
