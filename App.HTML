@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<title>ParticleSystem - Dynamic (Three.js)</title>
+	<title>Lamp</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel=stylesheet href="css/base.css"/>
@@ -161,14 +161,16 @@ var worker = new Worker('js/cleanMesh.js');
 worker.addEventListener('message', function(e) {
 
 	cutMeshData = e.data;
-
+	deleteArray = cutMeshData;
+	console.log(e.data);
 	scene.remove(particleSystem);
 	particleGeo = new THREE.Geometry();
 	createMesh();
-	var stl = stlFromGeometry( exportGeo, {download:false});
+
+	var stl = stlFromGeometry( particleGeo, {download:false});
 
 	var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
-	saveAs(blob, "sphere.stl");
+	saveAs(blob, "room.stl");
 
 	//stlFromGeometry( particleGeo, {download:false});
 	//console.log('Worker said: ', e.data);
@@ -352,7 +354,7 @@ function init(){
   // });
 
 
-	//loadSTL();
+  	loadSTL();
 
  //    $.get("LOGFILE.txt", function(respons) {
  //     	logfile = respons;
@@ -403,7 +405,7 @@ function loadSTL(){
 					//createMesh();
 					addToScene();
 				} );
-				loader.load( 'Tutor.stl' );
+				loader.load( 'TUTUOR.stl' );
 
 }
 
@@ -905,12 +907,15 @@ function createMesh(){
 
 		var newPoint = new THREE.Vector3( positions[ i ],	positions[ i + 1 ] , positions[ i + 2 ]);  
 		 
-
+		
 		if(deleteArray[deleteCounter] == 1){
 		   deleteCounter ++;
 		   skipCounter ++;
 		   vertexCounterSize++;
 		   continue;
+		   //console.log("skip");
+		}else{
+			//console.log("not so skip");
 		}
 
 		if(newPoint.x + newPoint.y + newPoint.z == 0){
@@ -946,7 +951,7 @@ function createMesh(){
 
 	}
 
-     customAttributes.customColor.needsUpdate = true;
+       customAttributes.customColor.needsUpdate = true;
 	   customAttributes.customSize.needsUpdate = true;
       
        console.log("skipped: " + skipCounter);
