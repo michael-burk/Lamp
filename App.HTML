@@ -31,7 +31,7 @@
 <script type="text/javascript" src="js/TorusGeometry.js"></script>
 <script type="text/javascript" src="js/DodecahedronGeometry.js"></script>
 
-<div style="font-family: helvetica; position: absolute; left: 100px; top: 0; text-align: center; padding-top: 15px; background: white; opacity: .9; width: 120px; height: 100px; z-index: 100;"id="drop_zone">Drop files here</div>
+<div style="font-family: helvetica; position: absolute; left: 5; top: 5; text-align: center; padding-top: 50px; border: dashed; border-width: 1px; border-radius: 4px; color: grey; opacity: .9; width: 150px; height: 67px; z-index: 100;"id="drop_zone">Drop files here</div>
 <output id="list"></output>
 
 
@@ -80,11 +80,6 @@ void main()
 
 
 <script>
-/*
-	Three.js "tutorials by example"
-	Author: Lee Stemkoski
-	Date: July 2013 (three.js v59dev)
-*/
 
 // MAIN
 
@@ -119,8 +114,6 @@ animate();
 var mouseGeo = new THREE.SphereGeometry( 1, 36, 36);
 direction = new THREE.Vector3( 1, 0, 0 );
 
-
-
 var cameraVector = new THREE.Vector3( 0, 0, -1 );
 var new_pos = new THREE.Vector3( 0, 0, 0 );
 var new_pos2 = new THREE.Vector3( 0, 0, 0 );
@@ -136,6 +129,8 @@ var newLampGeo = new THREE.Geometry();
 var newLampMesh;
 
 var icoVertices;
+
+var stlName;
 
 
 // FUNCTIONS
@@ -206,16 +201,32 @@ function init(){
 
     var files = evt.dataTransfer.files; // FileList object.
     
+    //if(files[0].type == "")
+    var name = files[0].name;
+    var ending = name.substr(name.length-3,3);
+    if(ending == "stl"){
 
-    // files is a FileList of File objects. List some properties.
-    var output = [];
+    	stlName = name;
 
-    reader.onload = function(e) {
-  		logText = reader.result;
-  		loadTXT();
-	}
+    	loadSTL();
 
-    reader.readAsText(files[0]);
+    }else if(ending == "txt"){
+		// files is a FileList of File objects. List some properties.
+	    var output = [];
+
+	    reader.onload = function(e) {
+	  		logText = reader.result;
+	  		loadTXT();
+		}
+
+	    reader.readAsText(files[0]);
+    } else {
+    	alert("correct file ending?")
+    }
+   
+ 
+
+    
     
   }
 
@@ -229,10 +240,6 @@ function init(){
   var dropZone = document.getElementById('drop_zone');
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
-
-
-
-
 
 	// SCENE
 	scene = new THREE.Scene();
@@ -271,11 +278,11 @@ function init(){
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	
 	// STATS
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.top = '0px';
-	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
+	// stats = new Stats();
+	// stats.domElement.style.position = 'absolute';
+	// stats.domElement.style.top = '0px';
+	// stats.domElement.style.zIndex = 100;
+	// container.appendChild( stats.domElement );
 	
 	// LIGHT
    var light = new THREE.PointLight(0xffffff);
@@ -348,18 +355,9 @@ function init(){
 
  	createSphere(); 
  	  
-  // $.getJSON( "LOGFILE4.json", function( data ) {
-  //   pointData = data;
-  //   loadJSON();
-  // });
 
 
-  //	loadSTL();
-
- //    $.get("LOGFILE.txt", function(respons) {
- //     	logfile = respons;
- //     	alert(respons);
-	// });
+  	//loadSTL();
 
 
 }
@@ -405,7 +403,7 @@ function loadSTL(){
 					//createMesh();
 					addToScene();
 				} );
-				loader.load( 'data/room.stl' );
+				loader.load( 'data/' + stlName + '' );
 
 }
 
@@ -501,11 +499,11 @@ function loadTXT(){
 
 		var data = logText.substr(1,logText.length-2);
 
-		console.log("data: " + data);
+		//console.log("data: " + data);
 		
 
 
-//Parser - Get Points
+	//Parser - Get Points
 
 		var regPP = /(P)/g;
 		var ppArray = [2];
@@ -629,7 +627,7 @@ function loadTXT(){
 				
 			}
 			//console.log(finalPoints);
-	}
+}
 
 
 // Create Point List like in JSON loader
@@ -692,21 +690,20 @@ function loadTXT(){
 		}
         
     positions[ i ]     = y1 * .1;
-		positions[ i + 1 ] = x1 * -.1;
-		positions[ i + 2 ] = z1 * .1;
+	positions[ i + 1 ] = x1 * -.1;
+	positions[ i + 2 ] = z1 * .1;
 		
-		colors[ i ]     = newColor.r;
-		colors[ i + 1 ] = newColor.g;
-		colors[ i + 2 ] = newColor.b;
+	colors[ i ]     = newColor.r;
+	colors[ i + 1 ] = newColor.g;
+	colors[ i + 2 ] = newColor.b;
 		
-		sizes[ vertexCounter] =  map(finalPoints[vertexCounter].x, 0, 5000, 0, 100);
+	sizes[ vertexCounter] =  map(finalPoints[vertexCounter].x, 0, 5000, 0, 100);
 
 	}
 		  
 		  
 		worker.postMessage(positions); // Send data to our worker.
 
-		//console.log(positions);
 		createMesh();
 
 }
@@ -793,8 +790,6 @@ function createSphere(){
 		Ico.doubleSided = true;
 
 		scene.add(Ico);
-
-
 
 
 
@@ -1165,7 +1160,7 @@ function update(){
 	}
 
 	controls.update();
-	stats.update();
+	//stats.update();
     checkCamera();
 	//var t = clock.getElapsedTime();
 	//customUniforms.time.value = 0.1;
