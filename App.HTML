@@ -131,7 +131,7 @@ var icoVertices;
 
 var stlName = "room.stl";
 
-var hole = [31,18,19,26,16,32,38,39,40,42,43,30,17,23,24,25,28,29,33,34,35,36,37,41];
+var hole = [17,23,24,25,28,29,33,34,35,36,37,41];
 
 
 init();
@@ -161,7 +161,8 @@ worker.addEventListener('message', function(e) {
 
 	cutMeshData = e.data;
 	deleteArray = cutMeshData;
-	console.log(e.data);
+	//console.log(e.data);
+	console.log("mesh cleaned");
 	scene.remove(particleSystem);
 	particleGeo = new THREE.Geometry();
 	createMesh();
@@ -357,7 +358,7 @@ function init(){
 		
  	createSphere(); 
  	  
-  	//loadSTL();
+  	loadSTL();
 
 
 }
@@ -389,11 +390,12 @@ function loadSTL(){
 
 
 				        var newColor = new THREE.Color( );
-				        newColor.setRGB(0.2,0.2,colorMapB);
+				        newColor.setRGB(1,1,1);
 
 
 						customAttributes.customColor.value[ i ] = newColor;
-        				customAttributes.customSize.value[ i ] =  map(distance, 0, 300, 0, 30);
+        				customAttributes.customSize.value[ i ] =  map(distance, 0, 300, 0, 5);
+        				// customAttributes.customSize.value[ i ] =  3;
 
 					};
 
@@ -608,7 +610,7 @@ function loadTXT(){
 
 
         var newColor = new THREE.Color( );
-        newColor.setRGB(0.2,0.2,colorMapB);
+        newColor.setRGB(1,1,1);
 
        	// Eliminate zero dots
 		if(y1 + x1 + z1 == 0){ 
@@ -623,7 +625,8 @@ function loadTXT(){
 	colors[ i + 1 ] = newColor.g;
 	colors[ i + 2 ] = newColor.b;
 		
-	sizes[ vertexCounter] =  map(finalPoints[vertexCounter].x, 0, 3000, 0, 30);
+	sizes[ vertexCounter] =  map(finalPoints[vertexCounter].x, 0, 3000, 0, 10);
+	// sizes[ vertexCounter] =  3;
 
 	
 
@@ -679,7 +682,7 @@ function createSphere(){
 
 
 
-	Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,2), pinkMat);
+	Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(10,2), pinkMat);
 	Ico.dynamic = true;
 	Ico.doubleSided = true;
 
@@ -708,9 +711,9 @@ function createSphere(){
 
 			// };
 
-			// if( i < 40){
-			// 	leaveOut = true;
-			// }
+			// // if( i < 40){
+			// // 	leaveOut = true;
+			// // }
 			// if(!leaveOut){
 				lampGeo.faces.push(Ico.geometry.faces[i]);
 			// }
@@ -765,6 +768,7 @@ function updateSphere(cutMeshData){
 
 
 		var scaleFactor = 7.5;
+		var scaleFactor = 10;
 		
 		var exportGeo = new THREE.Geometry();
 

@@ -1,7 +1,7 @@
 function stlFromGeometry( geometry, options ) {
 
 	// calculate the faces and normals if they are not yet present
-	geometry.computeFaceNormals()
+	//geometry.computeFaceNormals()
 
 	var addX = 0
 	var addY = 0

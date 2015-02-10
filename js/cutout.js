@@ -36,9 +36,10 @@ var centerArray = [];
 
 var centerMode = false;
 
-var thickness = .2 * 1.75;
+var thickness = .15 ;
 
-var hole = [31,18,19,26,16,32,38,39,40,42,43,30,17,23,24,25,28,29,33,34,35,36,37,41];
+//var star = [17,23,24,25,28,29,33,34,35,36,37,41];
+var hole = [23,28,24,34,35,36,17,25,29,33,37,41,31,18,19,26,16,32,38,39,40,42,43,30];
 var holeSubdivided = [];
 
 var holeVertices = [];
@@ -801,10 +802,22 @@ var shellVertices = [];
 
 function createShell(){
 
+
 	// Add faces for inner shell
 	var faceCounter = 0;
 	var centerCounter = 0;
+
 	for(var i = 0; i <= newIcoFaces.length -1; i+=3){
+
+		var inStar = false;
+		var currentStar;
+		for(var j = 0; j <= 5; j++){
+			if(faceCounter == hole[j]){
+				inStar = true;
+				currentStar = j;
+				continue;
+			}
+		}
 
 		if(faceCounter == centerArray[centerCounter]){
 			centerCounter++;
@@ -817,7 +830,6 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i]+1);
 			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
 
-
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i+1]);
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3+1);
@@ -826,7 +838,6 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+1]+1);
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3+1);
 
-
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i+2]);
 			shellFaces.push(newIcoFaces[i]);
@@ -836,7 +847,8 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
 			
 			
-		}else{
+		}
+		if(!inStar){
 
 			shellFaces.push(newIcoFaces[i]);
 			shellFaces.push(newIcoFaces[i+1]);	
@@ -845,7 +857,98 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);	
 			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
-		}		
+
+		} 
+
+
+		if(inStar) {
+
+			switch(currentStar){
+			
+				case 0:
+
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+2);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+
+					break;
+				
+				case 1:
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i]+1);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+					
+
+					break;
+				
+				case 2:
+
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i+2]+2);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+					break;
+
+				case 3:
+
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i+2]);
+
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);	
+
+					break;
+
+				case 4:
+
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]);
+
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+				
+				
+
+					break;
+
+				case 5:
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+				
+
+					break;
+
+
+			}
+
+
+		}
+
 		faceCounter ++;
 	}
 
