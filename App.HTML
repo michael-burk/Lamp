@@ -4,6 +4,7 @@
 	<title>Lamp</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body style="overflow:hidden">
 
@@ -30,8 +31,14 @@
 <script type="text/javascript" src="js/TorusGeometry.js"></script>
 <script type="text/javascript" src="js/DodecahedronGeometry.js"></script>
 
-<div style="font-family: helvetica; position: absolute; left: 5; top: 5; text-align: center; padding-top: 50px; border: dashed; border-width: 1px; border-radius: 4px; color: white; opacity: .9; width: 150px; height: 67px; z-index: 100;"id="drop_zone">Drop files here</div>
-<output id="list"></output>
+<div id="drop_zone" >Drop files here</div>
+
+<div id="optimize" >Optimize</div>
+
+<div id="create" >Create Lamp</div>
+
+
+
 
 
 <!-- Custom shaders for particle effects -->
@@ -182,17 +189,25 @@ function startWebworker(){
 
 	}, false);
 
+	worker.postMessage(positions); // Send data to our worker.
 
-	 cutoutWorker = new Worker('js/cutout.js');
+}
+
+
+
+function startCutOutWebworker(){
+	 	cutoutWorker = new Worker('js/cutout.js');
 
 	cutoutWorker.addEventListener('message', function(e) {
 
-		updateSphere(e.data);
+	updateSphere(e.data);
 		//console.log('Worker said: ', e.data);
 		//console.log(e.data.length);
 		
 
 	}, false);
+
+	postToCutOutWorker();
 }
 
 
@@ -293,7 +308,14 @@ function init(){
 	$( document ).ready(function(){
     	$(window).keypress(onKeyDown);
     	$(window).mousemove(onMouseMove);
-    	$(window).mousedown(onMouseMove);    
+    	$(window).mousedown(onMouseMove);  
+    	$("#optimize").click(function() {
+    		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
+  			startWebworker();
+		});
+		$("#create").click(function() {
+  			startCutOutWebworker();
+		});
   	});
 
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -388,7 +410,7 @@ function init(){
             dataType: "text",
             success : function (data) {
             	logText = data;
-            	startWebworker();
+            	//startWebworker();
             	loadTXT();
             }
         });
@@ -668,7 +690,7 @@ function loadTXT(){
 
 	}
 		  
-		worker.postMessage(positions); // Send data to our worker.
+		
 
 	//	console.log(positions.length)
 		createMesh();
@@ -719,7 +741,7 @@ function createSphere(){
 
 
 
-	Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(10,2), pinkMat);
+	Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(9,2), pinkMat);
 	Ico.dynamic = true;
 	Ico.doubleSided = true;
 
@@ -799,7 +821,7 @@ function updateSphere(cutMeshData){
 		}
 
 
-		var scaleFactor = 7.5;
+		//	var scaleFactor = 7.5;
 		var scaleFactor = 10;
 		
 		var exportGeo = new THREE.Geometry();
@@ -1045,7 +1067,12 @@ function onKeyDown(event) {
 	        if (event.charCode == 0){
 
 
-	          // Convert Mesh data into ArrayBuffer for Webworker
+	        }
+    
+};
+
+function postToCutOutWorker(){
+	 // Convert Mesh data into ArrayBuffer for Webworker
 
 	        	var selecteMeshBuffer = new Float32Array( selectedMesh.vertices.length * 3);
 	          	var icoVertices = new Float32Array((Ico.geometry.vertices.length - 0) * 3);
@@ -1109,11 +1136,7 @@ function onKeyDown(event) {
         		//console.log(buffers);
         		//console.log(selecteMeshBuffer);
          		cutoutWorker.postMessage(buffers);
-
-
-	        }
-    
-};
+}
 
 function calcPointer(){
 
