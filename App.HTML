@@ -104,7 +104,9 @@ var vertexCounter1 = 0;
 var vertexCounterSize = 0;
 var deleteCounter = 0;
 var mouseCoord = new THREE.Vector3(0,0,0);
-var mouseOpacity;
+var mouseOpacity = 0;
+var mouseHold = false;
+var mouseCounter = 0;
 
 var positions = new Float32Array( 1000);
 var colors;
@@ -308,7 +310,8 @@ function init(){
 	$( document ).ready(function(){
     	$(window).keypress(onKeyDown);
     	$(window).mousemove(onMouseMove);
-    	$(window).mousedown(onMouseMove);  
+    	$(window).mousedown(onMouseDown);
+    	
     	$("#optimize").click(function() {
     		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
   			startWebworker();
@@ -855,18 +858,6 @@ function updateSphere(cutMeshData){
 
 		var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
 		saveAs(blob, "sphere.stl");
-
-		// var pinkMat = new THREE.MeshPhongMaterial({
-		//   color      :  new THREE.Color("rgb(226,35,213)"),
-		//   emissive   :  new THREE.Color("rgb(255,128,64)"),
-		//   specular   :  new THREE.Color("rgb(255,155,255)"),
-		//   shininess  :  10,
-		//   shading    :  THREE.FlatShading,
-		//   side       : 	THREE.DoubleSide,
-		//   transparent: 	1,
-		//   opacity    : 	1,
-		//   wireframe	 : 	false
-		// });
 		
 		var pinkMat = new THREE.MeshPhongMaterial({
 		  color      :  new THREE.Color("rgb(100,100,100)"),
@@ -999,6 +990,15 @@ function onMouseMove(event){
  	
  	calcPointer();
 
+ 	
+
+}
+
+function onMouseDown(){
+	mouseHold = true;
+	mouseOpacity = 0;
+	mouseCounter = 0;
+	updatePointerColor(mouseOpacity);
 }
 
 function onKeyDown(event) {
@@ -1060,14 +1060,6 @@ function onKeyDown(event) {
 	            }
 	        } 
 
-
-	    // Enter
-
-
-	        if (event.charCode == 0){
-
-
-	        }
     
 };
 
@@ -1174,17 +1166,29 @@ function calcPointer(){
      object.updateMatrix();
 }
 
+function updatePointerColor(opacity){
+	//console.log("update color");
+	var pointerMaterial =  new THREE.MeshBasicMaterial( { color:0xffffff, transparent: true ,opacity: opacity } );
+
+	scene.getObjectByName( "pointer" ).material = pointerMaterial;
+	scene.getObjectByName( "pointer" ).material.needsUpdate = true;
+}
+
 function checkCamera(){
-  if(camera.quaternion.x == cameraOld){
+ if(camera.quaternion.x == cameraOld){
     //console.log("change");
-     scene.getObjectByName( "pointer" ).visible = true;
- //  calcPointer();
+   // mouseHold = true;
+  // scene.getObjectByName( "pointer" ).visible = true;
+    //calcPointer();
   } else {
-     scene.getObjectByName( "pointer" ).visible = false;
+     mouseHold = true;
+	 mouseOpacity = 0;
+	 mouseCounter = 0;
+	 updatePointerColor(mouseOpacity);
      
-  }
+ }
   
-  cameraOld = camera.quaternion.x;
+ cameraOld = camera.quaternion.x;
 }
 
 function animate(){
@@ -1196,14 +1200,33 @@ function animate(){
 
 function update(){
 
-	if ( keyboard.pressed("z") ) 
-	{ 
-		// do something
+//console.log(mouseOpacity);
+	
+	if(mouseOpacity >= 1){
+		mouseHold = false;
 	}
+
+	if ( mouseHold) 
+	{ 	
+		if(mouseCounter <= 1){
+			mouseCounter += .01;
+		}
+		
+		if(mouseCounter > .5){
+			mouseOpacity += .1;
+
+			updatePointerColor(mouseOpacity);
+		}
+		
+	}
+
+	
+
+	
 
 	controls.update();
 	//stats.update();
-    checkCamera();
+    //checkCamera();
 	//var t = clock.getElapsedTime();
 	//customUniforms.time.value = 0.1;
 }
