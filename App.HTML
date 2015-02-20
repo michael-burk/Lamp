@@ -4,7 +4,6 @@
 	<title>Lamp</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel=stylesheet href="css/base.css"/>
 </head>
 <body style="overflow:hidden">
 
@@ -31,7 +30,7 @@
 <script type="text/javascript" src="js/TorusGeometry.js"></script>
 <script type="text/javascript" src="js/DodecahedronGeometry.js"></script>
 
-<div style="font-family: helvetica; position: absolute; left: 5; top: 5; text-align: center; padding-top: 50px; border: dashed; border-width: 1px; border-radius: 4px; color: grey; opacity: .9; width: 150px; height: 67px; z-index: 100;"id="drop_zone">Drop files here</div>
+<div style="font-family: helvetica; position: absolute; left: 5; top: 5; text-align: center; padding-top: 50px; border: dashed; border-width: 1px; border-radius: 4px; color: white; opacity: .9; width: 150px; height: 67px; z-index: 100;"id="drop_zone">Drop files here</div>
 <output id="list"></output>
 
 
@@ -68,11 +67,11 @@ void main()
 
 
 <!-- jQuery code to display an information button and box when clicked. -->
-<script src="js/jquery-1.9.1.js"></script>
+<!-- <script src="js/jquery-1.9.1.js"></script>
 <script src="js/jquery-ui.js"></script>
 <link rel=stylesheet href="css/jquery-ui.css" />
 <link rel=stylesheet href="css/info.css"/>
-<script src="js/info.js"></script>
+<script src="js/info.js"></script> -->
 
 
 
@@ -100,13 +99,15 @@ var deleteCounter = 0;
 var mouseCoord = new THREE.Vector3(0,0,0);
 var mouseOpacity;
 
-var positions;
+var positions = new Float32Array( 1000);
 var colors;
 var sizes;
 var cutMeshData;
 var deleteArray;
 
 var skipCounter;
+
+var finalPoints;
 
 
 
@@ -154,41 +155,46 @@ Object.size = function(obj) {
 
 
 // Declare webworker
+var worker;
+var cutoutWorker;
 
-var worker = new Worker('js/cleanMesh.js');
+function startWebworker(){
+	 worker = new Worker('js/cleanMesh.js');
 
-worker.addEventListener('message', function(e) {
+	worker.addEventListener('message', function(e) {
 
-	cutMeshData = e.data;
-	deleteArray = cutMeshData;
-	//console.log(e.data);
-	console.log("mesh cleaned");
-	scene.remove(particleSystem);
-	particleGeo = new THREE.Geometry();
-	createMesh();
+		cutMeshData = e.data;
+		deleteArray = cutMeshData;
+		//console.log(e.data);
+		console.log("mesh cleaned");
+		scene.remove(particleSystem);
+		particleGeo = new THREE.Geometry();
+		createMesh();
 
-	var stl = stlFromGeometry( particleGeo, {download:false});
+		var stl = stlFromGeometry( particleGeo, {download:false});
 
-	var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
-	saveAs(blob, "room.stl");
+		var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, "room.stl");
 
-	//stlFromGeometry( particleGeo, {download:false});
-	//console.log('Worker said: ', e.data);
-	
+		//stlFromGeometry( particleGeo, {download:false});
+		//console.log('Worker said: ', e.data);
+		
 
-}, false);
+	}, false);
 
 
-var cutoutWorker = new Worker('js/cutout.js');
+	 cutoutWorker = new Worker('js/cutout.js');
 
-cutoutWorker.addEventListener('message', function(e) {
+	cutoutWorker.addEventListener('message', function(e) {
 
-	updateSphere(e.data);
-	//console.log('Worker said: ', e.data);
-	//console.log(e.data.length);
-	
+		updateSphere(e.data);
+		//console.log('Worker said: ', e.data);
+		//console.log(e.data.length);
+		
 
-}, false);
+	}, false);
+}
+
 
  
 
@@ -199,8 +205,25 @@ function init(){
 	var reader = new FileReader();
 
 	
+  function handleDragOver(evt) {
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+  }
 
 	function handleFileSelect(evt) {
+
+	if(worker != undefined){
+		worker.terminate();
+	}
+	if(cutoutWorker != undefined){
+		cutoutWorker.terminate();
+	}
+  	
+
+  	startWebworker();
+
     evt.stopPropagation();
     evt.preventDefault();
 
@@ -221,6 +244,7 @@ function init(){
 
 	    reader.onload = function(e) {
 	  		logText = reader.result;
+	  		//console.log(logText);
 	  		loadTXT();
 		}
 
@@ -235,11 +259,7 @@ function init(){
     
   }
 
-  function handleDragOver(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-  }
+
 
   // Setup the dnd listeners.
   var dropZone = document.getElementById('drop_zone');
@@ -291,7 +311,7 @@ function init(){
 	
 	// LIGHT
    var light = new THREE.PointLight(0xffffff);
-   light.position.set(200,1000,0);
+   light.position.set(0,2000,0);
    scene.add(light);
 
    var light = new THREE.PointLight(0xffffff);
@@ -358,7 +378,20 @@ function init(){
 		
  	createSphere(); 
  	  
-  	loadSTL();
+  	// loadSTL();
+  
+  	// loadTXT();
+
+
+	$.ajax({
+            url : "data/livingRoom.txt",
+            dataType: "text",
+            success : function (data) {
+            	logText = data;
+            	startWebworker();
+            	loadTXT();
+            }
+        });
 
 
 }
@@ -366,6 +399,7 @@ function init(){
 
 function loadSTL(){
 	var loader = new THREE.STLLoader();
+
 				loader.addEventListener( 'load', function ( event ) {
 					
 					particleGeo = event.content;
@@ -402,11 +436,13 @@ function loadSTL(){
 					customAttributes.customColor.needsUpdate = true;
 	 				customAttributes.customSize.needsUpdate = true;
 
-					//createMesh();
+					
 					addToScene();
 				} );
-				//loader.load( 'data/' + stlName + '' );
-				loader.load( 'data/room.stl' );
+
+
+				loader.load( 'data/' + stlName + '' );
+				//loader.load( 'data/room.stl' );
 
 }
 
@@ -416,6 +452,8 @@ function loadTXT(){
 	var regFileComplete = /(A|O)/g;
 
 	var counter = 0;
+
+	//vertexCounter = 0;
 
 	// Search for beginning and end in file
 	while ((match = regFileComplete.exec(logText)) != null) {
@@ -440,7 +478,7 @@ function loadTXT(){
 		var pointsIndex = [];
 		var pointCounter = 0; 
 
-		var finalPoints = [];
+		finalPoints = [];
 
 
 		while ((match = regPP.exec(data)) != null) {
@@ -544,7 +582,7 @@ function loadTXT(){
 						}
 
 
-						if(pointValid){
+						if(pointValid && (newPointTXT.x + newPointTXT.y) != 0){
 
 							finalPoints.push(newPointTXT);
 
@@ -555,7 +593,6 @@ function loadTXT(){
 
 				
 			}
-			//console.log(finalPoints);
 	}
 
 
@@ -563,12 +600,12 @@ function loadTXT(){
 
 	particlesCount = finalPoints.length;
 
-		var color = new THREE.Color();
-		
-		positions = new Float32Array( particlesCount * 3 );
-		colors = new Float32Array( particlesCount * 3);
-		sizes = new Float32Array( particlesCount );
-		deleteArray = new Int32Array( particlesCount );
+	var color = new THREE.Color();
+	
+	positions = new Float32Array( particlesCount * 3 );
+	colors = new Float32Array( particlesCount * 3);
+	sizes = new Float32Array( particlesCount );
+	deleteArray = new Int32Array( particlesCount );
 	
 	vertexCounter = -1;
 
@@ -626,30 +663,30 @@ function loadTXT(){
 	colors[ i + 2 ] = newColor.b;
 		
 	sizes[ vertexCounter] =  map(finalPoints[vertexCounter].x, 0, 3000, 0, 10);
-	// sizes[ vertexCounter] =  3;
 
 	
 
 	}
 		  
-		  
 		worker.postMessage(positions); // Send data to our worker.
 
+	//	console.log(positions.length)
 		createMesh();
 
 }
 
 function createSphere(){
 
-			var pinkMat = new THREE.MeshPhongMaterial({
-		  color      :  new THREE.Color("rgb(226,35,213)"),
-		  emissive   :  new THREE.Color("rgb(255,128,64)"),
-		  specular   :  new THREE.Color("rgb(255,155,255)"),
+	var pinkMat = new THREE.MeshPhongMaterial({
+		  color      :  new THREE.Color("rgb(100,100,100)"),
+		  emissive   :  new THREE.Color("rgb(150,150,150)"),
+		  specular   :  new THREE.Color("rgb(155,155,155)"),
 		  shininess  :  10,
 		  shading    :  THREE.FlatShading,
 		  side       : 	THREE.DoubleSide,
-		  transparent: 1,
-		  opacity    : 1
+		  transparent: 	0,
+		  opacity    : 	1,
+		  wireframe	 : 	false
 		});
 
 	// var loader = new THREE.STLLoader();
@@ -686,11 +723,6 @@ function createSphere(){
 	Ico.dynamic = true;
 	Ico.doubleSided = true;
 
-
-
-	//////////////////////////////////////
-	// Cut Hole / Delete faces
-	//////////////////////////////////////
 
 	var lampGeo = new THREE.Geometry();
 
@@ -802,18 +834,29 @@ function updateSphere(cutMeshData){
 		var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
 		saveAs(blob, "sphere.stl");
 
+		// var pinkMat = new THREE.MeshPhongMaterial({
+		//   color      :  new THREE.Color("rgb(226,35,213)"),
+		//   emissive   :  new THREE.Color("rgb(255,128,64)"),
+		//   specular   :  new THREE.Color("rgb(255,155,255)"),
+		//   shininess  :  10,
+		//   shading    :  THREE.FlatShading,
+		//   side       : 	THREE.DoubleSide,
+		//   transparent: 	1,
+		//   opacity    : 	1,
+		//   wireframe	 : 	false
+		// });
+		
 		var pinkMat = new THREE.MeshPhongMaterial({
-		  color      :  new THREE.Color("rgb(226,35,213)"),
-		  emissive   :  new THREE.Color("rgb(255,128,64)"),
-		  specular   :  new THREE.Color("rgb(255,155,255)"),
+		  color      :  new THREE.Color("rgb(100,100,100)"),
+		  emissive   :  new THREE.Color("rgb(150,150,150)"),
+		  specular   :  new THREE.Color("rgb(155,155,155)"),
 		  shininess  :  10,
 		  shading    :  THREE.FlatShading,
 		  side       : 	THREE.DoubleSide,
-		  transparent: 	1,
+		  transparent: 	0,
 		  opacity    : 	1,
 		  wireframe	 : 	false
 		});
-
 
 		var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
 
@@ -830,6 +873,7 @@ function updateSphere(cutMeshData){
 
 function createMesh(){
 
+	particleGeo = new THREE.Geometry();
 
 	// Create Mesh
 	vertexCounterSize = 0;
@@ -898,6 +942,11 @@ function createMesh(){
 
 function addToScene(){
 
+
+		if(scene.getObjectByName("particleSystem") != undefined){
+			scene.remove(particleSystem);
+		}
+
 		this.shaderMaterial = new THREE.ShaderMaterial( 
 		{
 			uniforms: 		customUniforms,
@@ -908,6 +957,7 @@ function addToScene(){
 			alphaTest: 0.5
 		});
 			
+
 			
 		this.particleSystem = new THREE.ParticleSystem( particleGeo, this.shaderMaterial );
 		this.particleSystem.position.set(0, 0, 0);
@@ -916,6 +966,8 @@ function addToScene(){
 		this.particleSystem.sortParticles = false;
 		this.particleSystem.name = "particleSystem";
 		scene.add( this.particleSystem );	
+
+
 
 }
 
@@ -948,7 +1000,12 @@ function onKeyDown(event) {
 		            if(raycaster.ray.distanceToPoint(vertex) <= new_pos.sub(vertex).length()/20 ){
 		                  
 		                  
-		                var newColor = new THREE.Color( 0xffffff );
+
+		                var newColor = new THREE.Color( );
+       					
+       					newColor.setRGB(.9,.8,.2);
+
+		                
 		                customAttributes.customColor.value[ i ] = newColor;
 		                customAttributes.customSize.value[ i ] = 1;
 		                  
@@ -956,8 +1013,10 @@ function onKeyDown(event) {
 
    		                selectedMesh.vertices.push(vertex);
 		                  
+		                  
 
-			            var material = new THREE.LineBasicMaterial({color: 0xffffff, opacity: .5 });
+
+			            var material = new THREE.LineBasicMaterial({color: newColor, opacity: .5 });
 
 			            material.transparent = true;
 

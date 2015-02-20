@@ -47,7 +47,7 @@ var holeVertices = [];
 
 self.addEventListener('message', function(e) {
 
-importScripts('THREE.js');  
+importScripts('Three.js');  
 
 //Input Buffer
  selectedVertices = e.data[0];

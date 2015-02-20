@@ -1,6 +1,6 @@
 self.addEventListener('message', function(e) {
 
-importScripts('THREE.js');  
+importScripts('Three.js');  
 
 var distCounter = 0;
 
