@@ -24,6 +24,9 @@ var closestFaces = [];
 var deleteFacesTopIndices = [];
 var deleteFaces = [];
 var hitFaces = [];
+var holeFaces = [];
+
+
 var hitFaceCountOld = 0;
 
 var depth = 5;
@@ -33,11 +36,18 @@ var centerArray = [];
 
 var centerMode = false;
 
-var thickness = .2 * 1.75;
+var thickness = .15 ;
+
+//var star = [17,23,24,25,28,29,33,34,35,36,37,41];
+var hole = [23,28,24,34,35,36,17,25,29,33,37,41,31,18,19,26,16,32,38,39,40,42,43,30];
+var holeSubdivided = [];
+
+var holeVertices = [];
+
 
 self.addEventListener('message', function(e) {
 
-importScripts('THREE.js');  
+importScripts('Three.js');  
 
 //Input Buffer
  selectedVertices = e.data[0];
@@ -55,6 +65,25 @@ importScripts('THREE.js');
 console.log("work, work!");
 //console.log("selected length: " + selectedVertices.length);
 
+
+var holeCounter = 0;
+
+for (var i = 0; i <= hole.length*3 - 3; i+=3) {
+	holeVertices.push( icoFaces[ hole[holeCounter]*3 + 0] );
+	holeVertices.push( icoFaces[ hole[holeCounter]*3 + 1] );
+	holeVertices.push( icoFaces[ hole[holeCounter]*3 + 2] );
+	holeCounter++;
+};
+
+//console.log(holeVertices);
+//console.log(icoFaces);
+// holeVertices = [12,17,15,12,15,0];
+//holeVertices = [18,20,21];
+
+
+
+
+
 hitTest();
 
 debugPoints = new Float32Array(debugPointsArray.length);
@@ -70,6 +99,9 @@ self.postMessage(buffers);
 
 
 function hitTest(){
+
+
+	//console.log(icoFaces);
 
 	deleteFaces = [];
 	deleteFacesTopIndices = [];
@@ -94,6 +126,7 @@ function hitTest(){
 
 		closestDistance = 100000;
 
+
 		// Get closestFace and closestDistance
  		for (var j =0; j <= icoFacesCentroids.length -3; j+=3) {
 
@@ -109,6 +142,7 @@ function hitTest(){
  			
  		}
 
+ 		//console.log("initial length: " + faceCounter);
 
  		var clone = false;
  		if(closestDistance <= 2 && closestDistance >= .0001) {
@@ -118,7 +152,19 @@ function hitTest(){
  				}
  			}
  			if(!clone){
- 				closestFaces.push(closestFace);
+ 				var leaveOut = false;
+
+				for (var j = hole.length - 1; j >= 0; j--) {
+					if(hole[j] == closestFace){
+						leaveOut = true;
+					}
+				};
+
+			
+				if(!leaveOut){
+					closestFaces.push(closestFace);
+				}
+ 				
  			}
  			
  		}	
@@ -158,13 +204,19 @@ function hitTest(){
 
 function subdivide(){
 
-
+	//console.log("hitFaces: " + hitFaces);	
 
 	newCentroids = [];
 	newIcoFacesArray = [];
 	newVerticesArray = [];
 
+	holeFaces = [];
+
 	calcDeleteFaces();
+
+	//console.log(hitFaces);
+	//console.log(deleteFaces);
+
 
 	centerArray = [];
 
@@ -176,14 +228,9 @@ function subdivide(){
 	// Keep all old vertices
 	idCounter = 0;
 	 for (var m = 0; m <= icoVertices.length - 3; m+=3) {
-	// for (var m = 0; m <= icoVertices.length - 3; m+=3) {
-			// newIcoVertices[m] = icoVertices[m];
-			// newIcoVertices[m+1] = icoVertices[m+1];
-			// newIcoVertices[m+2] = icoVertices[m+2];
-
-			newVerticesArray.push(icoVertices[m]);
-			newVerticesArray.push(icoVertices[m+1]);
-			newVerticesArray.push(icoVertices[m+2]);
+		newVerticesArray.push(icoVertices[m]);
+		newVerticesArray.push(icoVertices[m+1]);
+		newVerticesArray.push(icoVertices[m+2]);
 	}
 
 	var newVertices = [];
@@ -198,6 +245,7 @@ function subdivide(){
 	var sub;
 
 	for (var p = 0; p <= hitFaces.length * 3 - 3; p+=3) {
+
 
 		//three centroids of hitFace outlines
 
@@ -216,16 +264,13 @@ function subdivide(){
 		var centroid1 = v1.clone().add(v2.clone());
 		var centroid2 = v0.clone().add(v2.clone());
 
-		// centroid0.divideScalar(1.99);
-		// centroid1.divideScalar(1.99);
-		// centroid2.divideScalar(1.99);
-
 		centroid0.divideScalar(2);
 		centroid1.divideScalar(2);
 		centroid2.divideScalar(2);
 
 
-		var extrude = 3/depthCounter;
+		//var extrude = 3/depthCounter;
+		var extrude = 2/ depthCounter;
 
 		origin = new THREE.Vector3(0,0,0);
 		sub = new THREE.Vector3(0,0,0);
@@ -259,9 +304,6 @@ function subdivide(){
 		sub.multiplyScalar(extrude);
 
 		centroid2.addVectors(centroid2,sub);
-
-
-		
 
 
 		var sub = new THREE.Vector3(0,0,0);
@@ -433,6 +475,54 @@ function subdivide(){
 	}
 
 
+
+	////////////////////////////
+	// Reconstruct hole faces
+	////////////////////////////
+
+	//console.log(newIcoFacesArray);
+
+	hole = [];
+
+	for (var r = 0; r <= holeVertices.length*3 - 3; r+=3) {
+
+		var faceCounter = 0;
+		for (var t = 0; t <= newIcoFacesArray.length*3 - 3; t+=3) {
+			
+			var counter = 0;
+			
+			for (var z = 0; z <= 2; z++) {
+				
+				if(holeVertices[r + 0] == newIcoFacesArray[t + z]){
+					counter ++;
+				}
+				if(holeVertices[r + 1] == newIcoFacesArray[t + z]){
+					counter ++;
+				}
+				if(holeVertices[r + 2] == newIcoFacesArray[t + z]){
+					counter ++;
+				}
+			};
+
+			if(counter == 3){
+
+				hole.push(faceCounter);
+				continue;
+			}
+
+			faceCounter++;
+		};
+
+
+		
+	};
+
+	
+	//console.log("new hole list: " + hole);
+
+
+
+
 	////////////////////////////
 	//Subdividing HitFace
 	////////////////////////////
@@ -542,6 +632,8 @@ function subdivide(){
 	//Add new outer faces
 	/////////////////////////////
 
+	//console.log("aktuelle länge: " + newIcoFacesArray.length);
+
 	faceOffset += hitFaces.length * 4 * 3;
 
 	var face;
@@ -558,6 +650,7 @@ function subdivide(){
 			
 
 				if(clone == 0){
+
 
 					// Clockwise indices sorting for normals
 
@@ -576,6 +669,14 @@ function subdivide(){
 					newIcoFacesArray.push(d);
 					newIcoFacesArray.push(e);
 					newIcoFacesArray.push(f);
+
+					holeVertices.push(a);
+					holeVertices.push(b);
+					holeVertices.push(c);
+
+					holeVertices.push(d);
+					holeVertices.push(e);
+					holeVertices.push(f);
 
 
 					// Calculate new CENTROID
@@ -624,15 +725,35 @@ function subdivide(){
 					newCentroids.push(centroid.z);
 
 
+					//Check for holeFaces
+
+					for (var i = holeFaces.length - 1; i >= 0; i--) {
+						if(holeFaces[i] == deleteFacesTopIndices[faceCounter+h*3]){
+						//	console.log(newIcoFacesArray.length);
+							hole.push(((newIcoFacesArray.length) / 3)-1);
+							hole.push(((newIcoFacesArray.length) / 3)-2);
+
+						}
+					};
 
 
 				}			
+
 				
+
 				faceCounter ++;
+
 		}
 
+		//console.log("newIcoFaces.length: " + newIcoFacesArray.length);
+		// console.log(newIcoFacesArray.length);
+		//console.log(hole);
+
+		
 	}
 	
+	//console.log(hole);
+	//console.log(holeVertices);
 	// Fill Buffer
 	newIcoFaces = new Float32Array(newIcoFacesArray.length);
 
@@ -681,15 +802,26 @@ var shellVertices = [];
 
 function createShell(){
 
+
 	// Add faces for inner shell
 	var faceCounter = 0;
 	var centerCounter = 0;
+
 	for(var i = 0; i <= newIcoFaces.length -1; i+=3){
+
+		var inStar = false;
+		var currentStar;
+		for(var j = 0; j <= 5; j++){
+			if(faceCounter == hole[j]){
+				inStar = true;
+				currentStar = j;
+				continue;
+			}
+		}
 
 		if(faceCounter == centerArray[centerCounter]){
 			centerCounter++;
 		
-
 			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i]);
 			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
@@ -697,7 +829,6 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i]);
 			shellFaces.push(newIcoFaces[i]+1);
 			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
-
 
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i+1]);
@@ -707,7 +838,6 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+1]+1);
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3+1);
 
-
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i+2]);
 			shellFaces.push(newIcoFaces[i]);
@@ -717,7 +847,8 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
 			
 			
-		}else{
+		}
+		if(!inStar){
 
 			shellFaces.push(newIcoFaces[i]);
 			shellFaces.push(newIcoFaces[i+1]);	
@@ -726,7 +857,98 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);	
 			shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
-		}		
+
+		} 
+
+
+		if(inStar) {
+
+			switch(currentStar){
+			
+				case 0:
+
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+2);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+
+					break;
+				
+				case 1:
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i]+1);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3+1);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+					
+
+					break;
+				
+				case 2:
+
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i+2]+2);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3+2);
+
+					break;
+
+				case 3:
+
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i+2]);
+
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);	
+
+					break;
+
+				case 4:
+
+					shellFaces.push(newIcoFaces[i+2]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]);
+
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+				
+				
+
+					break;
+
+				case 5:
+
+					shellFaces.push(newIcoFaces[i]);
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+
+					shellFaces.push(newIcoFaces[i+1]);
+					shellFaces.push(newIcoFaces[i+1]+newIcoVertices.length/3);
+					shellFaces.push(newIcoFaces[i]+newIcoVertices.length/3);
+				
+
+					break;
+
+
+			}
+
+
+		}
+
 		faceCounter ++;
 	}
 
@@ -849,8 +1071,19 @@ function calcDeleteFaces(){
 				
 				//  Two common indices
 				if(counterA == 1 && counterB == 1 && faceCounter != closestFace){
+				
+					for (var j = hole.length - 1; j >= 0; j--) {
+						if(hole[j] == faceCounter){
+							holeFaces.push(top);
+							//console.log("new hole top found: " + faceCounter);
+						}
+					}
+
+
 					deleteFaces.push(faceCounter);
 					deleteFacesTopIndices.push(top);
+					
+					
 				} 
 
 				counterA = 0;
@@ -860,9 +1093,9 @@ function calcDeleteFaces(){
 		}
 
 
-		//////////////////////////////////////////////////
-		// Test for double deleteFaces
-		//////////////////////////////////////////////////
+		// //////////////////////////////////////////////////
+		// // Test for double deleteFaces
+		// //////////////////////////////////////////////////
 
 		var newDeleteFaces = [];
 		var deleteFaceCloneCounter = 0;
