@@ -151,7 +151,11 @@ function hitTest(){
  					clone = true;
  				}
  			}
+
  			if(!clone){
+ 			
+ 				//closestFaces.push(closestFace);
+
  				var leaveOut = false;
 
 				for (var j = hole.length - 1; j >= 0; j--) {
@@ -811,6 +815,7 @@ function createShell(){
 
 		var inStar = false;
 		var currentStar;
+		
 		for(var j = 0; j <= 5; j++){
 			if(faceCounter == hole[j]){
 				inStar = true;
@@ -847,8 +852,7 @@ function createShell(){
 			shellFaces.push(newIcoFaces[i+2]+newIcoVertices.length/3);
 			
 			
-		}
-		if(!inStar){
+		} else if(!inStar){
 
 			shellFaces.push(newIcoFaces[i]);
 			shellFaces.push(newIcoFaces[i+1]);	
