@@ -14,7 +14,30 @@
 	background: none repeat scroll 0px 0px rgb(100, 100, 100);
 }
 
+
+
 #create:hover {
+		background: none repeat scroll 0px 0px rgb(200, 200, 200);
+		cursor: pointer;
+}
+
+#switch {
+	font-family: helvetica;
+	position: absolute;
+	text-align: center;
+	color: white;
+	opacity: 0.9;
+	width: 150px;
+	z-index: 100;
+	top: 5px;
+	left: 330px;
+	padding-top: 10px;
+	height: 24px;
+	border-radius: 4px;
+	background: none repeat scroll 0px 0px rgb(100, 100, 100);
+}
+
+#switch:hover {
 		background: none repeat scroll 0px 0px rgb(200, 200, 200);
 		cursor: pointer;
 }

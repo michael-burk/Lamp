@@ -40,19 +40,21 @@ function stlFromGeometry( geometry, options ) {
 	// start bulding the STL string
 	var stl = ''
 	stl += 'solid\n'
-	
+	console.log(geometry.faces.length);
 	for ( var i = 0; i < geometry.faces.length; i++ ) {
 		var face = geometry.faces[i]
 
 		// if we have just a triangle, that's easy. just write them to the file
 		if ( face.d === undefined ) {
-			var verts = [
+				var verts = [
 				geometry.vertices[ face.a ],
 				geometry.vertices[ face.b ],
 				geometry.vertices[ face.c ]
 			]
-
-			stl += facetToStl( verts, face.normal )
+			if(verts[0] != undefined && verts[1] != undefined && verts[2] != undefined){
+				stl += facetToStl( verts, face.normal )
+			}
+			
 
 		} else {
 			// if it's a quad, we need to triangulate it first

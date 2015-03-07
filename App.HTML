@@ -31,11 +31,25 @@
 <script type="text/javascript" src="js/TorusGeometry.js"></script>
 <script type="text/javascript" src="js/DodecahedronGeometry.js"></script>
 
-<div id="drop_zone" >Drop files here</div>
+<span title="drag&drop data from scanner here"><div id="drop_zone" >Drop files here</div></span>
 
-<div id="optimize" >Optimize</div>
+<span title="optimize scan data">
+	<div id="optimize" >
+		Optimize
+	</div>
+</span>
 
-<div id="create" >Create Lamp</div>
+<span title="generate 3D printable geometry">
+	<div id="create" >
+		Create Lamp
+	</div>
+</span>
+
+<span title="switch example scan">
+	<div id="switch" >
+		Switch Room
+	</div>
+</span>
 
 
 
@@ -132,16 +146,24 @@ var planeZ = new THREE.Plane(cameraVector, 0);
 var logText;
 
 //var Ico;
-var selectedMesh = new THREE.Geometry();
+var selectedMesh = new THREE.Geometry();2
 var toDelete = [];
 var newLampGeo = new THREE.Geometry();
 var newLampMesh;
 
 var icoVertices;
 
-var stlName = "room.stl";
+var stlName = "room2_opti.stl";
 
-var hole = [17,23,24,25,28,29,33,34,35,36,37,41];
+var stlNames = ["room2_opti.stl","room1_opti.stl"];
+var stlNameCounter = 0;
+
+//var hole = [17,23,24,25,28,29,33,34,35,36,37,41];
+
+// Settings
+var extrude = 1.6;
+var thickness = .3;
+var recursions = 4;
 
 
 init();
@@ -180,10 +202,7 @@ function startWebworker(){
 		particleGeo = new THREE.Geometry();
 		createMesh();
 
-		var stl = stlFromGeometry( particleGeo, {download:false});
-
-		var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
-		saveAs(blob, "room.stl");
+		exportGeometry();
 
 		//stlFromGeometry( particleGeo, {download:false});
 		//console.log('Worker said: ', e.data);
@@ -227,6 +246,7 @@ function init(){
     evt.stopPropagation();
     evt.preventDefault();
     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+
   }
 
 	function handleFileSelect(evt) {
@@ -234,12 +254,13 @@ function init(){
 	if(worker != undefined){
 		worker.terminate();
 	}
+
 	if(cutoutWorker != undefined){
 		cutoutWorker.terminate();
 	}
   	
 
-  	startWebworker();
+  	//startWebworker();
 
     evt.stopPropagation();
     evt.preventDefault();
@@ -247,8 +268,10 @@ function init(){
     var files = evt.dataTransfer.files; // FileList object.
     
     //if(files[0].type == "")
+
     var name = files[0].name;
     var ending = name.substr(name.length-3,3);
+
     if(ending == "stl"){
 
     	stlName = name;
@@ -266,6 +289,7 @@ function init(){
 		}
 
 	    reader.readAsText(files[0]);
+
     } else {
     	alert("correct file ending?")
     }
@@ -318,6 +342,9 @@ function init(){
 		});
 		$("#create").click(function() {
   			startCutOutWebworker();
+		});
+		$("#switch").click(function() {
+  			switchModel();
 		});
   	});
 
@@ -403,26 +430,26 @@ function init(){
 		
  	createSphere(); 
  	  
-  	// loadSTL();
+  	loadSTL();
   
   	// loadTXT();
 
 
-	$.ajax({
-            url : "data/livingRoom.txt",
-            dataType: "text",
-            success : function (data) {
-            	logText = data;
-            	//startWebworker();
-            	loadTXT();
-            }
-        });
+	// $.ajax({
+ //            url : "data/livingRoom2.txt",
+ //            dataType: "text",
+ //            success : function (data) {
+ //            	logText = data;
+ //            	//startWebworker();
+ //            	loadTXT();
+ //            }
+ //    });
 
 
 }
 
 
-function loadSTL(){
+function loadSTL(file){
 	var loader = new THREE.STLLoader();
 
 				loader.addEventListener( 'load', function ( event ) {
@@ -454,7 +481,7 @@ function loadSTL(){
 
 						customAttributes.customColor.value[ i ] = newColor;
         				customAttributes.customSize.value[ i ] =  map(distance, 0, 300, 0, 5);
-        				// customAttributes.customSize.value[ i ] =  3;
+        				customAttributes.customSize.value[ i ] =  10;
 
 					};
 
@@ -467,6 +494,7 @@ function loadSTL(){
 
 
 				loader.load( 'data/' + stlName + '' );
+				//loader.load(file);
 				//loader.load( 'data/room.stl' );
 
 }
@@ -487,7 +515,7 @@ function loadTXT(){
 
 	if(counter == 2){
 
-		console.log("Start and End detected");
+		console.log("correct file detected");
 
 		var data = logText.substr(1,logText.length-2);
 
@@ -679,7 +707,7 @@ function loadTXT(){
 	    	continue;
 		}
         
-    positions[ i ]     = y1 * .1;
+    positions[ i ]     = y1 * -.1;
 	positions[ i + 1 ] = (x1 * -.1) - 10;
 	positions[ i + 2 ] = z1 * .1;
 		
@@ -797,7 +825,7 @@ function updateSphere(cutMeshData){
 
 		newLampGeo = new THREE.Geometry();
 
-		console.log(cutMeshData);
+		//console.log(cutMeshData);
 
 		//Draw debug boxes
 
@@ -947,7 +975,7 @@ function createMesh(){
        customAttributes.customColor.needsUpdate = true;
 	   customAttributes.customSize.needsUpdate = true;
       
-       console.log("skipped: " + skipCounter);
+	//   console.log("skipped: " + skipCounter);
 
        addToScene();
 
@@ -982,6 +1010,18 @@ function addToScene(){
 
 
 
+}
+
+function switchModel(){
+	
+	stlNameCounter ++;
+
+	if(stlNameCounter >= stlNames.length){
+		stlNameCounter = 0;
+	}
+	stlName = stlNames[stlNameCounter];
+	
+	loadSTL();
 }
 
 function onMouseMove(event){
@@ -1029,7 +1069,7 @@ function onKeyDown(event) {
 
 		                
 		                customAttributes.customColor.value[ i ] = newColor;
-		                customAttributes.customSize.value[ i ] = 1;
+		                customAttributes.customSize.value[ i ] = 25;
 		                  
 		                  
 
@@ -1123,7 +1163,7 @@ function postToCutOutWorker(){
 
 
 
-        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroids, icoFaces];
+        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroids, icoFaces, extrude, thickness, recursions];
 
         		//console.log(buffers);
         		//console.log(selecteMeshBuffer);
@@ -1164,6 +1204,13 @@ function calcPointer(){
 
      object.position.set(new_pos2.x,new_pos2.y,new_pos2.z);
      object.updateMatrix();
+}
+
+function exportGeometry(){
+	var stl = stlFromGeometry( particleGeo, {download:false});
+
+	var blob = new Blob([stl], {type: "text/plain;charset=utf-8"});
+	saveAs(blob, "room.stl");
 }
 
 function updatePointerColor(opacity){

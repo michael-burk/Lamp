@@ -29,17 +29,21 @@ var holeFaces = [];
 
 var hitFaceCountOld = 0;
 
-var depth = 5;
+var depth = 4;
+
 var depthCounter = 1;
 
 var centerArray = [];
 
 var centerMode = false;
 
-var thickness = .15 ;
+var thickness = .3 ;
 
-//var star = [17,23,24,25,28,29,33,34,35,36,37,41];
+var extrudeFactor = 1.6;
+
+
 var hole = [23,28,24,34,35,36,17,25,29,33,37,41,31,18,19,26,16,32,38,39,40,42,43,30];
+
 var holeSubdivided = [];
 
 var holeVertices = [];
@@ -48,6 +52,14 @@ var holeVertices = [];
 self.addEventListener('message', function(e) {
 
 importScripts('Three.js');  
+
+
+// Load Settings
+
+extrudeFactor = e.data[4];
+thickness = e.data[5];
+depth = e.data[6];
+
 
 //Input Buffer
  selectedVertices = e.data[0];
@@ -274,7 +286,7 @@ function subdivide(){
 
 
 		//var extrude = 3/depthCounter;
-		var extrude = 2/ depthCounter;
+		var extrude = extrudeFactor/ depthCounter;
 
 		origin = new THREE.Vector3(0,0,0);
 		sub = new THREE.Vector3(0,0,0);
