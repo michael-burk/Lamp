@@ -101,6 +101,8 @@ void main()
 
 <script>
 
+
+
 // MAIN
 
 // standard global variables
@@ -155,7 +157,7 @@ var icoVertices;
 
 var stlName = "room2_opti.stl";
 
-var stlNames = ["room2_opti.stl","room1_opti.stl"];
+var stlNames = ["room2_opti.stl","Hybrid.stl","Hybrid2.stl",,"room1_opti.stl"];
 var stlNameCounter = 0;
 
 //var hole = [17,23,24,25,28,29,33,34,35,36,37,41];
@@ -164,6 +166,8 @@ var stlNameCounter = 0;
 var extrude = 1.6;
 var thickness = .3;
 var recursions = 4;
+
+var doMark = false;
 
 
 init();
@@ -334,7 +338,38 @@ function init(){
 	$( document ).ready(function(){
     	$(window).keypress(onKeyDown);
     	$(window).mousemove(onMouseMove);
-    	$(window).mousedown(onMouseDown);
+    	//$(window).mousedown(function(event){mousedown()});
+   
+    	$(window).mousedown(function(event) {
+		    switch (event.which) {
+		        case 1:
+		            
+				    mouseHold = true;
+					mouseOpacity = 0;
+					mouseCounter = 0;
+				 	updatePointerColor(mouseOpacity);
+		            break;
+
+		        case 3:
+		        	
+		        		doMark = true;
+		        	
+
+		            break;
+		    }
+		});
+
+		$(window).mouseup(function(event) {
+		    switch (event.which) {
+
+		        case 3:
+
+		        	
+		        		doMark = false;
+		      
+		            break;
+		    }
+		});
     	
     	$("#optimize").click(function() {
     		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
@@ -1034,20 +1069,42 @@ function onMouseMove(event){
 
 }
 
-function onMouseDown(){
-	mouseHold = true;
-	mouseOpacity = 0;
-	mouseCounter = 0;
-	updatePointerColor(mouseOpacity);
-}
+// function onMouseDown(event e){
+// 	mouseHold = true;
+// 	mouseOpacity = 0;
+// 	mouseCounter = 0;
+// 	updatePointerColor(mouseOpacity);
+
+// 	switch (e.which) {
+//         case 1:
+//             alert('Left Mouse button pressed.');
+//             break;
+//         case 2:
+//             alert('Middle Mouse button pressed.');
+//             break;
+//         case 3:
+//             alert('Right Mouse button pressed.');
+//             break;
+//         default:
+//             alert('You have a strange Mouse!');
+//     }
+// }
 
 function onKeyDown(event) {
 
 
 		// Space Bar
 			if(event.charCode == 32){
+				markPoints();
+			}
 
-				//selectedMesh = new THREE.Geometry();
+				
+
+    
+};
+
+function markPoints(){
+	//selectedMesh = new THREE.Geometry();
 
 				for ( var i = 0; i < particleGeo.vertices.length; i ++ ) {
               
@@ -1098,10 +1155,8 @@ function onKeyDown(event) {
 	              	}
 	              
 	            }
-	        } 
-
-    
-};
+	        
+}
 
 function postToCutOutWorker(){
 	 // Convert Mesh data into ArrayBuffer for Webworker
@@ -1267,6 +1322,9 @@ function update(){
 		
 	}
 
+	if(doMark){
+		markPoints();
+	}
 	
 
 	
