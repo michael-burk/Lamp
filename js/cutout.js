@@ -38,6 +38,9 @@ var centerArray = [];
 var centerMode = false;
 
 var thickness = .3 ;
+var tipThickness = .1;
+var holeFactor = .2;
+
 
 var extrudeFactor = 1.6;
 
@@ -59,6 +62,8 @@ importScripts('Three.js');
 extrudeFactor = e.data[4];
 thickness = e.data[5];
 depth = e.data[6];
+tipThickness = e.data[7];
+holeFactor = e.data[8];
 
 
 //Input Buffer
@@ -118,6 +123,7 @@ function hitTest(){
 	deleteFaces = [];
 	deleteFacesTopIndices = [];
 	closestFaces = [];
+
 
 
 	for ( var i = 0; i <= selectedVertices.length - 3; i += 3 ) {
@@ -243,7 +249,8 @@ function subdivide(){
 
 	// Keep all old vertices
 	idCounter = 0;
-	 for (var m = 0; m <= icoVertices.length - 3; m+=3) {
+	
+	for (var m = 0; m <= icoVertices.length - 3; m+=3) {
 		newVerticesArray.push(icoVertices[m]);
 		newVerticesArray.push(icoVertices[m+1]);
 		newVerticesArray.push(icoVertices[m+2]);
@@ -259,6 +266,7 @@ function subdivide(){
 
 	var origin;
 	var sub;
+
 
 	for (var p = 0; p <= hitFaces.length * 3 - 3; p+=3) {
 
@@ -285,6 +293,48 @@ function subdivide(){
 		centroid2.divideScalar(2);
 
 
+		
+
+		if(centerMode){
+
+			sub = new THREE.Vector3(0,0,0);
+
+			sub.subVectors(centroid0,v2);
+
+			sub.normalize();
+
+			sub.multiplyScalar(holeFactor);
+
+			centroid0.addVectors(centroid0,sub);
+
+
+
+			sub = new THREE.Vector3(0,0,0);
+
+			sub.subVectors(centroid1,v0);
+
+			sub.normalize();
+
+			sub.multiplyScalar(holeFactor);
+
+			centroid1.addVectors(centroid1,sub);
+
+
+			sub = new THREE.Vector3(0,0,0);
+
+			sub.subVectors(centroid2,v1);
+
+			sub.normalize();
+
+			sub.multiplyScalar(holeFactor);
+
+			centroid2.addVectors(centroid2,sub);
+
+		}
+		
+
+
+
 		//var extrude = 3/depthCounter;
 		var extrude = extrudeFactor/ depthCounter;
 
@@ -299,6 +349,9 @@ function subdivide(){
 
 		centroid0.addVectors(centroid0,sub);
 
+
+
+
 		origin = new THREE.Vector3(0,0,0);
 		sub = new THREE.Vector3(0,0,0);
 
@@ -310,6 +363,8 @@ function subdivide(){
 
 		centroid1.addVectors(centroid1,sub);
 
+
+
 		origin = new THREE.Vector3(0,0,0);
 		sub = new THREE.Vector3(0,0,0);
 
@@ -320,6 +375,7 @@ function subdivide(){
 		sub.multiplyScalar(extrude);
 
 		centroid2.addVectors(centroid2,sub);
+
 
 
 		var sub = new THREE.Vector3(0,0,0);
@@ -980,7 +1036,31 @@ function createShell(){
 	// Add translated vertices for shell
 	var origin = new THREE.Vector3(0,0,0);
 	var sub = new THREE.Vector3(0,0,0);
+
+	var vertexCounter = 0;
+
+	console.log(icoFacesCentroids);
+
 	for(var i = 0; i <= newIcoVertices.length -3; i+=3){
+
+		var hitFace = false;
+
+
+		for(var j = 0; j <= centerArray.length -1; j++){
+
+			var centerFaceIndex0 = newIcoFaces[centerArray[j]*3 + 0 ]; 
+			var centerFaceIndex1 = newIcoFaces[centerArray[j]*3 + 1 ]; 
+			var centerFaceIndex2 = newIcoFaces[centerArray[j]*3 + 2 ]; 
+
+			if(vertexCounter == centerFaceIndex0 || vertexCounter == centerFaceIndex1 || vertexCounter == centerFaceIndex2){
+				hitFace = true;
+				var centroid = new THREE.Vector3( icoFacesCentroids[centerArray[j]*3 + 0 ],
+											icoFacesCentroids[centerArray[j]*3 + 1 ],
+											icoFacesCentroids[centerArray[j]*3 + 2 ] );
+			}
+
+		}
+
 		
 		var v1 = new THREE.Vector3(newIcoVertices[i],newIcoVertices[i+1],newIcoVertices[i+2]);
 		
@@ -989,14 +1069,37 @@ function createShell(){
 
 		sub.normalize();
 
-		sub.multiplyScalar(thickness);
+		if(hitFace){
+			
+			
+			var sub2 = new THREE.Vector3(0,0,0);
 
-		v1.addVectors(v1,sub);
+			sub2.subVectors(centroid,v1);
 
+			sub2.normalize();
+
+			sub2.multiplyScalar(tipThickness);
+
+			v1.addVectors(v1,sub2);
+
+
+		} else {
+			sub.multiplyScalar(thickness);
+			v1.addVectors(v1,sub);
+		}
+		
 		shellVertices.push(v1.x);
 		shellVertices.push(v1.y);
-		shellVertices.push(v1.z);	
+		shellVertices.push(v1.z);
+		
+		
+
+		vertexCounter++;
 	}
+
+
+
+
 
 
 	newIcoFaces = new Float32Array(shellFaces.length);

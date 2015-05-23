@@ -164,7 +164,9 @@ var stlNameCounter = 0;
 
 // Settings
 var extrude = 1.6;
-var thickness = .3;
+var thickness = .2;
+var tipThickness = .1;
+var holeFactor = .2;
 var recursions = 4;
 
 var doMark = false;
@@ -807,7 +809,7 @@ function createSphere(){
 
 
 
-	Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(9,2), pinkMat);
+	Ico = new THREE.Mesh(new THREE.IcosahedronGeometry(8,2), pinkMat);
 	Ico.dynamic = true;
 	Ico.doubleSided = true;
 
@@ -1218,7 +1220,7 @@ function postToCutOutWorker(){
 
 
 
-        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroids, icoFaces, extrude, thickness, recursions];
+        		var buffers = [ selecteMeshBuffer, icoVertices, icoFacesCentroids, icoFaces, extrude, thickness, recursions, tipThickness, holeFactor];
 
         		//console.log(buffers);
         		//console.log(selecteMeshBuffer);
