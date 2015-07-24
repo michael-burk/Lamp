@@ -1,6 +1,7 @@
 body{
 	background: repeat;
 	background-image: url(images/bg.png);
+	overflow: hidden;
 
 }
 
@@ -18,6 +19,7 @@ body{
 	height: 24px;
 	border-radius: 4px;
 	background: none repeat scroll 0px 0px rgb(100, 100, 100);
+	display: auto;
 }
 
 
@@ -41,6 +43,7 @@ body{
 	height: 24px;
 	border-radius: 4px;
 	background: none repeat scroll 0px 0px rgb(100, 100, 100);
+	display: auto;
 }
 
 #switch:hover {
@@ -62,6 +65,7 @@ body{
 	height: 24px;
 	border-radius: 4px;
 	background: none repeat scroll 0px 0px rgb(100, 100, 100);
+	display: auto;
 }
 
 #optimize:hover {
@@ -84,6 +88,7 @@ body{
 	width: 150px; 
 	height: 67px; 
 	z-index: 100;
+	display: auto;
 }
 
 #drop_zone:hover{
@@ -94,9 +99,126 @@ body{
 #overlay{
 	background: rgb(255, 255, 255) none repeat scroll 0 0;
     height: 100%;
-    opacity: 0.7;
+    opacity: 0.8;
     position: absolute;
     width: 100%;
     z-index: 1000;
     margin: -8px;
+}
+
+#info{
+ 	background: rgb(255, 255, 255) none repeat scroll 0 0;
+    font-family: helvetica;
+    height: 80%;
+    left: 8%;
+    max-height: 1000px;
+    max-width: 1000px;
+    overflow-y: hidden;
+    padding: 2%;
+    position: absolute;
+    text-align: center;
+    top: 50px;
+    width: 80%;
+    z-index: 1000;
+    -webkit-overflow-scrolling: touch;
+
+}
+
+#scroller{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#info_content{
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding-right: 14px; /* Increase this value for cross-browser compatibility */
+    margin-left: 7px;
+}
+
+#text_content{
+	-webkit-column-count: 2; /* Chrome, Safari, Opera */
+    -moz-column-count: 2; /* Firefox */
+    column-count: 2;
+    text-align: left;
+    line-height: 1.33;
+}
+
+.embed-container { 
+	position: relative;
+	padding-bottom: 56.25%;
+	height: 0;
+	overflow: hidden;
+	max-width: 100%;
+	margin-bottom: 50px;
+}
+
+.embed-container iframe, .embed-container object, .embed-container embed {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#headline{
+	font-style: normal;
+	font-size: 16pt;
+	padding: 20px;
+}
+
+#holder{
+
+	padding: 5%;
+}
+
+@media only screen and
+(min-device-width:320px) and
+(max-device-width:800px){
+
+	#text_content{
+	-webkit-column-count: 1; /* Chrome, Safari, Opera */
+    -moz-column-count: 1; /* Firefox */
+    column-count: 1;
+    text-align: left;
+    line-height: 1.33;
+	}
+
+	#info_content{
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding-right: 14px; /* Increase this value for cross-browser compatibility */
+    /*margin-left: 7px;*/
+	}
+
+	#info{
+ 	background: rgb(255, 255, 255) none repeat scroll 0 0;
+    font-family: helvetica;
+    height: 80%;
+    left: 5%;
+    max-height: 1000px;
+    max-width: 1000px;
+    overflow-y: hidden;
+    padding: 5%;
+    position: absolute;
+    text-align: center;
+    top: 50px;
+    width: 80%;
+    z-index: 1000;
+    -webkit-overflow-scrolling: touch;
+	}
+
+	#overlay{
+	background: rgb(255, 255, 255) none repeat scroll 0 0;
+    height: 100%;
+    opacity: 0.6;
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+    margin: -8px;
+	}
+
 }
