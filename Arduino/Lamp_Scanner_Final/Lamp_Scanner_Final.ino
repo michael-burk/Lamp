@@ -69,7 +69,12 @@ void setup() {
 
   Dynamixel.begin(1000000,2);  // Inicialize the servo at 1Mbps and Pin Control 2
 
-    // set pin modes
+
+      
+      
+      
+      
+  // set pin modes
   pinMode(RPLIDAR_MOTOR, OUTPUT);
   memset(distances,0,res);
   memset(angles,0,res);
@@ -79,7 +84,7 @@ void setup() {
 
   // Reset  Motor
   int currentPos = Dynamixel.readPosition(1);
-  // Serial.print(currentPos);
+   Serial.print(currentPos);
 
   //  int posDifference = currentPos -   map(motorAngleStart, 0, 180, 212, 812);
   int posDifference = currentPos - motorAngleStart;
@@ -138,12 +143,15 @@ void setup() {
   }
 
   // ---------------------------------------------------
+    
+    
 }
 
 
 
 void loop() {
-
+  
+  
   if(motorAngle > motorAngleEnd){
 
     Serial.println("THE END");
@@ -278,9 +286,6 @@ void loop() {
 
       }
 
-
-
-
       slotCounter = 0;
 
     }
@@ -298,6 +303,9 @@ void loop() {
       lidar.startScan();
       analogWrite(RPLIDAR_MOTOR, 100);
       delay(1000);
+    } else {
+       Serial.println("LIDAR not detected");
+        lidar.startScan();
     }
   }
 }

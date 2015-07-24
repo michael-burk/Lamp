@@ -1,3 +1,9 @@
+body{
+	background: repeat;
+	background-image: url(images/bg.png);
+
+}
+
 #create {
 	font-family: helvetica;
 	position: absolute;
@@ -83,4 +89,14 @@
 #drop_zone:hover{
 	background: rgb(200,200,200);
 	cursor: n-resize;
+}
+
+#overlay{
+	background: rgb(255, 255, 255) none repeat scroll 0 0;
+    height: 100%;
+    opacity: 0.7;
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+    margin: -8px;
 }
