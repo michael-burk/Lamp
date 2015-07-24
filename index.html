@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<title>Lamp</title>
+	<title>Highlight</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -40,6 +40,8 @@
 
 </div>
 
+<div id ="info_ghost">
+</div>
 <div id ="info">
 		<div id ="scroller">
 			<div id ="info_content">
@@ -75,6 +77,9 @@
 
 					</div>
 			</div>
+	</div>
+	<div id="active_button">
+
 	</div>
 </div>
 
@@ -245,6 +250,8 @@ if(!isMobile){
 
 } else {
 
+		$("#active_button").hide();
+		$("#active_button").css("pointer-events: none");
 	    $("#optimize").css("display","none");
 		$("#create").css("display","none");
 		$("#switch").css("display","none");
@@ -455,12 +462,39 @@ function init(){
     		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
   			startWebworker();
 		});
+
 		$("#create").click(function() {
   			startCutOutWebworker();
 		});
+
 		$("#switch").click(function() {
   			switchModel();
 		});
+
+
+		$("#active_button").click(function() {
+			$("#info").addClass("transitionLeft");
+
+			if(infoActive){
+				var windowWith = $("#overlay").width();
+				$("#info").css("left",""+  -$("#info_ghost").width()*2-$("#info_ghost").offset().left*2-60 +"px");
+				$("#overlay").css("opacity","0");
+				$("#overlay").css("pointer-events", "none");
+
+				infoActiveCounter = 0;
+				infoActive = false;
+			} else {
+
+				$("#info").css("left","0px");
+				$("#overlay").css("opacity",".8");
+				$("#overlay").css("pointer-events", "auto");
+
+		
+				infoActive = true;
+			}
+	    	
+		});
+
   	});
 
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -1438,6 +1472,13 @@ function render()
 }
 function onWindowResize() {
 
+	if(!infoActive){
+		
+		$("#info").removeClass("transitionLeft");
+		$("#info").css("left",""+  -$("#info_ghost").width()*2 -$("#info_ghost").offset().left*2-60 +"px");
+
+	}
+	
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 
