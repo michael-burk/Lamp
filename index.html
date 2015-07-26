@@ -5,6 +5,8 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<link href='http://fonts.googleapis.com/css?family=Lato:400,100,100italic' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300' rel='stylesheet' type='text/css'>
 </head>
 <body style="overflow:hidden;">
 
@@ -47,60 +49,59 @@
 			<div id ="info_content">
 
 				<div id="headline">
-					HIGHLIGHT
+					Rethinking Prototyping - Highlight
 				</div>
 			
 				<div class='embed-container'><iframe src='https://player.vimeo.com/video/127637897' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></div>
 			
 				<div id="text_content">
-					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
+					Every space we inhabit is different: not only its’ architecture, but also the way we arrange it according to our needs. When it comes to light, one might want to have a spotlight at the couch table, illuminate a piece of art on the wall, or highlight a specific feature in the architecture of the room. With this in mind, we developed Highlight, a digital fabrication service which creates custom-designed lampshades, allowing users to direct the light to where they deem it best needed.<br>
+					The era of digital fabrication brought new customization possibilities. Using algorithms, designers are able to generate products according to specific needs of users. In this line, designing objects which respond to every interior seems like an obvious step. However, this process has always remained challenging, as it requires designing new tools and systems as well as blending the physical with the digital. With this project, we address this challenge and show that with the help of technology, the designer’s aesthetic can be adapted to user’s personal needs.<br><br> 
+					The system consists of three core components: a custom built 3D scanner, a web based generative software system and a 3D printing service.<br><br>
+					First, the user receives a 3D scanner, which can be screwed directly into the existing lamp socket of the room and operated through the light switch. After the room is scanned, the users can see a 3D representation of the room in a web-based application. In this way, he or she can decide to which areas the light should be directed.  From these data, the shape is automatically generated and ready to be printed. Once installed in the room, the lampshade creates a special atmosphere, combining both diffused and direct lighting into one single object.<br>
+					Highlight takes advantage not only of the aesthetical and functional possibilities of digital fabrication, but also presents a new paradigm as a service, bringing together the uniqueness of an atelier solution with the advantages of a mass-production process. For example, since a 3d scanner is an expensive piece of hardware, it is provided to the users in a short time loan.<br>
+					Another big advantage of this service, is the fact that a 3d preview of the lamp is generated in real time. The chance to see the lamp in the real context, gives a better understanding of how the product will work than when buying it in a shop. This last point is even more important when buying 3D printable products. In this case, one cannot even see the real object, but only a model, loosing the sense of proportion and scale. Hence, by connecting the model with the space for which it is designed, the product becomes more "tangible." <br> In order to scan the room in 3d from the location of a lamp socket, we developed a custom piece of hardware. Combining Robopeak's "RPLIDAR 360 Degree Laser Scanner" with a "Dynamixel Robot Servo", it is possible to do a volumetric scan of the room. A specially designed power converter provides power supply directly from the lamp socket, enabling a cable free installation of the scanner. The Hardware is controlled by an Arduino based system with a custom software, that saves the data on an SD card for easy handling. The user can upload the data to a custom website, which converts the data into a point cloud. This serves as the basis of the user interaction - navigating a virtual representation of the room and selecting areas, that should be illuminated. The software runs on the client side and is a custom solution built with THREE.js / WebGL / HTML5. This cross platform application generates the geometry of the lamp, that can be viewed in real time and is exportable for 3D printing as an STL file.<br> The intuitive browser interface is designed to allow creativity and freedom to the users. By using a “painting tool” as an interaction affordance, users can easily focus on the desired effect. The visual quality of the 3D point cloud gives an implicit freedom to highlight the features of the space, and at the same time, provides an easy-to-operate digital environment. The scanning of the room and its visualization in 3D, serves the users as a design tool they had no access before. This gives them the chance to use their creativity and presents them with the opportunity to perceive their domestic spaces in a refreshing way.<br> From the user experience, the object has a strong narrative and performative aspect. By the process of “making”, this object becomes meaningful and personal. As a result from this, every lamp is strongly connected to the person who created it and the space where it lives in. The product is not a single object anymore, but goes beyond, including the whole process, from planning to realization.<br>In summary, the research project explores the possibilities of designing in the existing space in a tightly coupled way, where the designer’s aesthetics and the users’ needs are brought together with the help of custom hardware and software. The resulting striking and functional digitally fabricated artefact fits seamlessly in its context. The first iteration of the idea is a lampshade generator, but the concept easily translates to various other aspects of spatial design: from furniture to space dividers, wall surface materials, acoustic elements and beyond.
 
-					Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
+					</div>
 
-					Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-					Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.   
-
-					Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
-
-					At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
-
-					Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
-
-					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-					Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-					Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-					Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
-
+					<div id="text_info">
+						2015<br>
+						THE BERLIN UNIVERSITY OF THE ARTS<br>
+						HIGHLIGHT TEAM:<br>
+						PROF. JUSSI ÄNGESLEVÄ<br>
+						MICHAEL BURK<br>
+						IOHANNA NICENBOIM<br><br>
+						THE WORK HAS BEEN DONE AS A PART OF "RETHINKING PROTOTYPING" RESEARCH PROJECT, SUPPORTED BY<br> EINSTEIN STIFTUNG THROUGH HYBRID PLATTFORM.
 					</div>
 			</div>
 	</div>
-	<div id="active_button">
-
+	<div id="active_button" >
+		<div id="active_button_pen" title="Try it out"></div>
+		<div id="active_button_info" title="Info"></div>
+	</div>
+	<div id="bottom_creeper" class="hideable">
+		Try it out!
 	</div>
 </div>
 
 
 
-<span title="drag&drop data from scanner here"><div id="drop_zone" >Drop files here</div></span>
+<span title="drag&drop data from scanner here"><div id="drop_zone" class="hideable">Drop files here</div></span>
 
 <span title="optimize scan data">
-	<div id="optimize" >
+	<div id="optimize" class="hideable">
 		Optimize
 	</div>
 </span>
 
 <span title="generate 3D printable geometry">
-	<div id="create" >
+	<div id="create" class="hideable">
 		Create Lamp
 	</div>
 </span>
 
 <span title="switch example scan">
-	<div id="switch" >
+	<div id="switch" class="hideable">
 		Switch Room
 	</div>
 </span>
@@ -457,6 +458,31 @@ function init(){
 		            break;
 		    }
 		});
+
+		var out = false;
+
+		if(!isMobile){
+			$("#info_content").scroll(function(){
+
+
+				if($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+           				$("#bottom_creeper").css("opacity","1");
+           				out = false;
+       			}
+
+       			if($(this).scrollTop() + $(this).innerHeight() <= this.scrollHeight-100 && !out) {
+           				out = true;
+           				$("#bottom_creeper").css("opacity","0");
+           				 
+       			}
+				
+			});
+			// document.getElementById('scroller').onscroll = function(){
+			// 	console.log("scroll");
+			// };
+		}
+		
+
     	
     	$("#optimize").click(function() {
     		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
@@ -483,11 +509,26 @@ function init(){
 
 				infoActiveCounter = 0;
 				infoActive = false;
+
+				$("#active_button_info").css("opacity",".6");
+				$("#active_button_info").css("pointer-events","auto");
+				$("#active_button_pen").css("pointer-events","none");
+				$("#active_button_pen").css("opacity","0");
+				
+				$( ".hideable").css("opacity",".9");
+
 			} else {
 
 				$("#info").css("left","0px");
 				$("#overlay").css("opacity",".8");
 				$("#overlay").css("pointer-events", "auto");
+
+				$("#active_button_info").css("opacity","0");
+				$("#active_button_info").css("pointer-events","none");
+				$("#active_button_pen").css("opacity",".6");
+				$("#active_button_pen").css("pointer-events","auto");
+
+				$( ".hideable").css("opacity","0");
 
 		
 				infoActive = true;
