@@ -35,9 +35,6 @@
 
 
 
-
-
-
 <div id = "overlay">
 
 </div>
@@ -51,8 +48,43 @@
 				<div id="headline">
 					Rethinking Prototyping - Highlight
 				</div>
-			
-				<div class='embed-container'><iframe src='https://player.vimeo.com/video/127637897' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></div>
+				<div id="slideshow">
+					<div id="slideHolder">
+						<div class="slide">
+							<div class='embed-container'><iframe src='https://player.vimeo.com/video/122291252' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></div>
+						</div>
+						<div class="slide">
+							<img src="images/lamp/Highlight-1.jpg">
+							</img>
+						</div>
+						<div class="slide">
+							<img src="images/lamp/Highlight-2.jpg">
+							</img>
+						</div>
+						<div class="slide">
+							<img src="images/lamp/Highlight-3.jpg">
+							</img>
+						</div>
+						<div class="slide">
+							<img src="images/lamp/Highlight-4.jpg">
+							</img>
+						</div>
+						<div class="slide">
+							<img src="images/lamp/Highlight-5.jpg">
+							</img>
+						</div>	
+						<div class="slide">
+							<img src="images/lamp/Highlight-6.jpg">
+							</img>
+						</div>			
+					</div>
+					<div id="left">
+						>
+					</div>
+					<div id="right">
+						<
+					</div>
+				</div>
 			
 				<div id="text_content">
 					Every space we inhabit is different: not only its’ architecture, but also the way we arrange it according to our needs. When it comes to light, one might want to have a spotlight at the couch table, illuminate a piece of art on the wall, or highlight a specific feature in the architecture of the room. With this in mind, we developed Highlight, a digital fabrication service which creates custom-designed lampshades, allowing users to direct the light to where they deem it best needed.<br>
@@ -152,11 +184,220 @@ void main()
 <script src="js/info.js"></script> -->
 
 
+<script type="text/javascript">
+	var hasTouch = "ontouchstart" in window;
 
+
+	$( document ).ready(function(){
+
+
+    	$(window).keypress(onKeyDown);
+    	$(window).mousemove(onMouseMove);
+    	//$(window).mousedown(function(event){mousedown()});
+   
+    	$(window).mousedown(function(event) {
+		    switch (event.which) {
+		        case 1:
+		            
+				    mouseHold = true;
+					mouseOpacity = 0;
+					mouseCounter = 0;
+				 	updatePointerColor(mouseOpacity);
+		            break;
+
+		        case 3:
+		        	
+		        		doMark = true;
+		        	
+
+		            break;
+		    }
+		});
+
+		$(window).mouseup(function(event) {
+		    switch (event.which) {
+
+		        case 3:
+
+		        	
+		        		doMark = false;
+		      
+		            break;
+		    }
+		});
+
+		var out = false;
+
+		if(!isMobile){
+			$("#info_content").scroll(function(){
+
+
+				if($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+           				$("#bottom_creeper").css("opacity","1");
+           				out = false;
+       			}
+
+       			if($(this).scrollTop() + $(this).innerHeight() <= this.scrollHeight-100 && !out) {
+           				out = true;
+           				$("#bottom_creeper").css("opacity","0");
+       			}
+				
+			});
+		}
+		
+		
+		MOVE = hasTouch ? "touchstart" : "mousedown";
+
+		document.getElementById('left').addEventListener(MOVE,function(e){
+			$("#slideHolder").css("-webkit-transition","left .5s");
+			$("#slideHolder").css("-moz-transition","left .5s");
+			$("#slideHolder").css("-o-transition","left .5s");
+			$("#slideHolder").css("transition","left .5s");
+
+
+			if(slideshowPosition > 4){
+
+				$("#left").css("opacity",".3");
+				return;
+			}
+
+			if(slideshowPosition > 5){
+
+				return;
+			}
+
+			$("#right").css("opacity","1");
+
+			 // alert("right");
+			slideshowPosition++;
+			// $("#slideHolder").css("left","" + (parseInt($("#slideHolder").css("left").replace(/[^-\d\.]/g, '')) - $(".slide").width() - 8) + "px");
+			$("#slideHolder").css("left","" + (-$(".slide").width()*slideshowPosition - 8*slideshowPosition) + "px");
+		});
+
+
+		document.getElementById('overlay').addEventListener(MOVE,function(e){
+			e.preventDefault();
+		});
+
+
+		var $border = $('.info > div');
+
+			$border.on("touchstart", function(event){
+		    event.preventDefault();
+		});
+
+
+		// $("#right").on('touchstart',function(){
+		// 	$("#slideHolder").css("-webkit-transition","left .5s");
+		// 	$("#slideHolder").css("-moz-transition","left .5s");
+		// 	$("#slideHolder").css("-o-transition","left .5s");
+		// 	$("#slideHolder").css("transition","left .5s");
+
+		// 	if(slideshowPosition < 2){
+
+		// 		$("#right").css("opacity",".3");
+		// 	}
+
+		// 	if(slideshowPosition < 1){
+
+		// 		return;
+		// 	}
+
+		// 	$("#left").css("opacity","1");
+
+		// 	slideshowPosition--;
+		// 	// alert("left");
+		// 	// $("#slideHolder").css("left","" + +(parseInt($("#slideHolder").css("left").replace(/[^-\d\.]/g, '')) + $(".slide").width() + 8) + "px");
+		// 	$("#slideHolder").css("left","" + (-$(".slide").width()*slideshowPosition - 8*slideshowPosition) + "px");
+		// });
+
+		document.getElementById('right').addEventListener(MOVE,function(e){
+			$("#slideHolder").css("-webkit-transition","left .5s");
+			$("#slideHolder").css("-moz-transition","left .5s");
+			$("#slideHolder").css("-o-transition","left .5s");
+			$("#slideHolder").css("transition","left .5s");
+
+			if(slideshowPosition < 2){
+
+				$("#right").css("opacity",".3");
+			}
+
+			if(slideshowPosition < 1){
+
+				return;
+			}
+
+			$("#left").css("opacity","1");
+
+			slideshowPosition--;
+			// alert("left");
+			// $("#slideHolder").css("left","" + +(parseInt($("#slideHolder").css("left").replace(/[^-\d\.]/g, '')) + $(".slide").width() + 8) + "px");
+			$("#slideHolder").css("left","" + (-$(".slide").width()*slideshowPosition - 8*slideshowPosition) + "px");	
+		});
+
+    	
+    	$("#optimize").click(function() {
+    		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
+  			startWebworker();
+		});
+
+		$("#create").click(function() {
+  			startCutOutWebworker();
+		});
+
+		$("#switch").click(function() {
+  			switchModel();
+		});
+
+
+		$("#active_button").click(function() {
+			$("#info").addClass("transitionLeft");
+
+			if(infoActive){
+				var windowWith = $("#overlay").width();
+				$("#info").css("left",""+  -$("#info_ghost").width()*2-$("#info_ghost").offset().left*2-60 +"px");
+				$("#overlay").css("opacity","0");
+				$("#overlay").css("pointer-events", "none");
+
+				infoActiveCounter = 0;
+				infoActive = false;
+
+				$("#active_button_info").css("opacity",".6");
+				$("#active_button_info").css("pointer-events","auto");
+				$("#active_button_pen").css("pointer-events","none");
+				$("#active_button_pen").css("opacity","0");
+				
+				$( ".hideable").css("opacity",".9");
+
+			} else {
+
+				$("#info").css("left","0px");
+				$("#overlay").css("opacity",".8");
+				$("#overlay").css("pointer-events", "auto");
+
+				$("#active_button_info").css("opacity","0");
+				$("#active_button_info").css("pointer-events","none");
+				$("#active_button_pen").css("opacity",".6");
+				$("#active_button_pen").css("pointer-events","auto");
+
+				$( ".hideable").css("opacity","0");
+
+		
+				infoActive = true;
+			}
+	    	
+		});
+		
+		window.addEventListener( 'resize', onWindowResize, false );
+  	});
+</script>
 
 
 
 <script>
+
+var slideshowPosition = 0;
+
 
 // MAIN
 
@@ -339,9 +580,9 @@ function init(){
 	
   function handleDragOver(evt) {
 
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    // evt.stopPropagation();
+    // evt.preventDefault();
+    // evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 
   }
 
@@ -400,6 +641,8 @@ function init(){
   dropZone.addEventListener('drop', handleFileSelect, false);
 
 	// SCENE
+
+
 	scene = new THREE.Scene();
 	
 	projector = new THREE.Projector();
@@ -423,122 +666,8 @@ function init(){
 	// EVENTS
 	THREEx.WindowResize(renderer, camera);
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	$( document ).ready(function(){
-    	$(window).keypress(onKeyDown);
-    	$(window).mousemove(onMouseMove);
-    	//$(window).mousedown(function(event){mousedown()});
-   
-    	$(window).mousedown(function(event) {
-		    switch (event.which) {
-		        case 1:
-		            
-				    mouseHold = true;
-					mouseOpacity = 0;
-					mouseCounter = 0;
-				 	updatePointerColor(mouseOpacity);
-		            break;
+	
 
-		        case 3:
-		        	
-		        		doMark = true;
-		        	
-
-		            break;
-		    }
-		});
-
-		$(window).mouseup(function(event) {
-		    switch (event.which) {
-
-		        case 3:
-
-		        	
-		        		doMark = false;
-		      
-		            break;
-		    }
-		});
-
-		var out = false;
-
-		if(!isMobile){
-			$("#info_content").scroll(function(){
-
-
-				if($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
-           				$("#bottom_creeper").css("opacity","1");
-           				out = false;
-       			}
-
-       			if($(this).scrollTop() + $(this).innerHeight() <= this.scrollHeight-100 && !out) {
-           				out = true;
-           				$("#bottom_creeper").css("opacity","0");
-           				 
-       			}
-				
-			});
-			// document.getElementById('scroller').onscroll = function(){
-			// 	console.log("scroll");
-			// };
-		}
-		
-
-    	
-    	$("#optimize").click(function() {
-    		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
-  			startWebworker();
-		});
-
-		$("#create").click(function() {
-  			startCutOutWebworker();
-		});
-
-		$("#switch").click(function() {
-  			switchModel();
-		});
-
-
-		$("#active_button").click(function() {
-			$("#info").addClass("transitionLeft");
-
-			if(infoActive){
-				var windowWith = $("#overlay").width();
-				$("#info").css("left",""+  -$("#info_ghost").width()*2-$("#info_ghost").offset().left*2-60 +"px");
-				$("#overlay").css("opacity","0");
-				$("#overlay").css("pointer-events", "none");
-
-				infoActiveCounter = 0;
-				infoActive = false;
-
-				$("#active_button_info").css("opacity",".6");
-				$("#active_button_info").css("pointer-events","auto");
-				$("#active_button_pen").css("pointer-events","none");
-				$("#active_button_pen").css("opacity","0");
-				
-				$( ".hideable").css("opacity",".9");
-
-			} else {
-
-				$("#info").css("left","0px");
-				$("#overlay").css("opacity",".8");
-				$("#overlay").css("pointer-events", "auto");
-
-				$("#active_button_info").css("opacity","0");
-				$("#active_button_info").css("pointer-events","none");
-				$("#active_button_pen").css("opacity",".6");
-				$("#active_button_pen").css("pointer-events","auto");
-
-				$( ".hideable").css("opacity","0");
-
-		
-				infoActive = true;
-			}
-	    	
-		});
-
-  	});
-
-	window.addEventListener( 'resize', onWindowResize, false );
 
 	
 	// CONTROLS
@@ -1504,7 +1633,7 @@ function update(){
     //checkCamera();
 	//var t = clock.getElapsedTime();
 	//customUniforms.time.value = 0.1;
-}
+}left
 
 function render() 
 {
@@ -1513,12 +1642,18 @@ function render()
 }
 function onWindowResize() {
 
+	$("#slideHolder").css("-webkit-transition","left .0s");
+	$("#slideHolder").css("-moz-transition","left .0s");
+	$("#slideHolder").css("-o-transition","left .0s");
+	$("#slideHolder").css("transition","left .0s");
+
 	if(!infoActive){
 		
 		$("#info").removeClass("transitionLeft");
 		$("#info").css("left",""+  -$("#info_ghost").width()*2 -$("#info_ghost").offset().left*2-60 +"px");
 
 	}
+	$("#slideHolder").css("left","" + (-$(".slide").width()*slideshowPosition - 8*slideshowPosition) + "px");
 	
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
