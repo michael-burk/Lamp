@@ -51,7 +51,7 @@
 				<div id="slideshow">
 					<div id="slideHolder">
 						<div class="slide">
-							<div class='embed-container'><iframe src='https://player.vimeo.com/video/122291252' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></div>
+							<div class='embed-container'><iframe src='https://player.vimeo.com/video/136824314?title=0&byline=0&portrait=0' frameborder='0'webkitAllowFullScreen mozallowfullscreen allowFullScreen ></iframe></div>
 						</div>
 						<div class="slide">
 							<img src="images/lamp/Highlight-1.jpg">
@@ -96,6 +96,9 @@
 
 					</div>
 
+					<img id="diagram" src="images/Diagram.jpg">
+					</img>
+
 					<div id="text_info">
 						2015<br>
 						THE BERLIN UNIVERSITY OF THE ARTS<br>
@@ -105,6 +108,8 @@
 						IOHANNA NICENBOIM<br><br>
 						THE WORK HAS BEEN DONE AS A PART OF "RETHINKING PROTOTYPING" RESEARCH PROJECT, SUPPORTED BY<br> EINSTEIN STIFTUNG THROUGH HYBRID PLATTFORM.
 					</div>
+
+					
 			</div>
 	</div>
 	<div id="active_button" >
@@ -120,11 +125,11 @@
 
 <span title="drag&drop data from scanner here"><div id="drop_zone" class="hideable">Drop files here</div></span>
 
-<span title="optimize scan data">
+<!-- <span title="optimize scan data">
 	<div id="optimize" class="hideable">
 		Optimize
 	</div>
-</span>
+</span> -->
 
 <span title="generate 3D printable geometry">
 	<div id="create" class="hideable">
@@ -258,7 +263,6 @@ void main()
 			if(slideshowPosition > 4){
 
 				$("#left").css("opacity",".3");
-				return;
 			}
 
 			if(slideshowPosition > 5){
@@ -338,7 +342,7 @@ void main()
     	
     	$("#optimize").click(function() {
     		alert("The data is getting cleaned. This may take several minutes - up to hours. After the process is finished, a clean .stl file will be available for downloading.");
-  			startWebworker();
+  			optimize();
 		});
 
 		$("#create").click(function() {
@@ -466,7 +470,7 @@ var stlNameCounter = 0;
 var extrude = 1.2;
 // 1.6;
 var thickness = .3;
-var tipThickness = .1;
+var tipThickness = .15;
 var holeFactor = .25;
 var recursions = 4;
 
@@ -526,7 +530,7 @@ Object.size = function(obj) {
 var worker;
 var cutoutWorker;
 
-function startWebworker(){
+function optimize(){
 	 worker = new Worker('js/cleanMesh.js');
 
 	worker.addEventListener('message', function(e) {
@@ -580,9 +584,9 @@ function init(){
 	
   function handleDragOver(evt) {
 
-    // evt.stopPropagation();
-    // evt.preventDefault();
-    // evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+     evt.stopPropagation();
+     evt.preventDefault();
+     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 
   }
 
@@ -597,7 +601,7 @@ function init(){
 	}
   	
 
-  	//startWebworker();
+  	//optimize();
 
     evt.stopPropagation();
     evt.preventDefault();
@@ -759,7 +763,7 @@ function init(){
  //            dataType: "text",
  //            success : function (data) {
  //            	logText = data;
- //            	//startWebworker();
+ //            	//optimize();
  //            	loadTXT();
  //            }
  //    });
@@ -1004,7 +1008,7 @@ function loadTXT(){
 		//Translate Point
 		 x -=  3 * Math.cos(angle) * (finalPoints[vertexCounter].x * .003); 
 		 y -=  3 * Math.sin(angle) * (finalPoints[vertexCounter].x * .003);
-		 z -= 0;
+		 z -=  0;
 		
 		// Rotate Point around Z Axis
 		x1 = x * Math.cos(angle) - y * Math.sin(angle);
@@ -1027,7 +1031,7 @@ function loadTXT(){
 		}
         
     positions[ i ]     = y1 * -.1;
-	positions[ i + 1 ] = (x1 * -.1) - 10;
+	positions[ i + 1 ] = (x1 * .1) - 10;
 	positions[ i + 2 ] = z1 * .1;
 		
 	colors[ i ]     = newColor.r;

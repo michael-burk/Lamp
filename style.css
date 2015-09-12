@@ -5,14 +5,33 @@ body{
 
 }
 
+#diagram{
+    max-width: 100%;
+    margin-top: 20px;
+}
+
 #create {
-	font-family: helvetica;
+/*	font-family: helvetica;
 	position: absolute;
 	text-align: center;
 	color: white;
 	width: 150px;
 	z-index: 100;
 	top: 50px;
+	left: 170px;
+	padding-top: 10px;
+	height: 24px;
+	border-radius: 4px;
+	background: none repeat scroll 0px 0px rgb(100, 100, 100);
+	display: auto;*/
+
+	font-family: helvetica;
+	position: absolute;
+	text-align: center;
+	color: white;
+	width: 150px;
+	z-index: 100;
+	top: 5px;
 	left: 170px;
 	padding-top: 10px;
 	height: 24px;
@@ -379,6 +398,7 @@ max-height: 562.5px;*/
 
 
 #left{
+	font-family: 'Roboto Slab', serif;
 	width: 50px;
 	height: 50px;
 	position: absolute;
@@ -404,6 +424,7 @@ max-height: 562.5px;*/
 }
 
 #right{
+	font-family: 'Roboto Slab', serif;
 	width: 50px;
 	height: 50px;
 	position: absolute;

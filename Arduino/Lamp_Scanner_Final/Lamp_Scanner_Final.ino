@@ -156,7 +156,6 @@ void loop() {
 
     Serial.println("THE END");
     analogWrite(RPLIDAR_MOTOR, 0);
-    //  dataFile.close();
     return;
   }
 
@@ -215,7 +214,6 @@ void loop() {
 
         slotCounterRepeat = 0;    
 
-      //  Serial.println(motorAngle);
         Dynamixel.move(1,motorAngle);        
 
         dataFile = SD.open("logfile.txt", O_CREAT | O_APPEND | O_WRITE);
@@ -226,26 +224,10 @@ void loop() {
         Serial.println("");
 
         if(motorAngle == motorAngleStart){
-         // dataFile.print("{ \"points\":{");
          dataFile.print("A");
         }
 
         for(int i = 0; i< res; i++){
-
-
-         // dataFile.print("\"");
-         // var = i + motorCounter * res;
-//          dataFile.print(var);
-//          dataFile.print("\": {\"");
-//          dataFile.print("x\": \"");
-//          dataFile.print(distances[i]);
-//          dataFile.print("\", \"");
-//          dataFile.print("y\": \"");
-//          dataFile.print(angles[i]);
-//          dataFile.print("\", \"");
-//          dataFile.print("z\": \"");
-//          dataFile.print(motorAngle);
-//          dataFile.print("\"");
 
             dataFile.print("P");
             dataFile.print("x");
@@ -260,39 +242,22 @@ void loop() {
             dataFile.print("P");
 
 
-          if(i < res-1){
-        //    dataFile.print("}, "); 
-          }
-
-          distances[i] = 0.0;
+            distances[i] = 0.0;
 
         }
 
         if(motorAngle >= motorAngleEnd){
           dataFile.print("O");
-          //dataFile.print("}}}");
-        }
-        else{
-         // dataFile.print("}, ");
         }
 
-
-      //  motorCounter++;
         motorAngle += 1; 
-
-
-
         dataFile.close();
 
       }
-
+  }
       slotCounter = 0;
 
-    }
-
-
-  } 
-  else {
+  } else {
     analogWrite(RPLIDAR_MOTOR, 0); //stop the rplidar motor
 
     // try to detect RPLIDAR... 
@@ -308,6 +273,7 @@ void loop() {
         lidar.startScan();
     }
   }
+  
 }
 
 
