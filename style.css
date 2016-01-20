@@ -231,6 +231,13 @@ body{
     float: left;
 }
 
+#text_info a{
+	color: black !important;
+	font-size: 10pt;
+	text-decoration: underline;
+	font-weight: bold;
+}
+
 
 #text_content::first-letter{
 	float: left;
